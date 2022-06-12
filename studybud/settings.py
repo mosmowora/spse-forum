@@ -26,7 +26,7 @@ STATIC_ROOT=os.path.join(BASE_DIR, 'static')
 SECRET_KEY = 'django-insecure-3#av2c6nptlbbb6^muqkchu&fe3wv&n$t2+g$v!ir-f5%doocb'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 # hope this helps
 ALLOWED_HOSTS = ['127.0.0.1', 'aeternix-forum.herokuapp.com']

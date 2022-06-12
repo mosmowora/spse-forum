@@ -31,9 +31,6 @@ DEBUG = True
 # hope this helps
 ALLOWED_HOSTS = ['127.0.0.1', 'aeternix-forum.herokuapp.com']
 
-# STATICFILES_DIRS = [
-#     BASE_DIR / "static",
-# ]
 
 
 # Application definition

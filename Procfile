@@ -1,1 +1,1 @@
-web: gunicorn studybud.wsgi
+web: newrelic-admin run-program gunicorn studybud.wsgi

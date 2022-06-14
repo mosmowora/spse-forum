@@ -29,8 +29,9 @@ SECRET_KEY = 'django-insecure-3#av2c6nptlbbb6^muqkchu&fe3wv&n$t2+g$v!ir-f5%doocb
 DEBUG = True
 
 # hope this helps
-ALLOWED_HOSTS = ['127.0.0.1', 'aeternix-forum.herokuapp.com']
+# ALLOWED_HOSTS = ['127.0.0.1', 'localhost:8000', 'aeternix-forum.herokuapp.com']
 
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition

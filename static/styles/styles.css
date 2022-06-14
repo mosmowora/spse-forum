@@ -1,14 +1,14 @@
 @import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap");
 
 :root {
-  --color-main: #69a420;
-  --color-main-light: #a486b9;
-  --color-dark: #443f56;
-  --color-dark-medium: #51546e;
-  --color-dark-light: #698f97;
+  --color-main: #7689de;
+  --color-main-light: #9ba7de;
+  --color-dark: #31395d;
+  --color-dark-medium: #6574b6;
+  --color-dark-light: #6495a7;
   --color-light: #e5e5e5;
   --color-gray: #8b8b8b;
-  --color-light-gray: #b2bdbd;
+  --color-light-gray: #a9dce3;
   --color-bg: #2d2d39;
   --color-success: #5dd693;
   --color-error: #fc4b0b;
@@ -315,6 +315,10 @@ a {
   border: none;
   outline: none;
   color: var(--color-light);
+}
+
+.header__search input::placeholder {
+  color: #b3b3b3
 }
 
 @media screen and (max-width: 800px) {

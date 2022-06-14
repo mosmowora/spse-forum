@@ -176,6 +176,12 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CORS_ALLOW_ALL_ORIGINS = True
 
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': "hcwyrgltb", 
+    'API_KEY': "212948331637495", 
+    'API_SECRET': "amlbYDjGePvKQrIMNluaHIMvJ4E"
+}
+
 cloudinary.config ( 
   cloud_name = "hcwyrgltb", 
   api_key = "212948331637495", 

@@ -1,0 +1,22 @@
+{% extends 'main.html' %}
+
+{% block content %}
+<main style="display: flex; justify-content: center;">
+    <div>
+        {% for name in names %}
+        <div style="margin-bottom: 2%;">
+            <h3>{{name}}</h3>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <div style="margin-left: 2%; margin-bottom: 2%;">
+        {% for ending in endings %}
+        <div>
+            <h3>{{ending}}</h3>
+        </div>
+        {% endfor %}
+    </div>
+</main>
+
+{% endblock content %}

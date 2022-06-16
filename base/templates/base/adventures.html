@@ -1,23 +1,23 @@
 {% extends 'main.html' %}
 
 {% block content %}
-<main style="margin-left: 27%; margin-top: 5%;">
-    <div class="leaderboard" style="background-color: #115765; box-shadow: rgba(0, 0, 0, 0.09) 0px 2px 1px, rgba(0, 0, 0, 0.09) 0px 4px 2px, rgba(0, 0, 0, 0.09) 0px 8px 4px, rgba(0, 0, 0, 0.09) 0px 16px 8px, rgba(0, 0, 0, 0.09) 0px 32px 16px; border-radius: 5px; display: flex; justify-content: space-around; width: 60%; padding: 4% 0;">
-        <div>
-            {% for name in names %}
-            <div style="margin-bottom: 12%;">
-                <h3 style="font-size: 3rem;">{{name}}</h3>
+
+
+<main class="container">
+    <main style="margin-left: 27%; margin-top: 5%;">
+        <div class="leaderboard" style="background-color: #115765; box-shadow: rgba(0, 0, 0, 0.09) 0px 2px 1px, rgba(0, 0, 0, 0.09) 0px 4px 2px, rgba(0, 0, 0, 0.09) 0px 8px 4px, rgba(0, 0, 0, 0.09) 0px 16px 8px, rgba(0, 0, 0, 0.09) 0px 32px 16px; border-radius: 5px; display: flex; justify-content: space-around; width: 60%; padding: 4% 0;">
+            <div style="width: 100%;">
+                {% for name, endings in users %}
+                <div style="margin-bottom: 3%; margin-left: 20%; display: flex; justify-content: space-between; width: 60%;">
+                    <h3 style="font-size: 3rem;">{{name}}</h3>
+                    <h3 style="font-size: 3rem;">{{endings}} endings</h3>
+                </div>
+                {% endfor %}
             </div>
-            {% endfor %}
         </div>
-        
-        <div>
-            {% for ending in endings %}
-            <div style="margin-bottom: 12%;">
-                <h3 style="font-size: 3rem; text-decoration: underlin;">{{ending}} <em>endings</em></h3>
-            </div>
-            {% endfor %}
-        </div>
+    </main>
+    <div class="container" style="border-radius: 8px; background-color: #187081; width: 20%; margin-top: 10%; padding: 1% 3%; margin-left: 2%; transform: translateY(-180%);">
+        {% include 'base/topics_component.html' %}
     </div>
 </main>
 

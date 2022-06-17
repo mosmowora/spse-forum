@@ -1,4 +1,5 @@
 from rest_framework.decorators import api_view
+from rest_framework import status
 from rest_framework.response import Response
 from base.models import Room
 from .serializers import RoomSerializer
@@ -12,6 +13,10 @@ def getRoutes(request):
         'GET /api/rooms/:id'
     ]
     return Response(routes)
+
+@api_view()
+def error_page(request):
+    return Response({'detail': 'Not found'}, status=status.HTTP_404_NOT_FOUND)
 
 
 @api_view(['GET'])

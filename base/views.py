@@ -209,4 +209,6 @@ def activityPage(request):
 def adventure(request):
     context = retrieve_data()
     topics = Topic.objects.all()
-    return render(request, 'base/adventures.html', {'users': zip([user[1] for user in context], [user[0] for user in context]), 'topics': topics})
+    users = [user[1] for user in context]
+    endings = [user[0] for user in context]
+    return render(request, 'base/adventures.html', {'ending_users': zip(users, endings), 'topics': topics, 'users': users})

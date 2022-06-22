@@ -21,4 +21,5 @@ urlpatterns = [
     path('activity/', views.activityPage, name="activity"),
     
     path('adventures/', views.adventure, name="leaderboard"),
+    path('version/', views.game_version, name="version"),
 ]

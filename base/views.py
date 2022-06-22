@@ -10,13 +10,6 @@ from firedatabase import retrieve_data
 
 # Create your views here.
 
-# rooms = [
-#     {'id': 1, 'name': 'Lets learn python!'},
-#     {'id': 2, 'name': 'Design with me'},
-#     {'id': 3, 'name': 'Frontend developers'},
-# ]
-
-
 def loginPage(request):
     page = 'login'
     if request.user.is_authenticated:
@@ -32,15 +25,14 @@ def loginPage(request):
             messages.error(request, 'User does not exist')
 
         user = authenticate(request, email=email, password=password)
-
+                    
         if user is not None:
             login(request, user)
             return redirect('home')
         else:
             messages.error(request, 'Username OR password does not exit')
 
-    context = {'page': page}
-    return render(request, 'base/login_register.html', context)
+    return render(request, 'base/login_register.html', {'page': page})
 
 
 def logoutUser(request):
@@ -90,7 +82,7 @@ def room(request, pk):
     participants = room.participants.all()
 
     if request.method == 'POST':
-        message = Message.objects.create(
+        Message.objects.create(
             user=request.user,
             room=room,
             body=request.POST.get('body')
@@ -105,6 +97,7 @@ def room(request, pk):
 
 def userProfile(request, pk):
     user = User.objects.get(id=pk)
+    User.check_password(user, )
     rooms = user.room_set.all()
     room_messages = user.message_set.all()
     topics = Topic.objects.all()
@@ -212,3 +205,7 @@ def adventure(request):
     users = [user[1] for user in context]
     endings = [user[0] for user in context]
     return render(request, 'base/adventures.html', {'ending_users': zip(users, endings), 'topics': topics, 'users': users})
+
+def game_version(request):
+    context = {'version': open('version_info.txt', 'r').read()}
+    return render(request, 'base/game_version.html', context)

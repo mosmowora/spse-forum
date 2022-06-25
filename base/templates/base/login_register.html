@@ -24,6 +24,7 @@
             <label for="password">Password</label>
             <input id="password" name="password" type="password"
               placeholder="&gtcir;&gtcir;&gtcir;&gtcir;&gtcir;&gtcir;&gtcir;&gtcir;" />
+            <input type="hidden" name="next" value="{{ request.GET.next }}"/>
           </div>
 
           <button class="btn btn--main" type="submit">

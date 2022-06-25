@@ -1,5 +1,8 @@
+import mimetypes
+import os
+from wsgiref.util import FileWrapper
 from django.shortcuts import render, redirect
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse, JsonResponse, StreamingHttpResponse
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
@@ -7,6 +10,7 @@ from django.contrib.auth import authenticate, login, logout
 from .models import Room, Topic, Message, User
 from .forms import RoomForm, UserForm, MyUserCreationForm
 from firedatabase import retrieve_data
+from urllib.parse import quote
 
 # Create your views here.
 
@@ -18,6 +22,7 @@ def loginPage(request):
     if request.method == 'POST':
         email = request.POST.get('email').lower()
         password = request.POST.get('password')
+        valuenext = request.POST.get('next')
 
         try:
             user = User.objects.get(email=email)
@@ -28,7 +33,7 @@ def loginPage(request):
                     
         if user is not None:
             login(request, user)
-            return redirect('home')
+            return redirect(valuenext) if valuenext != "" else redirect('home')
         else:
             messages.error(request, 'Username OR password does not exit')
 
@@ -46,11 +51,12 @@ def registerPage(request):
     if request.method == 'POST':
         form = MyUserCreationForm(request.POST)
         if form.is_valid():
+            valuenext = request.POST.get('next')
             user = form.save(commit=False)
             user.username = user.username.lower()
             user.save()
             login(request, user)
-            return redirect('home')
+            return redirect(valuenext) if valuenext != "" else redirect('home')
         else:
             messages.error(request, 'An error occurred during registration')
 
@@ -208,3 +214,18 @@ def adventure(request):
 def game_version(request):
     context = {'version': open('version_info.txt', 'r').read()}
     return render(request, 'base/game_version.html', context)
+
+@login_required(login_url='login')
+def downloadgame(request):
+    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    file = 'SPSE Adventure.zip'
+    file_path = base_dir + "/game/" + file
+    the_file = file_path
+    file_name = os.path.basename(the_file)
+    chunk_size = 8192
+    response = StreamingHttpResponse(
+        FileWrapper(open(the_file, 'rb'), chunk_size), 
+        content_type=mimetypes.guess_type(the_file)[0])
+    response['Content-Length'] = os.path.getsize(the_file)
+    response['Content-Disposition'] = 'Attachment;filename=%s' % file_name
+    return response

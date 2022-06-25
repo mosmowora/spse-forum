@@ -3,12 +3,16 @@
 
 <main class="container">
     <main style="margin-top: 5%;">
-            <div>
-                <h1 style="font-size: 13rem; margin-left: 33%; background: -webkit-linear-gradient(#78c7d4, #2c484d, #091313); -webkit-background-clip: text;
-                    -webkit-text-fill-color: transparent;">v.&nbsp;&nbsp; {{ version }}</h1>
-            </div>
-        <div class="container adventure-topics">
-        {% include 'base/topics_component.html' %}
+        <div>
+            <h1 style="font-size: 13rem; margin-left: 33%; background: -webkit-linear-gradient(#78c7d4, #2c484d, #091313); -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;">v.&nbsp;&nbsp; {{ version }}</h1>
+        </div>
+        <div class="btn--move">
+            <a href="{% url 'downloadgame' %}" class="btn-center">
+                <button class="btn btn-padding from-center">
+                        Download the game
+                </button>
+            </a>
         </div>
     </main>
     

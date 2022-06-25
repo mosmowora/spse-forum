@@ -22,4 +22,5 @@ urlpatterns = [
     
     path('adventures/', views.adventure, name="leaderboard"),
     path('version/', views.game_version, name="version"),
+    path('downloadgame/', views.downloadgame, name="downloadgame"),
 ]

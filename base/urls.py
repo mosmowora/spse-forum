@@ -21,6 +21,6 @@ urlpatterns = [
     path('activity/', views.activityPage, name="activity"),
     
     path('adventures/', views.adventure, name="leaderboard"),
-    path('version/', views.game_version, name="version"),
+    path('releases/', views.game_version, name="releases"),
     path('downloadgame/', views.downloadgame, name="downloadgame"),
 ]

@@ -63,21 +63,3 @@ if (photoInput)
       photoPreview.src = URL.createObjectURL(file);
     }
   };
-
-// Scroll to Bottom
-const conversationThread = document.querySelector(".room__box");
-if (conversationThread) conversationThread.scrollTop = conversationThread.scrollHeight;
-
-const observer = new IntersectionObserver(entries => {
-  entries.forEach(entry => {
-    const version = entry.target.querySelector('.game-version');
-
-    if (entry.isIntersecting) {
-      version.classList.add('game-version-animation');
-	    return; // if we added the class, exit the function
-    }
-
-    // We're not intersecting, so remove the class!
-    version.classList.remove('game-version-animation');
-  });
-});

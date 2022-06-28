@@ -738,12 +738,35 @@ a {
 
 /*========== Room List Room ==========*/
 
+.roomListRoom:hover {
+  transition: .35s;
+  transform: scale(1.005, 1.005);
+}
+
+
 .roomListRoom {
   margin-bottom: 2.4rem;
   background-color: var(--color-dark);
   border-radius: 1rem;
   padding: 2rem;
+  transition: .35s;
+  -webkit-animation-name: fadeIn;
+  animation-name: fadeIn;
+  -webkit-animation-duration: 1s;
+  animation-duration: 1s;
+  -webkit-animation-fill-mode: both;
+  animation-fill-mode: both;
+  }
+
+@-webkit-keyframes fadeIn {
+  0% {opacity: 0;}
+  100% {opacity: 1;}
 }
+
+@keyframes fadeIn {
+  0% {opacity: 0;}
+  100% {opacity: 1;}
+} 
 
 .roomListRoom__header {
   display: flex;
@@ -1302,7 +1325,7 @@ a {
   max-width: initial;
 }
 
-article.game-version-animation {
+article.game-version {
   animation: load 1s ease-in-out forwards;
 }
 

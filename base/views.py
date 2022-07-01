@@ -22,7 +22,6 @@ def loginPage(request):
     if request.method == 'POST':
         email = request.POST.get('email').lower()
         password = request.POST.get('password')
-        valuenext = request.POST.get('next')
 
         try:
             user = User.objects.get(email=email)
@@ -33,7 +32,7 @@ def loginPage(request):
                     
         if user is not None:
             login(request, user)
-            return redirect(valuenext) if valuenext != "" else redirect('home')
+            return redirect('home')
         else:
             messages.error(request, 'Username OR password does not exit')
 
@@ -56,7 +55,8 @@ def registerPage(request):
             user.username = user.username.lower()
             user.save()
             login(request, user)
-            return redirect(valuenext) if valuenext != "" else redirect('home')
+            print(type(valuenext))
+            return redirect('home')
         else:
             messages.error(request, 'An error occurred during registration')
 
@@ -111,7 +111,7 @@ def userProfile(request, pk):
     return render(request, 'base/profile.html', context)
 
 
-@login_required(login_url='login')
+@login_required(login_url='login', redirect_field_name=None)
 def createRoom(request):
     form = RoomForm()
     topics = Topic.objects.all()
@@ -131,7 +131,7 @@ def createRoom(request):
     return render(request, 'base/room_form.html', context)
 
 
-@login_required(login_url='login')
+@login_required(login_url='login', redirect_field_name=None)
 def updateRoom(request, pk):
     room = Room.objects.get(id=pk)
     form = RoomForm(instance=room)
@@ -152,7 +152,7 @@ def updateRoom(request, pk):
     return render(request, 'base/room_form.html', context)
 
 
-@login_required(login_url='login')
+@login_required(login_url='login', redirect_field_name=None)
 def deleteRoom(request, pk):
     room = Room.objects.get(id=pk)
 
@@ -179,7 +179,7 @@ def deleteMessage(request, pk):
     return render(request, 'base/delete.html', {'obj': message})
 
 
-@login_required(login_url='login')
+@login_required(login_url='login', redirect_field_name=None)
 def updateUser(request):
     user = request.user
     form = UserForm(instance=user)
@@ -215,7 +215,7 @@ def game_version(request):
     context = {'version': open('version_info.txt', 'r').read()}
     return render(request, 'base/game_version.html', context)
 
-@login_required(login_url='login')
+@login_required(login_url='login', redirect_field_name=None)
 def downloadgame(request):
     base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     file = 'SPSE Adventure.zip'

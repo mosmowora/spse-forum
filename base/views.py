@@ -213,7 +213,6 @@ def game_version(request):
     context = {'version': open('version_info.txt', 'r').read()}
     return render(request, 'base/game_version.html', context)
 
-@login_required(login_url='login', redirect_field_name=None)
 def downloadgame(request):
     base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     file = 'SPSE Adventure.zip'

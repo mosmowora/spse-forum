@@ -215,7 +215,7 @@ def game_version(request):
 
 def downloadgame(request):
     base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    file = 'SPŠE Adventure.rar'
+    file = 'SPŠE Adventure.zip'
     file_path = base_dir + "/game/" + file
     the_file = file_path
     file_name = os.path.basename(the_file)

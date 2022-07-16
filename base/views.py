@@ -2,7 +2,7 @@ import mimetypes
 import os
 from wsgiref.util import FileWrapper
 from django.shortcuts import render, redirect
-from django.http import HttpResponse, JsonResponse, StreamingHttpResponse
+from django.http import HttpResponse, StreamingHttpResponse
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
@@ -10,7 +10,6 @@ from django.contrib.auth import authenticate, login, logout
 from .models import Room, Topic, Message, User
 from .forms import RoomForm, UserForm, MyUserCreationForm
 from firedatabase import retrieve_data
-from urllib.parse import quote
 
 # Create your views here.
 
@@ -34,7 +33,7 @@ def loginPage(request):
             login(request, user)
             return redirect('home')
         else:
-            messages.error(request, 'Username OR password does not exit')
+            messages.error(request, 'Invalid username or password')
 
     return render(request, 'base/login_register.html', {'page': page})
 
@@ -56,7 +55,9 @@ def registerPage(request):
             login(request, user)
             return redirect('home')
         else:
-            messages.error(request, 'An error occurred during registration')
+            errors = [error.errors for error in form if len(error.errors) > 0]
+            messages.error(request, *errors)
+            # messages.error(request, 'An error occurred during registration')
 
     return render(request, 'base/login_register.html', {'form': form})
 

@@ -1,1 +1,2 @@
-web: newrelic-admin run-program gunicorn studybud.wsgi
+# Modify this Procfile to fit your needs
+web: gunicorn server:app

@@ -10,7 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
-import os, cloudinary
+import os
 from pathlib import Path
 import dj_database_url
 
@@ -37,6 +37,7 @@ ALLOWED_HOSTS = ['*']
 # Application definition
 
 INSTALLED_APPS = [
+    'rest_framework',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -44,16 +45,18 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     
-    'cloudinary_storage',
-    'cloudinary',
-    
     'base.apps.BaseConfig',
 
-    'rest_framework',
     # "corsheaders",
 ]
 
 AUTH_USER_MODEL = 'base.User'
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    )
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -183,11 +186,6 @@ CLOUDINARY_STORAGE = {
     'API_SECRET': "amlbYDjGePvKQrIMNluaHIMvJ4E"
 }
 
-cloudinary.config ( 
-  cloud_name = "hcwyrgltb", 
-  api_key = "212948331637495", 
-  api_secret = "amlbYDjGePvKQrIMNluaHIMvJ4E" 
-)
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 if 'DATABASE_URL' in os.environ:

@@ -13,7 +13,11 @@
       <div class="profile">
         <div class="profile__avatar">
           <div class="avatar avatar--large active">
-            <img src="{{user.avatar.url}}" />
+            {% if user.avatar.url is not None %}
+            <img src="{{user.avatar.url}}" alt="" />
+            {% else %}
+            <img src="{% static 'images/avatar.png' %}" alt="" />
+            {% endif %}
           </div>
         </div>
         <div class="profile__info">

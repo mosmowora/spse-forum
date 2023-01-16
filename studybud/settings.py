@@ -180,14 +180,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CORS_ALLOW_ALL_ORIGINS = True
 
-CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': "hcwyrgltb", 
-    'API_KEY': "212948331637495", 
-    'API_SECRET': "amlbYDjGePvKQrIMNluaHIMvJ4E"
-}
-
-DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
-
 if 'DATABASE_URL' in os.environ:
     import dj_database_url
     DATABASES = {'default': dj_database_url.config()}

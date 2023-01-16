@@ -57,7 +57,6 @@ def registerPage(request):
         else:
             errors = [error.errors for error in form if len(error.errors) > 0]
             messages.error(request, *errors)
-            # messages.error(request, 'An error occurred during registration')
 
     return render(request, 'base/login_register.html', {'form': form})
 
@@ -216,8 +215,8 @@ def game_version(request):
 
 def downloadgame(request):
     base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    file = 'SPŠE Adventure.zip'
-    file_path = base_dir + "/game/" + file
+    f = 'SPŠE Adventure.zip'
+    file_path = base_dir + "/game/" + f
     the_file = file_path
     file_name = os.path.basename(the_file)
     chunk_size = 8192

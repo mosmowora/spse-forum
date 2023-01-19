@@ -12,7 +12,19 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 
 import os
 from pathlib import Path
-import dj_database_url
+import psycopg2
+
+# Connect to your postgres DB
+conn = psycopg2.connect("dbname=aeternix user=mosmowora")
+
+# Open a cursor to perform database operations
+cur = conn.cursor()
+
+# Execute a query
+cur.execute("SELECT * FROM my_data")
+
+# Retrieve query results
+records = cur.fetchall()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent

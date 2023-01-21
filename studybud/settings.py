@@ -27,7 +27,7 @@ SECRET_KEY = 'django-insecure-3#av2c6nptlbbb6^muqkchu&fe3wv&n$t2+g$v!ir-f5%doocb
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['.vercel.app', '.now.sh', '*']
+ALLOWED_HOSTS = ['.vercel.app', '.now.sh']
 
 # Application definition
 
@@ -169,11 +169,11 @@ CORS_ALLOW_ALL_ORIGINS = True
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'HOST': "db.gbwggbnovmxlmnwhrfhn.supabase.co",
-        'NAME': "postgres",
-        'USER': "postgres",
-        'PASSWORD': "Postik99621!",
-        'PORT': "5432"
+        # 'ENGINE': 'django.db.backends.postgresql',
+        # 'HOST': "db.gbwggbnovmxlmnwhrfhn.supabase.co",
+        # 'NAME': "postgres",
+        # 'USER': "postgres",
+        # 'PASSWORD': "Postik99621!",
+        # 'PORT': "5432"
     }
 }

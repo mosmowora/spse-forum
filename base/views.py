@@ -10,6 +10,7 @@ from django.contrib.auth import authenticate, login, logout
 from .models import Room, Topic, Message, User
 from .forms import RoomForm, UserForm, MyUserCreationForm
 from firedatabase import retrieve_data
+from django.utils.functional import cached_property
 
 # Create your views here.
 
@@ -60,7 +61,7 @@ def registerPage(request):
 
     return render(request, 'base/login_register.html', {'form': form})
 
-
+@cached_property
 def home(request):
     q = request.GET.get('q') if request.GET.get('q') != None else ''
 
@@ -190,7 +191,7 @@ def updateUser(request):
 
     return render(request, 'base/update-user.html', {'form': form})
 
-
+@cached_property
 def topicsPage(request):
     q = request.GET.get('q') if request.GET.get('q') != None else ''
     topics = Topic.objects.filter(name__icontains=q)
@@ -200,29 +201,3 @@ def topicsPage(request):
 def activityPage(request):
     room_messages = Message.objects.all()
     return render(request, 'base/activity.html', {'room_messages': room_messages})
-
-
-def adventure(request):
-    context = retrieve_data()
-    topics = Topic.objects.all()
-    users = [user[1] for user in context]
-    endings = [user[0] for user in context]
-    return render(request, 'base/adventures.html', {'ending_users': zip(users, endings), 'topics': topics, 'users': users})
-
-def game_version(request):
-    context = {'version': open('version_info.txt', 'r').read()}
-    return render(request, 'base/game_version.html', context)
-
-def downloadgame(request):
-    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    f = 'SPŠE Adventure.zip'
-    file_path = base_dir + "/game/" + f
-    the_file = file_path
-    file_name = os.path.basename(the_file)
-    chunk_size = 8192
-    response = StreamingHttpResponse(
-        FileWrapper(open(the_file, 'rb'), chunk_size), 
-        content_type=mimetypes.guess_type(the_file)[0])
-    response['Content-Length'] = os.path.getsize(the_file)
-    response['Content-Disposition'] = 'Attachment;filename=%s' % file_name
-    return response

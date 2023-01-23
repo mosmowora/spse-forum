@@ -9,8 +9,6 @@ from django.db.models import Q
 from django.contrib.auth import authenticate, login, logout
 from .models import Room, Topic, Message, User
 from .forms import RoomForm, UserForm, MyUserCreationForm
-from firedatabase import retrieve_data
-from django.utils.functional import cached_property
 
 # Create your views here.
 
@@ -61,7 +59,6 @@ def registerPage(request):
 
     return render(request, 'base/login_register.html', {'form': form})
 
-@cached_property
 def home(request):
     q = request.GET.get('q') if request.GET.get('q') != None else ''
 
@@ -191,7 +188,6 @@ def updateUser(request):
 
     return render(request, 'base/update-user.html', {'form': form})
 
-@cached_property
 def topicsPage(request):
     q = request.GET.get('q') if request.GET.get('q') != None else ''
     topics = Topic.objects.filter(name__icontains=q)

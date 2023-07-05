@@ -1,12 +1,11 @@
 from django.shortcuts import render, redirect
-from django.http import HttpResponse
+from django.http import HttpRequest, HttpResponse
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.contrib.auth import authenticate, login, logout
 from .models import Room, Topic, Message, User
 from .forms import RoomForm, UserForm, MyUserCreationForm
-
 # Create your views here.
 
 def loginPage(request):
@@ -56,7 +55,7 @@ def registerPage(request):
 
     return render(request, 'base/login_register.html', {'form': form})
 
-def home(request):
+def home(request: HttpRequest):
     q = request.GET.get('q') if request.GET.get('q') != None else ''
 
     rooms = Room.objects.filter(
@@ -74,6 +73,14 @@ def home(request):
                'room_count': room_count, 'room_messages': room_messages}
     return render(request, 'base/home.html', context)
 
+
+def pinRoom(request: HttpRequest, pk):    
+    pinned = Room.objects.get(id=pk)
+    pinned.pinned = not pinned.pinned
+    print(pinned.pinned)
+    pinned.save()
+    
+    return redirect(to="home")
 
 def room(request, pk):
     room = Room.objects.get(id=pk)

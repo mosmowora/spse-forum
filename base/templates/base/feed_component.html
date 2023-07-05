@@ -5,14 +5,22 @@
         <a href="{% url 'user-profile' room.host.id %}" class="roomListRoom__author">
             <div class="avatar avatar--small">
                 {% if room.host.avatar %}
-                <img src="{{room.host.avatar.url}}" />
+                <img src="{{room.host.avatar.url}}" alt=""/>
                 {% else %}
-                <img src="{% static 'images/avatar.svg' %}" />
+                <img src="{% static 'images/avatar.svg' %}" alt="" />
                 {% endif %}
             </div>
             <span>@{{room.host.username}}</span>
         </a>
         <div class="roomListRoom__actions">
+            {% csrf_token %}
+            <a href="{% url 'pinit' room.id %}" value="{{room.pinned}}">
+                {% if not room.pinned %}
+                <img src="{% static 'images/icons/pin.png' %}" alt="pin">
+                {% else %}
+                <img src="{% static 'images/icons/pin-full.png' %}" alt="pin">
+                {% endif %}
+            </a>
             <span>{{room.created|timesince}} ago</span>
         </div>
     </div>

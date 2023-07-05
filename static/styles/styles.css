@@ -799,9 +799,17 @@ a {
 
 .roomListRoom__actions svg {
   fill: var(--color-main);
-
   width: 1.6rem;
   height: 1.6rem;
+}
+
+.roomListRoom__actions a {
+  width: 5%;
+  margin-left: auto;
+}
+
+.roomListRoom__actions img {
+  width: 100%;
 }
 
 .roomListRoom__content {

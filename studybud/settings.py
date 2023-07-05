@@ -152,11 +152,7 @@ CORS_ALLOW_ALL_ORIGINS = True
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'HOST': "db.gbwggbnovmxlmnwhrfhn.supabase.co",
-        'NAME': "postgres",
-        'USER': "postgres",
-        'PASSWORD': "Postik99621!",
-        'PORT': "5432"
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': 'db.sqlite3',
     }
 }

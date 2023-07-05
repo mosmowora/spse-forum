@@ -14,7 +14,7 @@
       <div class="layout__body">
         <h2 class="auth__tagline">Discuss about ideas and find others</h2>
 
-        <form class="form" action="" method="POST">
+        <form class="form" action="" method="POST" style="display: block; align-items: center; justify-content: center;">
           {% csrf_token %}
           <div class="form__group form__group">
             <label for="room_name">Email</label>
@@ -60,7 +60,7 @@
       <div class="layout__body">
         <h2 class="auth__tagline">Discuss about ideas and find others</h2>
 
-        <form class="form" action="" method="POST">
+        <form class="form" action="" method="POST" style="display: block; align-items: center; justify-content: center;">
           {% csrf_token %}
 
           {% for field in form %}

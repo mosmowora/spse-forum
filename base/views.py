@@ -8,7 +8,7 @@ from .models import Room, Topic, Message, User
 from .forms import RoomForm, UserForm, MyUserCreationForm
 # Create your views here.
 
-def loginPage(request):
+def loginPage(request: HttpRequest):
     page = 'login'
     if request.user.is_authenticated:
         return redirect('home')
@@ -33,12 +33,12 @@ def loginPage(request):
     return render(request, 'base/login_register.html', {'page': page})
 
 
-def logoutUser(request):
+def logoutUser(request: HttpRequest):
     logout(request)
     return redirect('home')
 
 
-def registerPage(request):
+def registerPage(request: HttpRequest):
     form = MyUserCreationForm()
 
     if request.method == 'POST':
@@ -75,14 +75,13 @@ def home(request: HttpRequest):
 
 
 def pinRoom(request: HttpRequest, pk):    
-    pinned = Room.objects.get(id=pk)
-    pinned.pinned = not pinned.pinned
-    print(pinned.pinned)
-    pinned.save()
-    
+    pinned_room: Room = Room.objects.get(id=pk)
+    pinned_room.pinned = not pinned_room.pinned
+    print(pinned_room.pinned)
+    pinned_room.save()
     return redirect(to="home")
 
-def room(request, pk):
+def room(request: HttpRequest, pk):
     room = Room.objects.get(id=pk)
     room_messages = room.message_set.all()
     participants = room.participants.all()
@@ -101,23 +100,29 @@ def room(request, pk):
     return render(request, 'base/room.html', context)
 
 
-def userProfile(request, pk):
-    user = User.objects.get(id=pk)
-    rooms = user.room_set.all()
-    room_messages = user.message_set.all()
-    topics = Topic.objects.all()
-    context = {'user': user, 'rooms': rooms,
-               'room_messages': room_messages, 'topics': topics}
-    return render(request, 'base/profile.html', context)
+def userProfile(request: HttpRequest, pk):
+    try:
+        user = User.objects.get(id=pk)
+        rooms = user.room_set.all()
+        room_messages = user.message_set.all()
+        topics = Topic.objects.all()
+        context = {'user': user, 'rooms': rooms,
+                'room_messages': room_messages, 'topics': topics}
+        return render(request, 'base/profile.html', context)
+    except Exception:
+        return fallback(request)
 
+
+def fallback(request: HttpRequest):
+    return render(request, 'base/error-site.html')
 
 @login_required(login_url='login', redirect_field_name=None)
-def createRoom(request):
+def createRoom(request: HttpRequest):
     form = RoomForm()
     topics = Topic.objects.all()
     if request.method == 'POST':
         topic_name = request.POST.get('topic')
-        topic, created = Topic.objects.get_or_create(name=topic_name)
+        topic, _ = Topic.objects.get_or_create(name=topic_name)
 
         Room.objects.create(
             host=request.user,
@@ -132,7 +137,7 @@ def createRoom(request):
 
 
 @login_required(login_url='login', redirect_field_name=None)
-def updateRoom(request, pk):
+def updateRoom(request: HttpRequest, pk):
     room = Room.objects.get(id=pk)
     form = RoomForm(instance=room)
     topics = Topic.objects.all()
@@ -141,7 +146,7 @@ def updateRoom(request, pk):
 
     if request.method == 'POST':
         topic_name = request.POST.get('topic')
-        topic, created = Topic.objects.get_or_create(name=topic_name)
+        topic, _ = Topic.objects.get_or_create(name=topic_name)
         room.name = request.POST.get('name')
         room.topic = topic
         room.description = request.POST.get('description')
@@ -153,7 +158,7 @@ def updateRoom(request, pk):
 
 
 @login_required(login_url='login', redirect_field_name=None)
-def deleteRoom(request, pk):
+def deleteRoom(request: HttpRequest, pk):
     room = Room.objects.get(id=pk)
 
     if request.user != room.host:
@@ -166,7 +171,7 @@ def deleteRoom(request, pk):
 
 
 @login_required(login_url='login')
-def deleteMessage(request, pk):
+def deleteMessage(request: HttpRequest, pk):
     message = Message.objects.get(id=pk)
 
     if request.user != message.user:
@@ -180,7 +185,7 @@ def deleteMessage(request, pk):
 
 
 @login_required(login_url='login', redirect_field_name=None)
-def updateUser(request):
+def updateUser(request: HttpRequest):
     user = request.user
     form = UserForm(instance=user)
 
@@ -192,12 +197,12 @@ def updateUser(request):
 
     return render(request, 'base/update-user.html', {'form': form})
 
-def topicsPage(request):
+def topicsPage(request: HttpRequest):
     q = request.GET.get('q') if request.GET.get('q') != None else ''
     topics = Topic.objects.filter(name__icontains=q)
     return render(request, 'base/topics.html', {'topics': topics})
 
 
-def activityPage(request):
+def activityPage(request: HttpRequest):
     room_messages = Message.objects.all()
     return render(request, 'base/activity.html', {'room_messages': room_messages})

@@ -1089,15 +1089,14 @@ a {
 }
 
 .room__topRight svg {
-  fill: rgb(51, 51, 51);
-  font-weight: 500;
+  fill: var(--color-main-light);
 }
 
 .room__header {
   max-height: 30vh;
   overflow-y: auto;
   position: absolute;
-  width: 95.5%;
+  width: 95%;
   background: var(--color-dark);
   z-index: 999;
   top: 4.4rem;
@@ -1308,22 +1307,6 @@ a {
   font-weight: 500;
   color: var(--color-main);
   font-weight: 1.4rem;
-}
-
-.main__fallback {
-  height: 80vh;
-}
-
-.main_div__fallback {
-  width: 100%;
-  height: 100%;
-  text-align: center;
-  margin: auto;
-}
-
-.main_div__fallback>h1 {
-  margin-top: 50%;
-  font-size: 60px;
 }
 
 

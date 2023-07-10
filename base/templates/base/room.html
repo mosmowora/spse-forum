@@ -57,7 +57,7 @@
             <span>{{room.created|timesince}} ago</span>
           </div>
           <div class="room__hosted">
-            <p>Hosťované</p>
+            <p>Hosted By</p>
             <a href="{% url 'user-profile' room.host.id %}" class="room__author">
               <div class="avatar avatar--small">
                 {% if room.host.avatar %}
@@ -133,7 +133,7 @@
 
     <!--   Start -->
     <div class="participants">
-      <h3 class="participants__top">Účastníci <span>({{participants.count}} Zainteresovaných)</span></h3>
+      <h3 class="participants__top">Participants <span>({{participants.count}} Joined)</span></h3>
       <div class="participants__list scroll">
         {% for user in participants %}
         <a href="{%  url 'user-profile' user.id %}" class="participant">

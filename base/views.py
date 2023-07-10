@@ -6,7 +6,7 @@ from django.db.models import Q
 from django.db.models.functions import Now
 from django.contrib.auth import authenticate, login, logout
 from .models import Room, Topic, Message, User
-from .forms import RoomForm, UserForm, UserForm
+from .forms import RoomForm, UserCreationForm, UserForm
 # Create your views here.
 
 def loginPage(request):
@@ -40,10 +40,10 @@ def logoutUser(request):
 
 
 def registerPage(request: HttpRequest):
-    form = UserForm()
+    form = UserCreationForm()
 
     if request.method == 'POST':
-        form = UserForm(request.POST)
+        form = UserCreationForm(request.POST)
         if form.is_valid():
             user = form.save(commit=False)
             user.username = user.username.lower()
@@ -64,8 +64,6 @@ def home(request: HttpRequest):
         Q(name__icontains=q) |
         Q(description__icontains=q)
     )
-    
-    rooms = rooms.filter(exp_date__lt=Now())
     
     topics = Topic.objects.all()[0:5]
     room_count = rooms.count()
@@ -118,7 +116,7 @@ def createRoom(request):
     topics = Topic.objects.all()
     if request.method == 'POST':
         topic_name = request.POST.get('topic')
-        topic, created = Topic.objects.get_or_create(name=topic_name)
+        topic, _ = Topic.objects.get_or_create(name=topic_name)
 
         Room.objects.create(
             host=request.user,
@@ -142,7 +140,7 @@ def updateRoom(request, pk):
 
     if request.method == 'POST':
         topic_name = request.POST.get('topic')
-        topic, created = Topic.objects.get_or_create(name=topic_name)
+        topic, _ = Topic.objects.get_or_create(name=topic_name)
         room.name = request.POST.get('name')
         room.topic = topic
         room.description = request.POST.get('description')

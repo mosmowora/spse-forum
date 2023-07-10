@@ -1,5 +1,8 @@
+import datetime
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.db.models.functions import Now
+from django.db.models.query import QuerySet
 
 
 class User(AbstractUser):
@@ -19,6 +22,13 @@ class Topic(models.Model):
         return self.name
 
 
+class RoomManager(models.Manager):
+    
+    def get_queryset(self, *args, **kwargs) -> QuerySet:
+        return super().get_queryset(*args, **kwargs).filter(
+            exp_date__lt=Now()
+        )
+
 class Room(models.Model):
     host = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     topic = models.ForeignKey(Topic, on_delete=models.SET_NULL, null=True)
@@ -28,6 +38,8 @@ class Room(models.Model):
         User, related_name='participants', blank=True)
     updated = models.DateTimeField(auto_now=True)
     created = models.DateTimeField(auto_now_add=True)
+    exp_date = models.DateTimeField(default=Now()+datetime.timedelta(minutes=1), editable=False)
+    objects = RoomManager()
     pinned = models.BooleanField(null=False, default=False)
 
     class Meta:

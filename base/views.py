@@ -3,9 +3,10 @@ from django.http import HttpRequest, HttpResponse
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
+from django.db.models.functions import Now
 from django.contrib.auth import authenticate, login, logout
 from .models import Room, Topic, Message, User
-from .forms import RoomForm, UserForm, MyUserCreationForm
+from .forms import RoomForm, UserForm, UserForm
 # Create your views here.
 
 def loginPage(request: HttpRequest):
@@ -39,10 +40,10 @@ def logoutUser(request: HttpRequest):
 
 
 def registerPage(request: HttpRequest):
-    form = MyUserCreationForm()
+    form = UserForm()
 
     if request.method == 'POST':
-        form = MyUserCreationForm(request.POST)
+        form = UserForm(request.POST)
         if form.is_valid():
             user = form.save(commit=False)
             user.username = user.username.lower()
@@ -63,12 +64,14 @@ def home(request: HttpRequest):
         Q(name__icontains=q) |
         Q(description__icontains=q)
     )
-
+    
+    rooms = rooms.filter(exp_date__lt=Now())
+    
     topics = Topic.objects.all()[0:5]
     room_count = rooms.count()
     room_messages = Message.objects.filter(
         Q(room__topic__name__icontains=q))[0:3]
-
+        
     context = {'rooms': rooms, 'topics': topics,
                'room_count': room_count, 'room_messages': room_messages}
     return render(request, 'base/home.html', context)
@@ -77,7 +80,6 @@ def home(request: HttpRequest):
 def pinRoom(request: HttpRequest, pk):    
     pinned_room: Room = Room.objects.get(id=pk)
     pinned_room.pinned = not pinned_room.pinned
-    print(pinned_room.pinned)
     pinned_room.save()
     return redirect(to="home")
 

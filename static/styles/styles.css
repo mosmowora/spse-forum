@@ -68,6 +68,7 @@ body {
   color: var(--color-light);
   background-color: var(--color-bg);
   min-height: 100vh;
+  background: url("../images/background.jpg");
 }
 
 img {
@@ -790,6 +791,7 @@ a {
   align-items: flex-start;
   gap: 1rem;
   position: relative;
+  margin-right: 10%;
 }
 
 .roomListRoom__actions span {
@@ -1239,7 +1241,7 @@ a {
 .room__message > form > input {
   resize: none;
   background-color: var(--color-light);
-  color: var(--color-light);
+  color: rgb(51, 51, 51);
   border: none;
   outline: none;
   border-radius: 1rem;

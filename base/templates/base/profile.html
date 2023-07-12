@@ -16,7 +16,7 @@
             {% if user.avatar.url is not None %}
             <img src="{{user.avatar.url}}" alt="" />
             {% else %}
-            <img src="{% static 'images/avatar.png' %}" alt="" />
+            <img src="{% static 'images/avatar.svg' %}" alt="" />
             {% endif %}
           </div>
         </div>
@@ -28,9 +28,15 @@
         </div>
         <div class="profile__about">
           <h3>O mne</h3>
+          {% if user.bio is None %}
+          <p>
+            -- Študent nezverejnil nič --
+          </p>
+          {% else %}
           <p>
             {{user.bio}}
           </p>
+          {% endif %}
         </div>
       </div>
 

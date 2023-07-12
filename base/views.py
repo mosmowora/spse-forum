@@ -3,7 +3,6 @@ from django.http import HttpRequest, HttpResponse
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
-from django.db.models.functions import Now
 from django.contrib.auth import authenticate, login, logout
 from .models import Room, Topic, Message, User
 from .forms import RoomForm, UserCreationForm, UserForm
@@ -100,15 +99,21 @@ def room(request, pk):
     return render(request, 'base/room.html', context)
 
 
-def userProfile(request, pk):
-    user = User.objects.get(id=pk)
-    rooms = user.room_set.all()
-    room_messages = user.message_set.all()
-    topics = Topic.objects.all()
-    context = {'user': user, 'rooms': rooms,
-               'room_messages': room_messages, 'topics': topics}
-    return render(request, 'base/profile.html', context)
+def userProfile(request: HttpRequest, pk):
+    try:
+        user = User.objects.get(id=pk)
+        rooms = user.room_set.all()
+        room_messages = user.message_set.all()
+        topics = Topic.objects.all()
+        context = {'user': user, 'rooms': rooms,
+                'room_messages': room_messages, 'topics': topics}
+        return render(request, 'base/profile.html', context)
+    except Exception:
+        return fallback(request)
 
+
+def fallback(request: HttpRequest):
+    return render(request, 'base/error-site.html')
 
 @login_required(login_url='login', redirect_field_name=None)
 def createRoom(request):

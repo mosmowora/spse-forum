@@ -44,20 +44,18 @@
             {{form.description}}
           </div>
 
-          <!-- <div class="form__group">
-            <label for="room_topic">Topic</label>
-            <input required type="text" name="topic" id="room_topic" list="topic-list" />
-            <datalist id="topic-list">
-              <select id="room_topic">
-                <option value="">Select your topic</option>
-                <option value="Python">Python</option>
-                <option value="Django">Django</option>
-              </select>
-            </datalist>
-
-          </div> -->
-
-
+          <div class="form__flex">
+            <div class="form__group">
+              <label for="room_pinned">Pripnúť?</label>
+              {{form.pinned}}
+            </div>
+  
+            <div class="form__group">
+              <label for="room_is_private">Limitovať diskusiu?</label>
+              {{form.is_private}}
+            </div>
+          </div>
+          
           <div class="form__action">
             <a class="btn btn--dark" href="{{request.META.HTTP_REFERER}}">Storno</a>
             <button class="btn btn--main" type="submit">Vytvoriť</button>

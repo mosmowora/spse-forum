@@ -27,6 +27,7 @@ class Room(models.Model):
     updated = models.DateTimeField(auto_now=True)
     created = models.DateTimeField(auto_now_add=True)
     pinned = models.BooleanField(null=False, default=False)
+    is_private = models.BooleanField(null=False, default=False)
 
     class Meta:
         ordering = ['-pinned', '-updated', '-created']

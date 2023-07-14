@@ -1,5 +1,6 @@
 {% load static %}
 {% for room in rooms %}
+{% if not room.is_private or request.user.is_superuser or request.user == room.host %}
 <div class="roomListRoom">
     <div class="roomListRoom__header">
         <a href="{% url 'user-profile' room.host.id %}" class="roomListRoom__author">
@@ -80,4 +81,5 @@
         <p class="roomListRoom__topic">{{room.topic.name}}</p>
     </div>
 </div>
+{% endif %}
 {% endfor %}

@@ -128,6 +128,8 @@ def createRoom(request):
             topic=topic,
             name=request.POST.get('name'),
             description=request.POST.get('description'),
+            pinned=True if request.POST.get('pinned') == "on" else False,
+            is_private=True if request.POST.get('is_private') == "on" else False
         )
         return redirect('home')
 

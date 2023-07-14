@@ -12,8 +12,7 @@ class UserCreationForm(UserCreationForm):
 class RoomForm(ModelForm):
     class Meta:
         model = Room
-        fields = '__all__'
-        exclude = ['host', 'participants']
+        fields = ['topic', 'name', 'description', 'is_private', 'pinned']
 
 
 class UserForm(ModelForm):

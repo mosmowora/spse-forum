@@ -577,6 +577,28 @@ a {
 =>  Topics
 ================================*/
 
+.form__flex {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+}
+
+.form__flex > div.form__group > label {
+  text-align: center;
+}
+
+.form__flex div.form__group input[type=checkbox]:checked {
+  transform: scale(1.5);
+  background-color: var(--color-success);
+  transition: 0.15s ease-in;
+}
+
+.form__flex div.form__group input[type=checkbox]:not(:checked) {
+  transform: scale(1);
+  background: var(--color-success);
+  transition: 0.15s ease-in;
+}
+
 .form__group {
   margin-bottom: 2rem;
   width: 100%;

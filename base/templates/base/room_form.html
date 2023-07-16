@@ -1,6 +1,6 @@
 {% extends 'main.html' %}
-
 {% block content %}
+
 <main class="create-room layout">
   <div class="container">
     <div class="layout__box">
@@ -44,17 +44,10 @@
             {{form.description}}
           </div>
 
-          <div class="form__flex">
             <div class="form__group">
               <label for="room_pinned">Pripnúť?</label>
               {{form.pinned}}
             </div>
-  
-            <div class="form__group">
-              <label for="room_is_private">Limitovať diskusiu?</label>
-              {{form.is_private}}
-            </div>
-          </div>
           
           <div class="form__action">
             <a class="btn btn--dark" href="{{request.META.HTTP_REFERER}}">Storno</a>

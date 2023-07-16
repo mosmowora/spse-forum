@@ -1,3 +1,4 @@
+from django import forms
 from django.forms import ModelForm
 from django.contrib.auth.forms import UserCreationForm
 from .models import Room, User
@@ -12,7 +13,7 @@ class UserCreationForm(UserCreationForm):
 class RoomForm(ModelForm):
     class Meta:
         model = Room
-        fields = ['topic', 'name', 'description', 'is_private', 'pinned']
+        fields = ['topic', 'name', 'description', 'pinned']
 
 
 class UserForm(ModelForm):

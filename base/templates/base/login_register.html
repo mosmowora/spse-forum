@@ -12,7 +12,7 @@
         </div>
       </div>
       <div class="layout__body">
-        <h2 class="auth__tagline">Discuss about ideas and find others</h2>
+        <h2 class="auth__tagline">Spýtaj sa a četuj s každým zo školy</h2>
 
         <form class="form" action="" method="POST" style="display: block; align-items: center; justify-content: center;">
           {% csrf_token %}
@@ -43,8 +43,8 @@
         </form>
 
         <div class="auth__action">
-          <p>No account? Let's fix that</p>
-          <a href="{% url 'register' %}" class="btn btn--link">Sign Up</a>
+          <p>Nenmáš účet? Napravme to</p>
+          <a href="{% url 'register' %}" class="btn btn--link">Register</a>
         </div>
       </div>
     </div>
@@ -58,7 +58,7 @@
         </div>
       </div>
       <div class="layout__body">
-        <h2 class="auth__tagline">Discuss about ideas and find others</h2>
+        <h2 class="auth__tagline">Spýtaj sa a četuj s každým zo školy</h2>
 
         <form class="form" action="" method="POST" style="display: block; align-items: center; justify-content: center;">
           {% csrf_token %}
@@ -87,8 +87,8 @@
         </form>
 
         <div class="auth__action">
-          <p>Do we know you already?</p>
-          <a href="{% url 'login' %}" class="btn btn--link">Sign In</a>
+          <p>Si už zaregistrovaný?</p>
+          <a href="{% url 'login' %}" class="btn btn--link">Login</a>
         </div>
       </div>
     </div>

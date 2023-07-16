@@ -32,12 +32,13 @@ ALLOWED_HOSTS = ['.vercel.app', '.now.sh', '*']
 
 INSTALLED_APPS = [
     'rest_framework',
-    'django.contrib.admin',
     'django.contrib.auth',
+    'django.contrib.admin',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'widget_tweaks',
     
     'base.apps.BaseConfig',
 

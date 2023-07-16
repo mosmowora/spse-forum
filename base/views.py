@@ -116,21 +116,23 @@ def fallback(request: HttpRequest):
     return render(request, 'base/error-site.html')
 
 @login_required(login_url='login', redirect_field_name=None)
-def createRoom(request):
-    form = RoomForm()
+def createRoom(request: HttpRequest):
+    form = RoomForm(request.POST or None)
     topics = Topic.objects.all()
+    
     if request.method == 'POST':
         topic_name = request.POST.get('topic')
         topic, _ = Topic.objects.get_or_create(name=topic_name)
-
-        Room.objects.create(
+        
+        room = Room(
             host=request.user,
             topic=topic,
             name=request.POST.get('name'),
             description=request.POST.get('description'),
-            pinned=True if request.POST.get('pinned') == "on" else False,
-            is_private=True if request.POST.get('is_private') == "on" else False
+            pinned=True if request.POST.get('pinned') == "on" else False
         )
+        # room.limited_for.set(FromClass.objects.all())
+        room.save()
         return redirect('home')
 
     context = {'form': form, 'topics': topics}
@@ -138,7 +140,7 @@ def createRoom(request):
 
 
 @login_required(login_url='login', redirect_field_name=None)
-def updateRoom(request, pk):
+def updateRoom(request: HttpRequest, pk):
     room = Room.objects.get(id=pk)
     form = RoomForm(instance=room)
     topics = Topic.objects.all()
@@ -151,6 +153,7 @@ def updateRoom(request, pk):
         room.name = request.POST.get('name')
         room.topic = topic
         room.description = request.POST.get('description')
+        room.pinned=True if request.POST.get('pinned') == "on" else False
         room.save()
         return redirect('home')
 

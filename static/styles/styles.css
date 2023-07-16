@@ -577,28 +577,6 @@ a {
 =>  Topics
 ================================*/
 
-.form__flex {
-  display: flex;
-  align-items: center;
-  justify-content: space-around;
-}
-
-.form__flex > div.form__group > label {
-  text-align: center;
-}
-
-.form__flex div.form__group input[type=checkbox]:checked {
-  transform: scale(1.5);
-  background-color: var(--color-success);
-  transition: 0.15s ease-in;
-}
-
-.form__flex div.form__group input[type=checkbox]:not(:checked) {
-  transform: scale(1);
-  background: var(--color-success);
-  transition: 0.15s ease-in;
-}
-
 .form__group {
   margin-bottom: 2rem;
   width: 100%;
@@ -652,6 +630,19 @@ a {
   background-color: var(--color-dark-light);
   color: var(--color-light);
   padding: 0 10rem;
+}
+
+.form__group input[type=checkbox]:not(:checked) {
+  width: 5%;
+  transition: 0.15s ease-in;
+  scale: 1;
+}
+
+.form__group input[type=checkbox]:checked,
+.form__group input[type=checkbox]:hover {
+  width: 5%;
+  transition: 0.15s ease-in;
+  scale: 1.5;
 }
 
 .form__action {

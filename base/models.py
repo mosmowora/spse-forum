@@ -46,7 +46,7 @@ class Message(models.Model):
     likes = models.ManyToManyField(User, related_name='messages')
     
     def total_upvotes(self):
-        return self.likes.count() + 1000
+        return self.likes.count()
 
     class Meta:
         ordering = ['-updated', '-created']

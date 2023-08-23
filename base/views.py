@@ -1,8 +1,9 @@
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, redirect
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
+from django.db.models.query import QuerySet
 from django.contrib.auth import authenticate, login, logout
 from django.urls import reverse
 from .models import Room, Topic, Message, User
@@ -87,10 +88,10 @@ def pinRoom(request: HttpRequest, pk):
 @login_required(login_url='login', redirect_field_name=None)
 def room(request, pk):
     room = Room.objects.get(id=pk)
-    room_messages: list[Message] = room.message_set.all()
+    room_messages: QuerySet[Message] = room.message_set.all()
+    room_messages = sorted(room_messages, key=lambda mess: mess.likes.count(), reverse=True)
     participants = room.participants.all()
-    
-    
+
     if request.method == 'POST':
         Message.objects.create(
             user=request.user,
@@ -102,14 +103,14 @@ def room(request, pk):
         return redirect('room', pk=room.id)
 
     upvoted_messages: dict[Message, bool] = {}
-    
+
     for message in room_messages:
         upvoted = False
         if message.likes.filter(id=request.user.id).exists():
             upvoted = True
-        
+
         upvoted_messages[message] = upvoted
-        
+
     context = {'room': room, 'room_messages': room_messages,
                'participants': participants, 'upvoted_messages': upvoted_messages}
     return render(request, 'base/room.html', context)
@@ -117,15 +118,14 @@ def room(request, pk):
 
 def upvoteMessage(request: HttpRequest, pk):
     message = Message.objects.get(id=request.POST.get('message_id'))
-    upvoted = False
-    
+    # upvoted = False
+
     if message.likes.filter(id=request.user.id).exists():
         message.likes.remove(request.user)
-        upvoted = False
     else:
         message.likes.add(request.user)
-        upvoted = True
-        
+    
+    message.save()
     return HttpResponseRedirect(reverse('room', args=[message.room_id]))
 
 
@@ -176,7 +176,7 @@ def updateRoom(request: HttpRequest, pk):
     form = RoomForm(instance=room)
     topics = Topic.objects.all()
     if request.user != room.host:
-        return HttpResponse('Your are not allowed here!!')
+        return fallback(request)
 
     if request.method == 'POST':
         topic_name = request.POST.get('topic')
@@ -197,7 +197,7 @@ def deleteRoom(request, pk):
     room = Room.objects.get(id=pk)
 
     if request.user != room.host:
-        return HttpResponse('Your are not allowed here!!')
+        return fallback(request)
 
     if request.method == 'POST':
         room.delete()
@@ -210,7 +210,7 @@ def deleteMessage(request, pk):
     message = Message.objects.get(id=pk)
 
     if request.user != message.user:
-        return HttpResponse('Your are not allowed here!!')
+        return fallback(request)
 
     if request.method == 'POST':
         message.delete()

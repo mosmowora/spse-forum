@@ -5,16 +5,38 @@
         <a href="{% url 'user-profile' room.host.id %}" class="roomListRoom__author">
             <div class="avatar avatar--small">
                 {% if room.host.avatar %}
-                <img src="{{room.host.avatar.url}}" alt=""/>
+                <img src="{{room.host.avatar.url}}" alt="" />
                 {% else %}
                 <img src="{% static 'images/avatar.svg' %}" alt="" />
                 {% endif %}
             </div>
             <span>@{{room.host.username}}</span>
         </a>
-        <div class="roomListRoom__actions" style="display: flex; align-items: flex-start; gap: 1rem; position: relative; margin-right: 0;">
-            {% csrf_token %}
+        <div class="roomListRoom__actions"
+            style="display: flex; align-items: flex-start; gap: 1rem; position: relative; margin-right: 0;">
             {% if room.host.name == request.user.name or request.user.is_superuser %}
+            <form action="{% url 'pinit' room.id %}" method="POST">
+                {% csrf_token %}
+                <abbr title="pinnut tuto diskusiu">
+                    {% if not room.pinned %}
+                    <button type="submit" name="diskusia_id" value="{{room.id}}" alt="pin"
+                        class="pin_room">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</button>
+                    {% else %}
+                    <button type="submit" name="diskusia_id" value="{{room.id}}" alt="pin"
+                        class="unpin_room">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</button>
+                    {% endif %}
+                </abbr>
+            </form>
+            {% else %}
+            <a value="{{room.pinned}}">
+                {% if not room.pinned %}
+                <img src="{% static 'images/icons/pin.png' %}" alt="pin">
+                {% else %}
+                <img src="{% static 'images/icons/pin-full.png' %}" alt="pin">
+                {% endif %}
+            </a>
+            {% endif %}
+            <!-- {% if room.host.name == request.user.name or request.user.is_superuser %}
             <a href="{% url 'pinit' room.id %}" value="{{room.pinned}}">
                 {% if not room.pinned %}
                 <img src="{% static 'images/icons/pin.png' %}" alt="pin">
@@ -30,7 +52,7 @@
                 <img src="{% static 'images/icons/pin-full.png' %}" alt="pin">
                 {% endif %}
             </a>
-            {% endif %}
+            {% endif %} -->
             <span>{{room.created|timesince}} ago</span>
         </div>
     </div>

@@ -28,7 +28,7 @@
         </div>
         <div class="profile__about">
           <h3>O mne</h3>
-          {% if user.bio is None %}
+          {% if user.bio is None or user.bio == "" %}
           <p>
             -- Študent nezverejnil nič --
           </p>

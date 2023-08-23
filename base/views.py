@@ -1,12 +1,14 @@
-from django.shortcuts import render, redirect
-from django.http import HttpRequest, HttpResponse
+from django.shortcuts import render, redirect, get_object_or_404
+from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.contrib.auth import authenticate, login, logout
+from django.urls import reverse
 from .models import Room, Topic, Message, User
 from .forms import RoomForm, UserCreationForm, UserForm
 # Create your views here.
+
 
 def loginPage(request):
     page = 'login'
@@ -23,7 +25,7 @@ def loginPage(request):
             messages.error(request, 'User does not exist')
 
         user = authenticate(request, email=email, password=password)
-                    
+
         if user is not None:
             login(request, user)
             return redirect('home')
@@ -55,6 +57,7 @@ def registerPage(request: HttpRequest):
 
     return render(request, 'base/login_register.html', {'form': form})
 
+
 def home(request: HttpRequest):
     q = request.GET.get('q') if request.GET.get('q') != None else ''
 
@@ -63,40 +66,67 @@ def home(request: HttpRequest):
         Q(name__icontains=q) |
         Q(description__icontains=q)
     )
-    
+
     topics = Topic.objects.all()[0:5]
     room_count = rooms.count()
     room_messages = Message.objects.filter(
         Q(room__topic__name__icontains=q))[0:3]
-        
+
     context = {'rooms': rooms, 'topics': topics,
                'room_count': room_count, 'room_messages': room_messages}
     return render(request, 'base/home.html', context)
 
 
-def pinRoom(request: HttpRequest, pk):    
+def pinRoom(request: HttpRequest, pk):
     pinned_room: Room = Room.objects.get(id=pk)
     pinned_room.pinned = not pinned_room.pinned
     pinned_room.save()
-    return redirect(to="home")
+    return HttpResponseRedirect(reverse('home'))
 
+
+@login_required(login_url='login', redirect_field_name=None)
 def room(request, pk):
     room = Room.objects.get(id=pk)
-    room_messages = room.message_set.all()
+    room_messages: list[Message] = room.message_set.all()
     participants = room.participants.all()
-
+    
+    
     if request.method == 'POST':
         Message.objects.create(
             user=request.user,
             room=room,
             body=request.POST.get('body')
         )
+
         room.participants.add(request.user)
         return redirect('room', pk=room.id)
 
+    upvoted_messages: dict[Message, bool] = {}
+    
+    for message in room_messages:
+        upvoted = False
+        if message.likes.filter(id=request.user.id).exists():
+            upvoted = True
+        
+        upvoted_messages[message] = upvoted
+        
     context = {'room': room, 'room_messages': room_messages,
-               'participants': participants}
+               'participants': participants, 'upvoted_messages': upvoted_messages}
     return render(request, 'base/room.html', context)
+
+
+def upvoteMessage(request: HttpRequest, pk):
+    message = Message.objects.get(id=request.POST.get('message_id'))
+    upvoted = False
+    
+    if message.likes.filter(id=request.user.id).exists():
+        message.likes.remove(request.user)
+        upvoted = False
+    else:
+        message.likes.add(request.user)
+        upvoted = True
+        
+    return HttpResponseRedirect(reverse('room', args=[message.room_id]))
 
 
 def userProfile(request: HttpRequest, pk):
@@ -106,7 +136,7 @@ def userProfile(request: HttpRequest, pk):
         room_messages = user.message_set.all()
         topics = Topic.objects.all()
         context = {'user': user, 'rooms': rooms,
-                'room_messages': room_messages, 'topics': topics}
+                   'room_messages': room_messages, 'topics': topics}
         return render(request, 'base/profile.html', context)
     except Exception:
         return fallback(request)
@@ -115,15 +145,16 @@ def userProfile(request: HttpRequest, pk):
 def fallback(request: HttpRequest):
     return render(request, 'base/error-site.html')
 
+
 @login_required(login_url='login', redirect_field_name=None)
 def createRoom(request: HttpRequest):
     form = RoomForm(request.POST or None)
     topics = Topic.objects.all()
-    
+
     if request.method == 'POST':
         topic_name = request.POST.get('topic')
         topic, _ = Topic.objects.get_or_create(name=topic_name)
-        
+
         room = Room(
             host=request.user,
             topic=topic,
@@ -153,7 +184,7 @@ def updateRoom(request: HttpRequest, pk):
         room.name = request.POST.get('name')
         room.topic = topic
         room.description = request.POST.get('description')
-        room.pinned=True if request.POST.get('pinned') == "on" else False
+        room.pinned = True if request.POST.get('pinned') == "on" else False
         room.save()
         return redirect('home')
 
@@ -200,6 +231,7 @@ def updateUser(request):
             return redirect('user-profile', pk=user.id)
 
     return render(request, 'base/update-user.html', {'form': form})
+
 
 def topicsPage(request):
     q = request.GET.get('q') if request.GET.get('q') != None else ''

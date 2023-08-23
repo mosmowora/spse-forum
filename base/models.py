@@ -5,7 +5,7 @@ from django.contrib.auth.models import AbstractUser
 class User(AbstractUser):
     name = models.CharField(max_length=220, null=True)
     email = models.EmailField(unique=True, null=True)
-    bio = models.TextField(null=True)
+    bio = models.TextField(null=True, blank=True)
 
     avatar = models.ImageField(null=True)
     USERNAME_FIELD = 'email'
@@ -43,6 +43,10 @@ class Message(models.Model):
     body = models.TextField()
     updated = models.DateTimeField(auto_now=True)
     created = models.DateTimeField(auto_now_add=True)
+    likes = models.ManyToManyField(User, related_name='messages')
+    
+    def total_upvotes(self):
+        return self.likes.count() + 1000
 
     class Meta:
         ordering = ['-updated', '-created']

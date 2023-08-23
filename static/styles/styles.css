@@ -777,13 +777,13 @@ a {
   }
 
 @-webkit-keyframes fadeIn {
-  0% {opacity: 0;}
-  100% {opacity: 1;}
+  0% {opacity: 0; transform: translateY(5%);}
+  100% {opacity: 1; transform: translateY(0%);}
 }
 
 @keyframes fadeIn {
-  0% {opacity: 0;}
-  100% {opacity: 1;}
+  0% {opacity: 0; transform: translateY(5%);}
+  100% {opacity: 1; transform: translateY(0%);}
 } 
 
 .roomListRoom__header {
@@ -1059,6 +1059,42 @@ a {
   .layout--2 > .container > div:first-child {
     flex-basis: 100%;
   }
+}
+
+button.upvote {
+  background: url("../images/icons/up-arrow.png");
+  background-size: cover;
+  border: none;
+  width: 110%;
+  height: 110%;
+  cursor: pointer;
+}
+
+button.downvote {
+  background: url("../images/icons/up-arrow-full.png");
+  background-size: cover;
+  border: none;
+  width: 110%;
+  height: 110%;
+  cursor: pointer;
+}
+
+button.pin_room {
+  background: url("../images/icons/pin.png");
+  background-size: cover;
+  border: none;
+  width: 110%;
+  height: 110%;
+  cursor: pointer;
+}
+
+button.unpin_room {
+  background: url("../images/icons/pin-full.png");
+  background-size: cover;
+  border: none;
+  width: 110%;
+  height: 110%;
+  cursor: pointer;
 }
 
 .room__top,

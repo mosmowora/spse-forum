@@ -1,5 +1,6 @@
 {% extends 'main.html' %}
 {% load static %}
+{% load djutils %}
 {% block content %}
 <main class="profile-page layout layout--2">
   <div class="container">
@@ -15,7 +16,7 @@
               </path>
             </svg>
           </a>
-          <h3>Thread</h3>
+          <h3>Diskusia</h3>
         </div>
         {% if room.host == request.user %}
         <div class="room__topRight">
@@ -57,7 +58,7 @@
             <span>{{room.created|timesince}} ago</span>
           </div>
           <div class="room__hosted">
-            <p>Hosted By</p>
+            <p>Hosťované</p>
             <a href="{% url 'user-profile' room.host.id %}" class="room__author">
               <div class="avatar avatar--small">
                 {% if room.host.avatar %}
@@ -69,11 +70,6 @@
               <span>@{{room.host.username}}</span>
             </a>
           </div>
-          <!-- <div class="room__details">
-            Lorem ipsum dolor sit, amet consectetur adipisicing elit. Quasi, tenetur laudantium? Dicta repellendus
-            rerum consectetur, voluptatem repudiandae eum ea porro cupiditate provident nulla, deserunt, ab ipsum
-            corporis laboriosam deleniti molestias?
-          </div> -->
           <span class="room__topics">{{room.topic}}</span>
           <div>{{room.description}}</div>
         </div>
@@ -89,17 +85,32 @@
                   <a href="{% url 'user-profile' message.user.id %}" class="thread__authorInfo">
                     <div class="avatar avatar--small">
                       {% if message.user.avatar.url is not None %}
-                      <img src="{{message.user.avatar.url}}" alt=""/>
+                      <img src="{{message.user.avatar.url}}" alt="" />
                       {% else %}
-                      <img src="{% static 'images/avatar.svg' %}" alt=""/>
+                      <img src="{% static 'images/avatar.svg' %}" alt="" />
                       {% endif %}
-                      
+
                     </div>
                     <span>@{{message.user.username}}</span>
                   </a>
                   <span class="thread__date">{{message.created|timesince}} ago</span>
                 </div>
-                {% if request.user == message.user %}
+                <form action="{% url 'upvote-message' message.pk %}" method="POST"
+                  style="height: 2.2%; width: 2.2%; margin-left: auto; margin-right: 5%; margin-bottom: 0.5%; align-items: center; justify-content: center; display: flex;">
+                  {% csrf_token %}
+                  <h3 style="font-weight: 700; padding-right: 30%;">{{message.total_upvotes}}</h3>
+                  {% if not upvoted_messages|get_value_from_dict:message %}
+                  <abbr title="podporujem">
+                    <button type="submit" name="message_id" value="{{message.id}}" alt="upvote" class="upvote">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</button>
+                  </abbr>
+                  {% else %}
+                  <abbr title="prestať podporovať">
+                    <button type="submit" name="message_id" value="{{message.id}}" alt="upvote" class="downvote">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</button>
+                  </abbr>
+                  {% endif %}
+                </form>
+                
+                {% if message.user == request.user %}
                 <a href="{% url 'delete-message' message.id %}">
                   <div class="thread__delete">
                     <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
@@ -110,6 +121,8 @@
                     </svg>
                   </div>
                 </a>
+                {% else %}
+                <div></div>
                 {% endif %}
               </div>
               <div class="thread__details">
@@ -124,7 +137,7 @@
       <div class="room__message">
         <form action="" method="POST">
           {% csrf_token %}
-          <input name="body" placeholder="Write your message here..." />
+          <input name="body" placeholder="Chcem sa vyjadriť..." />
         </form>
       </div>
     </div>
@@ -140,7 +153,7 @@
             {% if user.avatar.url is not None %}
             <img src="{{user.avatar.url}}" alt="" />
             {% else %}
-            <img src="{% static 'images/avatar.svg' %}" alt=""/>
+            <img src="{% static 'images/avatar.svg' %}" alt="" />
             {% endif %}
           </div>
           <p>

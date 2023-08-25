@@ -1,3 +1,4 @@
+from typing import Self
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 
@@ -40,6 +41,18 @@ class Room(models.Model):
 
     class Meta:
         ordering = ['-pinned', '-updated', '-created']
+        
+    def __lt__(self, other: Self):
+        if self.pinned:
+            if self.updated > other.updated: 
+                if self.created > other.created: 
+                    return self
+                else: 
+                    return other
+            else: 
+                return other
+        else:
+            return other
 
     def __str__(self): return self.name
 

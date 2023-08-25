@@ -1,13 +1,19 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 
+class FromClass(models.Model):
+    set_class = models.CharField(max_length=5)
+    
+    def __str__(self) -> str:
+        return self.set_class
 
 class User(AbstractUser):
     name = models.CharField(max_length=220, null=True)
     email = models.EmailField(unique=True, null=True)
     bio = models.TextField(null=True, blank=True)
-
     avatar = models.ImageField(null=True)
+    
+    from_class = models.ForeignKey(FromClass, on_delete=models.SET_NULL, null=True)
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
 
@@ -30,6 +36,7 @@ class Room(models.Model):
     created = models.DateTimeField(auto_now_add=True)
 
     pinned = models.BooleanField(null=False, default=False)
+    limited_for = models.ManyToManyField(FromClass, related_name='room_limited_for')
 
     class Meta:
         ordering = ['-pinned', '-updated', '-created']
@@ -44,7 +51,7 @@ class Message(models.Model):
     updated = models.DateTimeField(auto_now=True)
     created = models.DateTimeField(auto_now_add=True)
     likes = models.ManyToManyField(User, related_name='messages')
-    
+
     def total_upvotes(self):
         return self.likes.count()
 

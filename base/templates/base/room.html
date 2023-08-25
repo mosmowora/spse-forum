@@ -18,7 +18,7 @@
           </a>
           <h3>Diskusia</h3>
         </div>
-        {% if room.host == request.user %}
+        {% if room.host == request.user or request.user.is_superuser %}
         <div class="room__topRight">
           <a href="{% url 'update-room' room.id %}">
             <svg enable-background="new 0 0 24 24" height="32" viewBox="0 0 24 24" width="32"

@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
-from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
+from django.http import HttpRequest, HttpResponseRedirect
 from django.contrib import messages
+from django.contrib.auth.models import AnonymousUser
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.db.models.query import QuerySet
@@ -67,6 +68,10 @@ def home(request: HttpRequest):
         Q(name__icontains=q) |
         Q(description__icontains=q)
     )
+    if not isinstance(request.user, AnonymousUser):
+        rooms.filter(limited_for__id__exact=request.user.from_class.id)
+    else:
+        Room.objects.none()
 
     topics = Topic.objects.all()[0:5]
     room_count = rooms.count()
@@ -89,7 +94,8 @@ def pinRoom(request: HttpRequest, pk):
 def room(request, pk):
     room = Room.objects.get(id=pk)
     room_messages: QuerySet[Message] = room.message_set.all()
-    room_messages = sorted(room_messages, key=lambda mess: mess.likes.count(), reverse=True)
+    room_messages = sorted(
+        room_messages, key=lambda mess: mess.likes.count(), reverse=True)
     participants = room.participants.all()
 
     if request.method == 'POST':
@@ -124,7 +130,7 @@ def upvoteMessage(request: HttpRequest, pk):
         message.likes.remove(request.user)
     else:
         message.likes.add(request.user)
-    
+
     message.save()
     return HttpResponseRedirect(reverse('room', args=[message.room_id]))
 
@@ -148,22 +154,23 @@ def fallback(request: HttpRequest):
 
 @login_required(login_url='login', redirect_field_name=None)
 def createRoom(request: HttpRequest):
-    form = RoomForm(request.POST or None)
+    form = RoomForm(request.POST)
     topics = Topic.objects.all()
 
     if request.method == 'POST':
         topic_name = request.POST.get('topic')
         topic, _ = Topic.objects.get_or_create(name=topic_name)
+        class_list = request.POST.getlist("limit_for")
 
         room = Room(
             host=request.user,
             topic=topic,
             name=request.POST.get('name'),
             description=request.POST.get('description'),
-            pinned=True if request.POST.get('pinned') == "on" else False
+            pinned=True if request.POST.get('pinned') == "on" else False,
         )
-        # room.limited_for.set(FromClass.objects.all())
         room.save()
+        room.limited_for.set(set(int(x) for x in class_list))
         return redirect('home')
 
     context = {'form': form, 'topics': topics}
@@ -175,6 +182,8 @@ def updateRoom(request: HttpRequest, pk):
     room = Room.objects.get(id=pk)
     form = RoomForm(instance=room)
     topics = Topic.objects.all()
+    form['limit_for'].initial = room.limited_for.get_queryset()
+
     if request.user != room.host:
         return fallback(request)
 
@@ -185,6 +194,7 @@ def updateRoom(request: HttpRequest, pk):
         room.topic = topic
         room.description = request.POST.get('description')
         room.pinned = True if request.POST.get('pinned') == "on" else False
+        room.limited_for.set(request.POST.getlist("limit_for"))
         room.save()
         return redirect('home')
 
@@ -196,7 +206,7 @@ def updateRoom(request: HttpRequest, pk):
 def deleteRoom(request, pk):
     room = Room.objects.get(id=pk)
 
-    if request.user != room.host:
+    if request.user != room.host and not request.user.is_superuser:
         return fallback(request)
 
     if request.method == 'POST':

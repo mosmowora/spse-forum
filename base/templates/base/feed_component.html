@@ -28,32 +28,17 @@
                 </abbr>
             </form>
             {% else %}
-            <a value="{{room.pinned}}">
+            <abbr title="pinnut tuto diskusiu">
                 {% if not room.pinned %}
-                <img src="{% static 'images/icons/pin.png' %}" alt="pin">
+                <button type="submit" name="diskusia_id" value="{{room.id}}" alt="pin"
+                    class="pin_room">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</button>
                 {% else %}
-                <img src="{% static 'images/icons/pin-full.png' %}" alt="pin">
+                <button type="submit" name="diskusia_id" value="{{room.id}}" alt="pin"
+                    class="unpin_room">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</button>
                 {% endif %}
-            </a>
+            </abbr>
             {% endif %}
-            <!-- {% if room.host.name == request.user.name or request.user.is_superuser %}
-            <a href="{% url 'pinit' room.id %}" value="{{room.pinned}}">
-                {% if not room.pinned %}
-                <img src="{% static 'images/icons/pin.png' %}" alt="pin">
-                {% else %}
-                <img src="{% static 'images/icons/pin-full.png' %}" alt="pin">
-                {% endif %}
-            </a>
-            {% else %}
-            <a value="{{room.pinned}}">
-                {% if not room.pinned %}
-                <img src="{% static 'images/icons/pin.png' %}" alt="pin">
-                {% else %}
-                <img src="{% static 'images/icons/pin-full.png' %}" alt="pin">
-                {% endif %}
-            </a>
-            {% endif %} -->
-            <span>{{room.created|timesince}} ago</span>
+            <span class="timesince">{{room.created|timesince}} ago</span>
         </div>
     </div>
     <div class="roomListRoom__content">

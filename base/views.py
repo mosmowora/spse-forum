@@ -69,10 +69,10 @@ def home(request: HttpRequest):
     ).filter(
         Q(limited_for__in=(request.user.from_class.id,)) |
         Q(host=request.user)
-        ) \
-     .distinct() \
+    ) \
+        .distinct() \
     \
-    if not isinstance(request.user, AnonymousUser) else Room.objects.none()
+        if not isinstance(request.user, AnonymousUser) else Room.objects.none()
 
     room_count = rooms.count()
     topics = Topic.objects.all()[:5]
@@ -92,22 +92,12 @@ def pinRoom(request: HttpRequest, pk):
 
 
 @login_required(login_url='login', redirect_field_name=None)
-def room(request, pk):
+def room(request: HttpRequest, pk):
     room = Room.objects.get(id=pk)
     room_messages: QuerySet[Message] = room.message_set.all()
     room_messages = sorted(
         room_messages, key=lambda mess: mess.likes.count(), reverse=True)
     participants = room.participants.all()
-
-    if request.method == 'POST':
-        Message.objects.create(
-            user=request.user,
-            room=room,
-            body=request.POST.get('body')
-        )
-
-        room.participants.add(request.user)
-        return redirect('room', pk=room.id)
 
     upvoted_messages: dict[Message, bool] = {}
 
@@ -120,12 +110,22 @@ def room(request, pk):
 
     context = {'room': room, 'room_messages': room_messages,
                'participants': participants, 'upvoted_messages': upvoted_messages}
+
+    if request.method == 'POST':
+        Message.objects.create(
+            user=request.user,
+            room=room,
+            body=request.POST.get('body')
+        )
+
+        room.participants.add(request.user)
+        return redirect('room', pk=room.id)
+
     return render(request, 'base/room.html', context)
 
 
 def upvoteMessage(request: HttpRequest, pk):
     message = Message.objects.get(id=request.POST.get('message_id'))
-    # upvoted = False
 
     if message.likes.filter(id=request.user.id).exists():
         message.likes.remove(request.user)

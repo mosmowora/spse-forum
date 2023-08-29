@@ -1,23 +1,34 @@
-from email import message
 from typing import Self
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+import datetime
+
+import pytz
+
+from studybud import settings
+
 
 class FromClass(models.Model):
     set_class = models.CharField(max_length=5)
-    
+
     def __str__(self) -> str:
         return self.set_class
+
 
 class User(AbstractUser):
     name = models.CharField(max_length=220, null=True)
     email = models.EmailField(unique=True, null=True)
     bio = models.TextField(null=True, blank=True)
     avatar = models.ImageField(null=True)
-    
-    from_class = models.ForeignKey(FromClass, on_delete=models.SET_NULL, null=True)
+
+    from_class = models.ForeignKey(
+        FromClass, on_delete=models.SET_NULL, null=True)
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
+
+    def __str__(self) -> str:
+        return self.username
+
 
 
 class Topic(models.Model):
@@ -38,19 +49,20 @@ class Room(models.Model):
     created = models.DateTimeField(auto_now_add=True)
 
     pinned = models.BooleanField(null=False, default=False)
-    limited_for = models.ManyToManyField(FromClass, related_name='room_limited_for')
+    limited_for = models.ManyToManyField(
+        FromClass, related_name='room_limited_for')
 
     class Meta:
         ordering = ['-pinned', '-updated', '-created']
-        
+
     def __lt__(self, other: Self):
         if self.pinned:
-            if self.updated > other.updated: 
-                if self.created > other.created: 
+            if self.updated > other.updated:
+                if self.created > other.created:
                     return self
-                else: 
+                else:
                     return other
-            else: 
+            else:
                 return other
         else:
             return other
@@ -70,7 +82,7 @@ class Message(models.Model):
         return self.likes.count()
 
     class Meta:
-        ordering = ['-updated', '-created']
+        ordering = ['updated', 'created']
 
     def __str__(self):
         return self.body[0:50]

@@ -255,6 +255,10 @@ a {
   background-color: var(--color-success);
 }
 
+.avatar.authenticated-user::after {
+  background-color: var(--color-success);
+}
+
 .avatar.avatar--small img {
   width: 2.8rem;
   height: 2.8rem;

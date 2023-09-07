@@ -36,23 +36,6 @@
                 {% endif %}
             </a>
             {% endif %}
-            <!-- {% if room.host.name == request.user.name or request.user.is_superuser %}
-            <a href="{% url 'pinit' room.id %}" value="{{room.pinned}}">
-                {% if not room.pinned %}
-                <img src="{% static 'images/icons/pin.png' %}" alt="pin">
-                {% else %}
-                <img src="{% static 'images/icons/pin-full.png' %}" alt="pin">
-                {% endif %}
-            </a>
-            {% else %}
-            <a value="{{room.pinned}}">
-                {% if not room.pinned %}
-                <img src="{% static 'images/icons/pin.png' %}" alt="pin">
-                {% else %}
-                <img src="{% static 'images/icons/pin-full.png' %}" alt="pin">
-                {% endif %}
-            </a>
-            {% endif %} -->
             <span>{{room.created|timesince}} ago</span>
         </div>
     </div>

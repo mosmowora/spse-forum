@@ -38,12 +38,10 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'base.apps.BaseConfig',
-    "corsheaders",
+    # "corsheaders",
+    'rest_framework',
     'widget_tweaks',
     'djutils',
-
-
-    'rest_framework',
 ]
 
 AUTH_USER_MODEL = 'base.User'
@@ -56,15 +54,15 @@ REST_FRAMEWORK = {
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    "corsheaders.middleware.CorsMiddleware",
+    # "corsheaders.middleware.CorsMiddleware",
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'api.resources.users.middleware.active_user.ActiveUserMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
+    # 'api.resources.users.middleware.active_user.ActiveUserMiddleware',
+    # 'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
 
@@ -88,8 +86,7 @@ TEMPLATES = [
     },
 ]
 
-# WSGI_APPLICATION = 'studybud.wsgi.application'
-ASGI_APPLICATION = 'studybud.asgi.application'
+WSGI_APPLICATION = 'studybud.wsgi.application'
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators

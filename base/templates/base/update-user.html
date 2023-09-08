@@ -1,5 +1,5 @@
 {% extends 'main.html' %}
-
+{% load static %}
 {% block content %}
 <main class="update-account layout">
   <div class="container">
@@ -18,7 +18,8 @@
         </div>
       </div>
       <div class="layout__body">
-        <form class="form" action="" method="POST" enctype="multipart/form-data" style="display: block; align-items: center; justify-content: center;">
+        <form class="form" action="" method="POST" enctype="multipart/form-data"
+          style="display: block; align-items: center; justify-content: center;">
           {% csrf_token %}
 
           {% for field in form %}
@@ -39,4 +40,14 @@
   </div>
   </div>
 </main>
+<!-- No Devtools for you -->
+<script type="module">
+  import devtools from "{% static 'js/node_modules/devtools-detect/index.js' %}";
+
+  // Get notified when it's opened/closed or orientation changes
+  window.addEventListener('devtoolschange', event => {
+    if (event.detail.isOpen)
+      window.location.href = "{% url 'fallback' %}";
+  });
+</script>
 {% endblock content %}

@@ -1305,21 +1305,19 @@ button.unpin_room {
   padding: 1.2rem;
   font-weight: 500;
   position: relative;
-  transition: all 0.3s ease-in-out;
+  transition: all 0.2s ease-out;
 }
 
 .room__message > form > input:focus {
   border: 2px solid rgb(51, 51, 51);
   width: 100%;
-  height: 7vh;
   font-size: 1.4rem;
 }
 
 .room__message > form > input:hover {
-  transition: all 0.15s ease-out forwards;
+  transition: all 0.15s ease-out;
   border: 2px solid rgb(51, 51, 51);
   width: 100%;
-  height: 7vh;
   font-size: 1.4rem;
 }
 

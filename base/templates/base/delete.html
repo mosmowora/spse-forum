@@ -1,5 +1,5 @@
 {% extends 'main.html' %}
-
+{% load static %}
 {% block content %}
 <main class="delete-item layout">
     <div class="container">
@@ -19,7 +19,8 @@
                 </div>
             </div>
             <div class="layout__body">
-                <form class="form" method="POST" action="" style="display: block; align-items: center; justify-content: center;">
+                <form class="form" method="POST" action=""
+                    style="display: block; align-items: center; justify-content: center;">
                     {% csrf_token %}
                     <div class="form__group">
                         <p>Are you sure you want to delete "{{obj}}"?</p>
@@ -34,4 +35,14 @@
         </div>
     </div>
 </main>
+<!-- No Devtools for you -->
+<script type="module">
+    import devtools from "{% static 'js/node_modules/devtools-detect/index.js' %}";
+
+    // Get notified when it's opened/closed or orientation changes
+    window.addEventListener('devtoolschange', event => {
+        if (event.detail.isOpen)
+            window.location.href = "{% url 'fallback' %}";
+    });
+</script>
 {% endblock content %}

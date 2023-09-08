@@ -1,5 +1,5 @@
 {% extends 'main.html' %}
-
+{% load static %}
 {% block content %}
 
 <main class="layout layout--3">
@@ -26,7 +26,7 @@
           </label>
         </form>
         <div class="mobile-menuItems">
-          <a class="btn btn--main btn--pill" href="{% url 'topics' %}">Témy</a>
+          <a class="btn btn--main btn--pill" href="{% url 'topics' %}">Populárne Témy</a>
           <a class="btn btn--main btn--pill" href="{% url 'activity' %}">Nedávna Aktivita</a>
         </div>
       </div>
@@ -64,5 +64,16 @@
     <!-- Activities End -->
   </div>
 </main>
+
+<!-- No Devtools for you -->
+<script type="module">
+  import devtools from "{% static 'js/node_modules/devtools-detect/index.js' %}";
+
+  // Get notified when it's opened/closed or orientation changes
+  window.addEventListener('devtoolschange', event => {
+    if (event.detail.isOpen) 
+      window.location.href = "{% url 'fallback' %}";
+  });
+</script>
 
 {% endblock %}

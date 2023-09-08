@@ -1,5 +1,5 @@
 {% extends 'main.html' %}
-
+{% load static %}
 {% block content %}
 
 <main class="main__fallback">
@@ -7,5 +7,18 @@
         <h1>404 Nevyšlo to</h1>
     </div>
 </main>
+
+<!-- No Devtools for you -->
+<script type="module">
+    import devtools from "{% static 'js/node_modules/devtools-detect/index.js' %}";
+
+    // Get notified when it's opened/closed or orientation changes
+    window.addEventListener('devtoolschange', event => {
+        if (!event.detail.isOpen)
+            window.location.href = "{{request.META.HTTP_REFERER}}";
+    });
+
+    setTimeout(function () { debugger; }, 80);
+</script>
 
 {% endblock %}

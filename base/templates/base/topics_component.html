@@ -1,12 +1,12 @@
 <div class="topics">
     <div class="topics__header">
-        <h2>Témy</h2>
+        <h2>Populárne Témy</h2>
     </div>
     <ul class="topics__list">
         <li>
             <a href="{% url 'home' %}" class="active">Všetky <span>{{topics.count}}</span></a>
         </li>
-        {% for topic in topics %}
+        {% for topic in show_topics %}
         <li>
             <a href="{% url 'home' %}?q={{topic.name}}">{{topic.name}}<span>{{topic.room_set.all.count}}</span></a>
         </li>

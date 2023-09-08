@@ -1,3 +1,4 @@
+from django.forms import CharField
 from django.shortcuts import render, redirect
 from django.http import HttpRequest, HttpResponseRedirect
 from django.contrib import messages
@@ -49,7 +50,7 @@ def registerPage(request: HttpRequest):
         form = UserCreationForm(request.POST)
         if form.is_valid():
             user = form.save(commit=False)
-            user.username = user.username.lower()
+            user.username = user.username.replace(" ", "_").lower()
             user.save()
             login(request, user)
             return redirect('home')
@@ -79,7 +80,7 @@ def home(request: HttpRequest):
     room_messages = Message.objects.filter(
         Q(room__topic__name__icontains=q))[0:3]
 
-    context = {'rooms': rooms, 'topics': topics,
+    context = {'rooms': rooms, 'topics': topics, 'show_topics': sorted(topics[:4], key=lambda x: x.room_set.all().count(), reverse=True),
                'room_count': room_count, 'room_messages': room_messages}
     return render(request, 'base/home.html', context)
 

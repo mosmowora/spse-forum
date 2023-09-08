@@ -1,5 +1,5 @@
 {% extends 'main.html' %}
-
+{% load static %}
 {% block content %}
 <main class="auth layout">
 
@@ -14,17 +14,18 @@
       <div class="layout__body">
         <h2 class="auth__tagline">Spýtaj sa a četuj s každým zo školy</h2>
 
-        <form class="form" action="" method="POST" style="display: block; align-items: center; justify-content: center;">
+        <form class="form" action="" method="POST"
+          style="display: block; align-items: center; justify-content: center;">
           {% csrf_token %}
           <div class="form__group form__group">
             <label for="room_name">Email</label>
-            <input id="username" name="email" type="email" placeholder="e.g. test@test.com "/>
+            <input id="username" name="email" type="email" placeholder="e.g. test@test.com " />
           </div>
           <div class=" form__group">
             <label for="password">Password</label>
             <input id="password" name="password" type="password"
               placeholder="&gtcir;&gtcir;&gtcir;&gtcir;&gtcir;&gtcir;&gtcir;&gtcir;" />
-            <input type="hidden" name="next" value="{{ request.GET.next }}"/>
+            <input type="hidden" name="next" value="{{ request.GET.next }}" />
           </div>
 
           <button class="btn btn--main" type="submit">
@@ -60,7 +61,8 @@
       <div class="layout__body">
         <h2 class="auth__tagline">Spýtaj sa a četuj s každým zo školy</h2>
 
-        <form class="form" action="" method="POST" style="display: block; align-items: center; justify-content: center;">
+        <form class="form" action="" method="POST"
+          style="display: block; align-items: center; justify-content: center;">
           {% csrf_token %}
 
           {% for field in form %}
@@ -95,4 +97,15 @@
   </div>
   {% endif %}
 </main>
+
+<!-- No Devtools for you -->
+<script type="module">
+  import devtools from "{% static 'js/node_modules/devtools-detect/index.js' %}";
+
+  // Get notified when it's opened/closed or orientation changes
+  window.addEventListener('devtoolschange', event => {
+    if (event.detail.isOpen) 
+      window.location.href = "{% url 'fallback' %}";
+  });
+</script>
 {% endblock content %}

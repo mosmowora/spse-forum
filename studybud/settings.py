@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'widget_tweaks',
     'djutils',
+    'online_users',
 ]
 
 AUTH_USER_MODEL = 'base.User'
@@ -61,6 +62,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'online_users.middleware.OnlineNowMiddleware',
     # 'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 

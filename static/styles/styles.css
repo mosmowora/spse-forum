@@ -991,6 +991,11 @@ input:disabled {
   max-width: 68rem;
 }
 
+div#id_limit_for {
+  height: 13vh;
+  overflow: auto;
+}
+
 /*==============================
 =>  Update Account
 ================================*/

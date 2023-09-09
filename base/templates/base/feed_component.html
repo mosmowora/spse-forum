@@ -3,6 +3,7 @@
 <div class="roomListRoom">
     <div class="roomListRoom__header">
         <a href="{% url 'user-profile' room.host.id %}" class="roomListRoom__author">
+            {% if room.host not in active_users %}
             <div class="avatar avatar--small">
                 {% if room.host.avatar %}
                 <img src="{{room.host.avatar.url}}" alt="" />
@@ -10,6 +11,15 @@
                 <img src="{% static 'images/avatar.svg' %}" alt="" />
                 {% endif %}
             </div>
+            {% else %}
+            <div class="avatar avatar--small active">
+                {% if room.host.avatar %}
+                <img src="{{room.host.avatar.url}}" alt="" />
+                {% else %}
+                <img src="{% static 'images/avatar.svg' %}" alt="" />
+                {% endif %}
+            </div>
+            {% endif %}
             <span>@{{room.host.username}}</span>
         </a>
         <div class="roomListRoom__actions"

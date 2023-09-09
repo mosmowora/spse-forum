@@ -60,6 +60,7 @@
           <div class="room__hosted">
             <p>Založené</p>
             <a href="{% url 'user-profile' room.host.id %}" class="room__author">
+              {% if room.host not in active_users %}
               <div class="avatar avatar--small">
                 {% if room.host.avatar %}
                 <img src="{{room.host.avatar.url}}" />
@@ -67,6 +68,15 @@
                 <img src="{% static 'images/avatar.svg' %}" />
                 {% endif %}
               </div>
+              {% else %}
+              <div class="avatar avatar--small active">
+                {% if room.host.avatar %}
+                <img src="{{room.host.avatar.url}}" />
+                {% else %}
+                <img src="{% static 'images/avatar.svg' %}" />
+                {% endif %}
+              </div>
+              {% endif %}
               <span>{{room.host.name}}</span>
             </a>
           </div>
@@ -83,7 +93,16 @@
               <div class="thread__top">
                 <div class="thread__author">
                   <a href="{% url 'user-profile' message.user.id %}" class="thread__authorInfo">
+                    {% if message.user not in active_users %}
                     <div class="avatar avatar--small">
+                      {% if message.user.avatar.url is not None %}
+                      <img src="{{message.user.avatar.url}}" alt="" />
+                      {% else %}
+                      <img src="{% static 'images/avatar.svg' %}" alt="" />
+                      {% endif %}
+                    </div>
+                    {% else %}
+                    <div class="avatar avatar--small active">
                       {% if message.user.avatar.url is not None %}
                       <img src="{{message.user.avatar.url}}" alt="" />
                       {% else %}
@@ -91,6 +110,7 @@
                       {% endif %}
 
                     </div>
+                    {% endif %}
                     <span>@{{message.user.username}}</span>
                   </a>
                   <span class="thread__date">{{message.created|timesince}} ago</span>
@@ -151,6 +171,7 @@
       <div class="participants__list scroll">
         {% for user in participants %}
         <a href="{%  url 'user-profile' user.id %}" class="participant">
+          {% if user not in active_users %}
           <div class="avatar avatar--medium">
             {% if user.avatar.url is not None %}
             <img src="{{user.avatar.url}}" alt="" />
@@ -158,6 +179,15 @@
             <img src="{% static 'images/avatar.svg' %}" alt="" />
             {% endif %}
           </div>
+          {% else %}
+          <div class="avatar avatar--medium active">
+            {% if user.avatar.url is not None %}
+            <img src="{{user.avatar.url}}" alt="" />
+            {% else %}
+            <img src="{% static 'images/avatar.svg' %}" alt="" />
+            {% endif %}
+          </div>
+          {% endif %}
           <p>
             {{user.name}}
             <span>@{{user.username}}</span>

@@ -16,7 +16,7 @@ class UserCreationForm(UserCreationForm):
                   'from_class', 'password1', 'password2']
 
 class RoomForm(ModelForm):
-    selection = forms.SelectMultiple()
+    selection = forms.CheckboxSelectMultiple()
     
     limit_for = forms.ModelMultipleChoiceField(
         queryset=FromClass.objects.all(),

@@ -1,4 +1,4 @@
-from django.forms import CharField
+from datetime import timedelta
 from django.shortcuts import render, redirect
 from django.http import HttpRequest, HttpResponseRedirect
 from django.contrib import messages
@@ -10,6 +10,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.urls import reverse
 from .models import Room, Topic, Message, User
 from .forms import RoomForm, UserCreationForm, UserForm
+from online_users.models import OnlineUserActivity
 # Create your views here.
 
 
@@ -73,15 +74,19 @@ def home(request: HttpRequest):
     ) \
         .distinct() \
     \
-        if not isinstance(request.user, AnonymousUser) else Room.objects.none()
+    if not isinstance(request.user, AnonymousUser) else Room.objects.none()
 
+    active_users = User.objects.filter(
+        id__in=list(map(lambda u: u.user_id, OnlineUserActivity.get_user_activities(time_delta=timedelta(seconds=30))))
+    )
+    
     room_count = rooms.count()
     topics = Topic.objects.all()[:5]
-    room_messages = Message.objects.filter(
-        Q(room__topic__name__icontains=q))[0:3]
-
+    room_messages = sorted(Message.objects.filter(
+        Q(room__topic__name__icontains=q)), key=lambda m: m.created, reverse=True)[:3]
+    
     context = {'rooms': rooms, 'topics': topics, 'show_topics': sorted(topics[:4], key=lambda x: x.room_set.all().count(), reverse=True),
-               'room_count': room_count, 'room_messages': room_messages}
+               'room_count': room_count, 'room_messages': room_messages, 'active_users': active_users}
     return render(request, 'base/home.html', context)
 
 
@@ -108,9 +113,13 @@ def room(request: HttpRequest, pk):
             upvoted = True
 
         upvoted_messages[message] = upvoted
+        
+    active_users = User.objects.filter(
+        id__in=list(map(lambda u: u.user_id, OnlineUserActivity.get_user_activities(time_delta=timedelta(seconds=30))))
+    )
 
     context = {'room': room, 'room_messages': room_messages,
-               'participants': participants, 'upvoted_messages': upvoted_messages}
+               'participants': participants, 'upvoted_messages': upvoted_messages, 'active_users': active_users}
 
     if request.method == 'POST':
         Message.objects.create(
@@ -142,9 +151,12 @@ def userProfile(request: HttpRequest, pk):
         user = User.objects.get(id=pk)
         rooms = user.room_set.all()
         room_messages = user.message_set.all()
+        active_users = User.objects.filter(
+            id__in=list(map(lambda u: u.user_id, OnlineUserActivity.get_user_activities(time_delta=timedelta(seconds=30))))
+        )
         topics = Topic.objects.all()
         context = {'user': user, 'rooms': rooms,
-                   'room_messages': room_messages, 'topics': topics}
+                   'room_messages': room_messages, 'topics': topics, 'active_users': active_users}
         return render(request, 'base/profile.html', context)
     except Exception:
         return fallback(request)
@@ -186,7 +198,7 @@ def updateRoom(request: HttpRequest, pk):
     topics = Topic.objects.all()
     form['limit_for'].initial = room.limited_for.get_queryset()
 
-    if request.user != room.host:
+    if request.user != room.host and not request.user.is_superuser:
         return fallback(request)
 
     if request.method == 'POST':

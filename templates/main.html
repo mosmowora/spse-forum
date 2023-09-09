@@ -30,7 +30,7 @@
 
     <script src="{% static 'js/script.js' %}"></script>
 </body>
-<script type="module">
+<!-- <script type="module">
     import devtools from "{% static 'js/node_modules/devtools-detect/index.js' %}";
   
     // Get notified when it's opened/closed or orientation changes
@@ -38,5 +38,6 @@
       if (event.detail.isOpen) 
       window.location.href = "{% url 'fallback' %}";
   });
-  </script>
+  </script> -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 </html>

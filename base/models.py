@@ -19,7 +19,7 @@ class User(AbstractUser):
     name = models.CharField(max_length=220, null=True)
     email = models.EmailField(unique=True, null=True)
     bio = models.TextField(null=True, blank=True)
-    avatar = models.ImageField(null=True)
+    avatar = models.ImageField(null=True, blank=True, verbose_name='avatar')
 
     from_class = models.ForeignKey(
         FromClass, on_delete=models.SET_NULL, null=True)

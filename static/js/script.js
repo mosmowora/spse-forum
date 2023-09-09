@@ -63,3 +63,21 @@ if (photoInput)
       photoPreview.src = URL.createObjectURL(file);
     }
   };
+
+const formClear = document.querySelector('[for="avatar-clear_id"]');
+formClear.innerHTML = "Vymazať";
+const formClearCheckbox = document.querySelector('input[name="avatar-clear"]');
+function disable() {
+  $('input[name="avatar"]').attr('disabled', true);
+}
+function enable() {
+  $('input[name="avatar"]').attr('disabled', false);
+}
+
+formClearCheckbox.addEventListener('click', () => {
+  if (formClearCheckbox.checked) {
+    disable();
+  } else {
+    enable();
+  }
+});

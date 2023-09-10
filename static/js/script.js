@@ -21,19 +21,25 @@ if (photoInput)
   };
 
 const formClear = document.querySelector('[for="avatar-clear_id"]');
-formClear.innerHTML = "Vymazať";
-const formClearCheckbox = document.querySelector('input[name="avatar-clear"]');
-function disable() {
-  $('input[name="avatar"]').attr('disabled', true);
-}
-function enable() {
-  $('input[name="avatar"]').attr('disabled', false);
+if (formClear != null) {
+  formClear.innerHTML = "Vymazať";
+  const formClearCheckbox = document.querySelector('input[name="avatar-clear"]');
+  function disable() {
+    $('input[name="avatar"]').attr('disabled', true);
+  }
+  function enable() {
+    $('input[name="avatar"]').attr('disabled', false);
+  }
+
+  formClearCheckbox.addEventListener('click', () => {
+    if (formClearCheckbox.checked) {
+      disable();
+    } else {
+      enable();
+    }
+  });
 }
 
-formClearCheckbox.addEventListener('click', () => {
-  if (formClearCheckbox.checked) {
-    disable();
-  } else {
-    enable();
-  }
-});
+function prevent(e) {
+  return !(e.which == 13 || e.keyCode == 13);
+}

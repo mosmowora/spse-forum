@@ -244,7 +244,7 @@ def deleteMessage(request, pk):
 
 
 @login_required(login_url='login', redirect_field_name=None)
-def updateUser(request):
+def updateUser(request: HttpRequest):
     user = request.user
     form = UserForm(instance=user)
 
@@ -257,10 +257,21 @@ def updateUser(request):
     return render(request, 'base/update-user.html', {'form': form})
 
 
-def topicsPage(request):
+def topicsPage(request: HttpRequest):
     q = request.GET.get('q') if request.GET.get('q') != None else ''
-    topics = Topic.objects.filter(name__icontains=q)
-    return render(request, 'base/topics.html', {'topics': topics})
+    render_value = ""
+    type_of = ""
+    
+    if request.method == "GET":
+        if request.GET.get("search_for_topics") is None:
+            render_value = request.GET.get("search_for_students")
+            type_of = 'user'
+        else: 
+            render_value = request.GET.get("search_for_topics")
+            type_of = 'topic'
+    
+    topics = Topic.objects.filter(name__icontains=q) if type_of in ("topic", "") else User.objects.filter(name__icontains=q)
+    return render(request, 'base/topics.html', {'topics': topics, 'render_value': render_value, "type_of": type_of})
 
 
 def activityPage(request):

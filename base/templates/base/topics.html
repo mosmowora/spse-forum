@@ -14,7 +14,7 @@
               </path>
             </svg>
           </a>
-          <h3>Témy</h3>
+          <h3>Vyhľadávanie</h3>
         </div>
       </div>
 
@@ -22,24 +22,47 @@
         <form action="" method="GET" class="header__search">
           <label>
             <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
-              <title>search</title>
+              <title>Vyhľadávanie</title>
               <path
                 d="M32 30.586l-10.845-10.845c1.771-2.092 2.845-4.791 2.845-7.741 0-6.617-5.383-12-12-12s-12 5.383-12 12c0 6.617 5.383 12 12 12 2.949 0 5.649-1.074 7.741-2.845l10.845 10.845 1.414-1.414zM12 22c-5.514 0-10-4.486-10-10s4.486-10 10-10c5.514 0 10 4.486 10 10s-4.486 10-10 10z">
               </path>
             </svg>
-            <input name="q" placeholder="Prehľadávať témy" />
+            <input name="q" placeholder="Prehľadávať " id="search_for" onkeypress="return prevent(event)" />
           </label>
+          <div class="mobile-menuItems activity-pills">
+            <input type="submit" name="search_for_topics" value=Témy class="btn btn--main btn--pill input-pill"
+              readonly>
+            <input type="submit" name="search_for_students" value="Študenti" class="btn btn--main btn--pill input-pill"
+              readonly>
+          </div>
         </form>
 
         <ul class="topics__list">
           <li>
             <a href="{% url 'topics' %}" class="active">Všetky <span>{{topics.count}}</span></a>
           </li>
+          {% if type_of != 'user' %}
           {% for topic in topics %}
           <li>
             <a href="{% url 'home' %}?q={{topic.name}}">{{ topic.name }} <span>{{topic.room_set.all.count}}</span></a>
           </li>
           {% endfor %}
+          {% else %}
+          {% for user in topics %}
+          <li>
+            <a href="{% url 'user-profile' user.id %}">
+              {% if user.avatar.url is not None %}
+                <img src="{{ user.avatar.url }}" alt="" style="border-radius: 40%; width: 7%;" />
+                {% else %}
+                <img src="{% static 'images/avatar.svg' %}" alt=""  style="width: 10%; width: 7%;"/>
+                {% endif %}
+              <span style="padding-top: 2.5%; padding-left: 3%; margin-right: auto;">
+                {{ user.name }}
+              </span>
+            </a>
+          </li>
+          {% endfor %}
+          {% endif %}
 
         </ul>
       </div>
@@ -57,5 +80,4 @@
       window.location.href = "{% url 'fallback' %}";
   });
 </script> -->
-
 {% endblock content %}

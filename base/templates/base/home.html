@@ -19,7 +19,7 @@
           {% elif room_count == 1 %}
           <p>{{room_count}} aktívna diskusia</p>
           {% else %}
-          <p>{{room_count}} aktívne diskusie</p>
+          <p>Aktívne diskusie: {{room_count}}</p>
           {% endif %}
         </div>
 
@@ -48,7 +48,7 @@
             </label>
           </form>
           <div class="mobile-menuItems">
-            <a class="btn btn--main btn--pill" href="{% url 'topics' %}">Populárne Témy</a>
+            <a class="btn btn--main btn--pill" href="{% url 'topics' %}">Vyhľadávať</a>
             <a class="btn btn--main btn--pill" href="{% url 'activity' %}">Nedávna Aktivita</a>
           </div>
         </div>
@@ -66,7 +66,6 @@
   </div>
 </main>
 
-<!-- No Devtools for you -->
 <!-- <script type="module">
   import devtools from "{% static 'js/node_modules/devtools-detect/index.js' %}";
 

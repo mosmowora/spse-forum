@@ -20,14 +20,14 @@
                 {% endif %}
             </div>
             {% endif %}
-            <span>@{{room.host.username}}</span>
+            <span style="min-width: 100px;">{{room.host.name}}</span>
         </a>
         <div class="roomListRoom__actions"
             style="display: flex; align-items: flex-start; gap: 1rem; position: relative; margin-right: 0;">
             {% if room.host.name == request.user.name or request.user.is_superuser %}
             <form action="{% url 'pinit' room.id %}" method="POST">
                 {% csrf_token %}
-                <abbr title="pinnut tuto diskusiu">
+                <abbr title="pripnúť tuto diskusiu">
                     {% if not room.pinned %}
                     <button type="submit" name="diskusia_id" value="{{room.id}}" alt="pin"
                         class="pin_room">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</button>

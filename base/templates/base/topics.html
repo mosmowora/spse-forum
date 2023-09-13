@@ -38,16 +38,19 @@
         </form>
 
         <ul class="topics__list">
+          {% if type_of != 'user' %}
           <li>
             <a href="{% url 'topics' %}" class="active">Všetky <span>{{topics.count}}</span></a>
           </li>
-          {% if type_of != 'user' %}
           {% for topic in topics %}
           <li>
-            <a href="{% url 'home' %}?q={{topic.name}}">{{ topic.name }} <span>{{topic.room_set.all.count}}</span></a>
+            <a href="{% url 'home' %}?q={{topic.name}}">{{ topic.name }} <span>Počet: {{topic.room_set.all.count}}</span></a>
           </li>
           {% endfor %}
           {% else %}
+          <li>
+            <a href="{% url 'topics' %}" class="active">Všetci <span>{{topics.count}}</span></a>
+          </li>
           {% for user in topics %}
           <li>
             <a href="{% url 'user-profile' user.id %}">
@@ -56,22 +59,23 @@
                 {% else %}
                 <img src="{% static 'images/avatar.svg' %}" alt=""  style="width: 10%; width: 7%;"/>
                 {% endif %}
-              <span style="padding-top: 2.5%; padding-left: 3%; margin-right: auto;">
+              <span style="padding-top: 2%; padding-left: 3%; margin-right: auto;">
                 {{ user.name }}
+              </span>
+              <span style="padding-top: 2%; padding-left: 3%;">
+                {{ user.from_class.set_class }}
               </span>
             </a>
           </li>
           {% endfor %}
           {% endif %}
-
         </ul>
       </div>
     </div>
   </div>
 </main>
 
-<!-- No Devtools for you -->
-<!-- <script type="module">
+<script type="module">
   import devtools from "{% static 'js/node_modules/devtools-detect/index.js' %}";
 
   // Get notified when it's opened/closed or orientation changes
@@ -79,5 +83,5 @@
     if (event.detail.isOpen) 
       window.location.href = "{% url 'fallback' %}";
   });
-</script> -->
+</script>
 {% endblock content %}

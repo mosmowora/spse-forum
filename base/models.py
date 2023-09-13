@@ -55,18 +55,6 @@ class Room(models.Model):
     class Meta:
         ordering = ['-pinned', '-updated', '-created']
 
-    def __lt__(self, other: Self):
-        if self.pinned:
-            if self.updated > other.updated:
-                if self.created > other.created:
-                    return self
-                else:
-                    return other
-            else:
-                return other
-        else:
-            return other
-
     def __str__(self): return self.name
 
 
@@ -82,7 +70,7 @@ class Message(models.Model):
         return self.likes.count()
 
     class Meta:
-        ordering = ['updated', 'created']
+        ordering = ['-updated', '-created']
 
     def __str__(self):
         return self.body[0:50]

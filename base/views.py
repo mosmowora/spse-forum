@@ -64,27 +64,36 @@ def registerPage(request: HttpRequest):
 
 def home(request: HttpRequest):
     q = request.GET.get('q') if request.GET.get('q') != None else ''
-    rooms = Room.objects.filter(
-        Q(topic__name__icontains=q) |
-        Q(name__icontains=q) |
-        Q(description__icontains=q)
-    ).filter(
-        Q(limited_for__in=(request.user.from_class.id,)) |
-        Q(host=request.user)
-    ) \
-        .distinct() \
-    \
-    if not isinstance(request.user, AnonymousUser) else Room.objects.none()
+    rooms = None
+    if not isinstance(request.user, AnonymousUser):
+        if request.user.is_superuser:
+            rooms = Room.objects.filter(
+                (Q(topic__name__iexact=q) if q != '' else Q(topic__name__icontains=q)) |
+                (Q(name__icontains=q) |
+                Q(description__contains=q))
+            ).distinct()
+        else:
+            rooms = Room.objects.filter(
+                (Q(topic__name__iexact=q) if q != '' else Q(topic__name__icontains=q)) |
+                (Q(name__icontains=q) |
+                Q(description__contains=q))
+            ).filter(
+                Q(limited_for__in=(request.user.from_class.id,)) |
+                Q(host=request.user)
+            ).distinct()
+    else:
+        rooms = Room.objects.none()
 
     active_users = User.objects.filter(
-        id__in=list(map(lambda u: u.user_id, OnlineUserActivity.get_user_activities(time_delta=timedelta(seconds=30))))
+        id__in=list(map(lambda u: u.user_id, OnlineUserActivity.get_user_activities(
+            time_delta=timedelta(seconds=30))))
     )
-    
+
     room_count = rooms.count()
     topics = Topic.objects.all()[:5]
     room_messages = sorted(Message.objects.filter(
         Q(room__topic__name__icontains=q)), key=lambda m: m.created, reverse=True)[:3]
-    
+
     context = {'rooms': rooms, 'topics': topics, 'show_topics': sorted(topics[:4], key=lambda x: x.room_set.all().count(), reverse=True),
                'room_count': room_count, 'room_messages': room_messages, 'active_users': active_users}
     return render(request, 'base/home.html', context)
@@ -104,8 +113,10 @@ def room(request: HttpRequest, pk):
     room_messages = sorted(
         room_messages, key=lambda mess: mess.likes.count(), reverse=True)
     participants = room.participants.all()
-
+    
     upvoted_messages: dict[Message, bool] = {}
+    
+    back: str = request.META['HTTP_REFERER']
 
     for message in room_messages:
         upvoted = False
@@ -113,13 +124,14 @@ def room(request: HttpRequest, pk):
             upvoted = True
 
         upvoted_messages[message] = upvoted
-        
+
     active_users = User.objects.filter(
-        id__in=list(map(lambda u: u.user_id, OnlineUserActivity.get_user_activities(time_delta=timedelta(seconds=30))))
+        id__in=list(map(lambda u: u.user_id, OnlineUserActivity.get_user_activities(
+            time_delta=timedelta(seconds=30))))
     )
 
     context = {'room': room, 'room_messages': room_messages,
-               'participants': participants, 'upvoted_messages': upvoted_messages, 'active_users': active_users}
+               'participants': participants, 'upvoted_messages': upvoted_messages, 'active_users': active_users, 'back': any(x in ('room', 'error') for x in back.split("/"))}
 
     if request.method == 'POST':
         Message.objects.create(
@@ -152,7 +164,8 @@ def userProfile(request: HttpRequest, pk):
         rooms = user.room_set.all()
         room_messages = user.message_set.all()
         active_users = User.objects.filter(
-            id__in=list(map(lambda u: u.user_id, OnlineUserActivity.get_user_activities(time_delta=timedelta(seconds=30))))
+            id__in=list(map(lambda u: u.user_id, OnlineUserActivity.get_user_activities(
+                time_delta=timedelta(seconds=30))))
         )
         topics = Topic.objects.all()
         context = {'user': user, 'rooms': rooms,
@@ -170,6 +183,7 @@ def fallback(request: HttpRequest):
 def createRoom(request: HttpRequest):
     form = RoomForm(request.POST)
     topics = Topic.objects.all()
+    context = {'form': form, 'topics': topics}
 
     if request.method == 'POST':
         topic_name = request.POST.get('topic')
@@ -183,11 +197,15 @@ def createRoom(request: HttpRequest):
             description=request.POST.get('description'),
             pinned=True if request.POST.get('pinned') == "on" else False,
         )
+        selected_classes = set(int(x) for x in class_list)
+        if len(selected_classes) == 0:
+            context['message'] = 'Musíš zaškrtnúť pre koho sa ukáže'
+            return render(request, 'base/room_form.html', context)
+
         room.save()
-        room.limited_for.set(set(int(x) for x in class_list))
+        room.limited_for.set(selected_classes)
         return redirect('home')
 
-    context = {'form': form, 'topics': topics}
     return render(request, 'base/room_form.html', context)
 
 
@@ -260,17 +278,19 @@ def updateUser(request: HttpRequest):
 def topicsPage(request: HttpRequest):
     q = request.GET.get('q') if request.GET.get('q') != None else ''
     render_value = ""
-    type_of = ""
-    
+    type_of = "topic"
+
     if request.method == "GET":
         if request.GET.get("search_for_topics") is None:
             render_value = request.GET.get("search_for_students")
             type_of = 'user'
-        else: 
+        else:
             render_value = request.GET.get("search_for_topics")
             type_of = 'topic'
-    
-    topics = Topic.objects.filter(name__icontains=q) if type_of in ("topic", "") else User.objects.filter(name__icontains=q)
+
+    topics = Topic.objects.filter(
+        Q(name__icontains=q)) if type_of == "topic" else User.objects.filter(Q(name__icontains=q))
+
     return render(request, 'base/topics.html', {'topics': topics, 'render_value': render_value, "type_of": type_of})
 
 

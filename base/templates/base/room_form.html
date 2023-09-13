@@ -54,6 +54,9 @@
           
           <div class="form__group">
             <label for="room_pinned">Pre Koho?</label>
+            {% if message %}
+            <strong><p style="text-align: center; color: rgba(255, 255, 255, 0.403);">{{ message }}</p></strong>
+            {% endif %}
             {{form.limit_for|attr:"autocomplete=off"}}
           </div>
 
@@ -66,7 +69,6 @@
     </div>
   </div>
 </main>
-<!-- No Devtools for you -->
 <!-- <script type="module">
   import devtools from "{% static 'js/node_modules/devtools-detect/index.js' %}";
 

@@ -48,20 +48,26 @@
           </div>
 
           <div class="form__group">
-            <label for="room_pinned">Pripnúť?</label>
+            <label for="room_pinned">Pripnúť</label>
             {{form.pinned}}
           </div>
-          
+
           <div class="form__group">
-            <label for="room_pinned">Pre Koho?</label>
+            <label for="room_limit_for">Pre Koho?</label>
             {% if message %}
-            <strong><p style="text-align: center; color: rgba(255, 255, 255, 0.403);">{{ message }}</p></strong>
+            <strong>
+              <p style="text-align: center; color: rgba(255, 255, 255, 0.403);">{{ message }}</p>
+            </strong>
             {% endif %}
             {{form.limit_for|attr:"autocomplete=off"}}
           </div>
 
           <div class="form__action">
+            {% if back %}
+            <a class="btn btn--dark" href="{% url 'home' %}">Storno</a>
+            {% else %}
             <a class="btn btn--dark" href="{{request.META.HTTP_REFERER}}">Storno</a>
+            {% endif %}
             <button class="btn btn--main" type="submit">Vytvoriť</button>
           </div>
         </form>

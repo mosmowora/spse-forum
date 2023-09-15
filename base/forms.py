@@ -22,11 +22,6 @@ class RoomForm(ModelForm):
         queryset=FromClass.objects.all(),
         widget=selection
     )
-    
-    def __init__(self, *args, **kwargs):
-        super(RoomForm, self).__init__(*args, **kwargs)
-        print("error", self.fields['limit_for'].error_messages)
-        self.fields['limit_for'].error_messages = {'required': 'Zaškrtni aspoň jednu triedu, ktorej sa to zobrazí'}
     class Meta:
         model = Room
         fields = ['topic', 'name', 'description', 'pinned', 'limit_for']

@@ -189,14 +189,16 @@ def createRoom(request: HttpRequest):
         topic_name = request.POST.get('topic')
         topic, _ = Topic.objects.get_or_create(name=topic_name)
         class_list = request.POST.getlist("limit_for")
+        context['back'] = any(x == 'create-room' for x in request.META['HTTP_REFERER'].split("/"))
 
         room = Room(
             host=request.user,
             topic=topic,
             name=request.POST.get('name'),
             description=request.POST.get('description'),
-            pinned=True if request.POST.get('pinned') == "on" else False,
+            pinned=True if request.POST.get('pinned') == "on" else False
         )
+        
         selected_classes = set(int(x) for x in class_list)
         if len(selected_classes) == 0:
             context['message'] = 'Musíš zaškrtnúť pre koho sa ukáže'
@@ -215,11 +217,13 @@ def updateRoom(request: HttpRequest, pk):
     form = RoomForm(instance=room)
     topics = Topic.objects.all()
     form['limit_for'].initial = room.limited_for.get_queryset()
+    context = {'form': form, 'topics': topics, 'room': room, 'back': any(x == 'update-room' for x in request.META['HTTP_REFERER'].split("/"))}
 
     if request.user != room.host and not request.user.is_superuser:
         return fallback(request)
 
     if request.method == 'POST':
+        class_list = request.POST.getlist("limit_for")
         topic_name = request.POST.get('topic')
         topic, _ = Topic.objects.get_or_create(name=topic_name)
         room.name = request.POST.get('name')
@@ -227,10 +231,14 @@ def updateRoom(request: HttpRequest, pk):
         room.description = request.POST.get('description')
         room.pinned = True if request.POST.get('pinned') == "on" else False
         room.limited_for.set(request.POST.getlist("limit_for"))
+        selected_classes = set(int(x) for x in class_list)
+        if len(selected_classes) == 0:
+            context['message'] = 'Musíš zaškrtnúť pre koho sa ukáže'
+            return render(request, 'base/room_form.html', context)
+        
         room.save()
         return redirect('home')
 
-    context = {'form': form, 'topics': topics, 'room': room}
     return render(request, 'base/room_form.html', context)
 
 

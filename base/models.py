@@ -1,12 +1,6 @@
 from typing import Self
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-import datetime
-
-import pytz
-
-from studybud import settings
-
 
 class FromClass(models.Model):
     set_class = models.CharField(max_length=5)
@@ -70,7 +64,7 @@ class Message(models.Model):
         return self.likes.count()
 
     class Meta:
-        ordering = ['-updated', '-created']
+        ordering = ['updated', 'created']
 
     def __str__(self):
         return self.body[0:50]

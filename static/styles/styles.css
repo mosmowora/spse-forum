@@ -758,6 +758,8 @@ input:disabled {
 
 .topics__list {
   list-style: none;
+  max-height: 55vh;
+  overflow: auto;
 }
 
 .topics__list li a {
@@ -983,7 +985,12 @@ input:disabled {
 .activities {
   background: var(--color-dark);
   border-radius: 5px;
-  overflow: hidden;
+  overflow: auto;
+  max-height: 80vh;
+}
+
+.activity-container h2 {
+  border-radius: 5px;
 }
 
 .activities__header h2 {

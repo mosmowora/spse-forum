@@ -70,13 +70,13 @@ def home(request: HttpRequest):
             rooms = Room.objects.filter(
                 (Q(topic__name__iexact=q) if q != '' else Q(topic__name__icontains=q)) |
                 (Q(name__icontains=q) |
-                Q(description__contains=q))
+                 Q(description__contains=q))
             ).distinct()
         else:
             rooms = Room.objects.filter(
                 (Q(topic__name__iexact=q) if q != '' else Q(topic__name__icontains=q)) |
                 (Q(name__icontains=q) |
-                Q(description__contains=q))
+                 Q(description__contains=q))
             ).filter(
                 Q(limited_for__in=(request.user.from_class.id,)) |
                 Q(host=request.user)
@@ -90,10 +90,10 @@ def home(request: HttpRequest):
     )
 
     room_count = rooms.count()
-    topics = Topic.objects.all()[:5]
+    topics = Topic.objects.all()
     room_messages = sorted(Message.objects.filter(
         Q(room__topic__name__icontains=q)), key=lambda m: m.created, reverse=True)[:3]
-
+    print('full path', request.get_full_path())
     context = {'rooms': rooms, 'topics': topics, 'show_topics': sorted(topics[:4], key=lambda x: x.room_set.all().count(), reverse=True),
                'room_count': room_count, 'room_messages': room_messages, 'active_users': active_users}
     return render(request, 'base/home.html', context)
@@ -113,9 +113,9 @@ def room(request: HttpRequest, pk):
     room_messages = sorted(
         room_messages, key=lambda mess: mess.likes.count(), reverse=True)
     participants = room.participants.all()
-    
+
     upvoted_messages: dict[Message, bool] = {}
-    
+
     back: str = request.META['HTTP_REFERER']
 
     for message in room_messages:
@@ -169,7 +169,7 @@ def userProfile(request: HttpRequest, pk):
         )
         topics = Topic.objects.all()
         context = {'user': user, 'rooms': rooms,
-                   'room_messages': room_messages, 'topics': topics, 'active_users': active_users}
+                   'room_messages': room_messages, 'topics': topics, 'show_topics': sorted(topics[:4], key=lambda x: x.room_set.all().count(), reverse=True), 'active_users': active_users}
         return render(request, 'base/profile.html', context)
     except Exception:
         return fallback(request)
@@ -189,7 +189,8 @@ def createRoom(request: HttpRequest):
         topic_name = request.POST.get('topic')
         topic, _ = Topic.objects.get_or_create(name=topic_name)
         class_list = request.POST.getlist("limit_for")
-        context['back'] = any(x == 'create-room' for x in request.META['HTTP_REFERER'].split("/"))
+        context['back'] = any(
+            x == 'create-room' for x in request.META['HTTP_REFERER'].split("/"))
 
         room = Room(
             host=request.user,
@@ -198,7 +199,7 @@ def createRoom(request: HttpRequest):
             description=request.POST.get('description'),
             pinned=True if request.POST.get('pinned') == "on" else False
         )
-        
+
         selected_classes = set(int(x) for x in class_list)
         if len(selected_classes) == 0:
             context['message'] = 'Musíš zaškrtnúť pre koho sa ukáže'
@@ -217,7 +218,8 @@ def updateRoom(request: HttpRequest, pk):
     form = RoomForm(instance=room)
     topics = Topic.objects.all()
     form['limit_for'].initial = room.limited_for.get_queryset()
-    context = {'form': form, 'topics': topics, 'room': room, 'back': any(x == 'update-room' for x in request.META['HTTP_REFERER'].split("/"))}
+    context = {'form': form, 'topics': topics, 'room': room, 'back': any(
+        x == 'update-room' for x in request.META['HTTP_REFERER'].split("/"))}
 
     if request.user != room.host and not request.user.is_superuser:
         return fallback(request)
@@ -235,7 +237,7 @@ def updateRoom(request: HttpRequest, pk):
         if len(selected_classes) == 0:
             context['message'] = 'Musíš zaškrtnúť pre koho sa ukáže'
             return render(request, 'base/room_form.html', context)
-        
+
         room.save()
         return redirect('home')
 
@@ -296,8 +298,11 @@ def topicsPage(request: HttpRequest):
             render_value = request.GET.get("search_for_topics")
             type_of = 'topic'
 
-    topics = Topic.objects.filter(
-        Q(name__icontains=q)) if type_of == "topic" else User.objects.filter(Q(name__icontains=q))
+    alphabet = {c: i for i, c in enumerate(
+        'AÁÄBCČDĎDZDŽEÉFGHCHIÍJKLĹĽMNŇOÓÔPQRŔSŠTŤUÚVWXYÝZŽ')}
+    topics = sorted(Topic.objects.filter(
+        Q(name__icontains=q)), key=lambda x: x.room_set.all().count(), reverse=True) if type_of == "topic" \
+        else sorted(User.objects.filter(Q(name__icontains=q) | Q(from_class__set_class__icontains=q)), key=lambda user: [alphabet.get(c, ord(c)) for c in user.name.split()[0]])
 
     return render(request, 'base/topics.html', {'topics': topics, 'render_value': render_value, "type_of": type_of})
 

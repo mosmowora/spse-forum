@@ -27,7 +27,11 @@
                 d="M32 30.586l-10.845-10.845c1.771-2.092 2.845-4.791 2.845-7.741 0-6.617-5.383-12-12-12s-12 5.383-12 12c0 6.617 5.383 12 12 12 2.949 0 5.649-1.074 7.741-2.845l10.845 10.845 1.414-1.414zM12 22c-5.514 0-10-4.486-10-10s4.486-10 10-10c5.514 0 10 4.486 10 10s-4.486 10-10 10z">
               </path>
             </svg>
-            <input name="q" placeholder="Prehľadávať " id="search_for" onkeypress="return prevent(event)" />
+            {% if type_of == 'user' %}
+            <input name="q" placeholder="Prehľadávať študentov, triedy" id="search_for" onkeypress="return prevent(event)" />
+            {% else %}
+            <input name="q" placeholder="Prehľadávať témy" id="search_for" onkeypress="return prevent(event)" />
+            {% endif %}
           </label>
           <div class="mobile-menuItems activity-pills">
             <input type="submit" name="search_for_topics" value=Témy class="btn btn--main btn--pill input-pill"
@@ -55,9 +59,9 @@
           <li>
             <a href="{% url 'user-profile' user.id %}">
               {% if user.avatar.url is not None %}
-                <img src="{{ user.avatar.url }}" alt="" style="border-radius: 40%; width: 7%;" />
+                <img src="{{ user.avatar.url }}" alt="" style="border-radius: 30px; width: 7%; height: auto; max-height: 44px;" />
                 {% else %}
-                <img src="{% static 'images/avatar.svg' %}" alt=""  style="width: 10%; width: 7%;"/>
+                <img src="{% static 'images/avatar.svg' %}" alt=""  style="width: 10%; width: 7%; height: auto; max-height: 44px;"/>
                 {% endif %}
               <span style="padding-top: 2%; padding-left: 3%; margin-right: auto;">
                 {{ user.name }}
@@ -75,7 +79,7 @@
   </div>
 </main>
 
-<script type="module">
+<!-- <script type="module">
   import devtools from "{% static 'js/node_modules/devtools-detect/index.js' %}";
 
   // Get notified when it's opened/closed or orientation changes
@@ -83,5 +87,5 @@
     if (event.detail.isOpen) 
       window.location.href = "{% url 'fallback' %}";
   });
-</script>
+</script> -->
 {% endblock content %}

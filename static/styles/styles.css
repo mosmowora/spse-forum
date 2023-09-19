@@ -629,6 +629,7 @@ a {
 @media screen and (max-width: 900px) {
 
   .activities,
+  .activity-container,
   .topics {
     display: none;
   }

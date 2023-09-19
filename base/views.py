@@ -291,12 +291,12 @@ def topicsPage(request: HttpRequest):
     type_of = "topic"
 
     if request.method == "GET":
-        if request.GET.get("search_for_topics") is None:
-            render_value = request.GET.get("search_for_students")
-            type_of = 'user'
-        else:
+        if request.GET.get("search_for_students") is None:
             render_value = request.GET.get("search_for_topics")
             type_of = 'topic'
+        else:
+            render_value = request.GET.get("search_for_students")
+            type_of = 'user'
 
     alphabet = {c: i for i, c in enumerate(
         'AÁÄBCČDĎDZDŽEÉFGHCHIÍJKLĹĽMNŇOÓÔPQRŔSŠTŤUÚVWXYÝZŽ')}

@@ -156,5 +156,14 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': 'db.sqlite3',
-    }
+    },
+    # ↓ For school server use MySQL ↓
+    # 'default': {
+    #     'ENGINE'  : 'django.db.backends.mysql', # <-- UPDATED line 
+    #     'NAME'    : 'name_of_DB',                 # <-- UPDATED line 
+    #     'USER'    : 'forum',                     # <-- UPDATED line
+    #     'PASSWORD': 'forum_password',              # <-- UPDATED line
+    #     'HOST'    : 'localhost',                # <-- UPDATED line
+    #     'PORT'    : '<port>',
+    # }
 }

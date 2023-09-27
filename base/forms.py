@@ -54,3 +54,10 @@ class UserForm(ModelForm):
     class Meta:
         model = User
         fields = ['avatar', 'name', 'username', 'email', 'bio']
+        
+
+class ChangePasswordForm(UserCreationForm, ModelForm):
+    
+    class Meta:
+        model = User
+        fields = ['password1', 'password2']

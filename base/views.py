@@ -9,7 +9,7 @@ from django.db.models.query import QuerySet
 from django.contrib.auth import authenticate, login, logout
 from django.urls import reverse
 from .models import Room, Topic, Message, User
-from .forms import NewClassForm, RoomForm, UserCreationForm, UserForm
+from .forms import ChangePasswordForm, NewClassForm, RoomForm, UserCreationForm, UserForm
 from online_users.models import OnlineUserActivity
 from django.core.mail import send_mail
 # Create your views here.
@@ -193,6 +193,20 @@ def userProfile(request: HttpRequest, pk):
         return render(request, 'base/profile.html', context)
     except Exception:
         return fallback(request)
+
+
+@login_required(login_url='login', redirect_field_name=None)
+def changePassword(request: HttpRequest):
+    form = ChangePasswordForm()
+    
+    if request.method == 'POST' and request.POST.get('password1') == request.POST.get('password2'):
+        user = User.objects.get(id=request.user.id)
+        user.set_password(request.POST.get('password1'))
+        user.save()
+        messages.success(request, 'Úspešne si si zmenil heslo')
+        return redirect('user-profile', pk=user.id)
+        
+    return render(request, 'base/change_password.html', {'form': form})
 
 
 def fallback(request: HttpRequest):

@@ -24,8 +24,15 @@
 
           {% for field in form %}
           <div class="form__group">
+            {% if field.label != 'Email' %}
             <label for="profile_pic">{{field.label}}</label>
             {{field}}
+            {% else %}
+            <label for="profile_pic">{{field.label}}</label>
+            {{field}}
+            <a href="{% url 'change-password' %}"
+              style="font-size: 15px;">Zmeniť heslo</a>
+            {% endif %}
           </div>
           {% endfor %}
 
@@ -40,7 +47,7 @@
   </div>
   </div>
 </main>
-<script type="module">
+<!-- <script type="module">
   import devtools from "{% static 'js/node_modules/devtools-detect/index.js' %}";
 
   // Get notified when it's opened/closed or orientation changes
@@ -48,5 +55,5 @@
     if (event.detail.isOpen)
       window.location.href = "{% url 'fallback' %}";
   });
-</script>
+</script> -->
 {% endblock content %}

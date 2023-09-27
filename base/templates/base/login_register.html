@@ -66,10 +66,22 @@
           {% csrf_token %}
 
           {% for field in form %}
+          {% if field.label != 'From class' %}
           <div class="form__group form__group">
             <label for="room_name">{{field.label}}</label>
             {{field}}
           </div>
+          {% else %}
+          <div class="form__group form__group">
+            <label for="room_name">{{field.label}}</label>
+            {{field}}
+          </div>
+          <div>
+            <a href="{% url 'new-class' %}" style="display: flex; justify-content: space-around;">
+              Pridať novú skupinu
+            </a>
+          </div>
+          {% endif %}
           {% endfor %}
 
 

@@ -34,6 +34,7 @@
           <h3>{{user.name}}</h3>
           {% if request.user == user %}
           <a href="{% url 'update-user' %}" class="btn btn--main btn--pill">Editovať</a>
+          <a class="btn btn--main admin--pill" href="{% url 'delete-user' %}">Zmazať účet</a>
           {% elif request.user != user and user.is_superuser %}
           <a class="btn btn--main admin--pill" aria-readonly="true">Admin</a>
           {% else %}

@@ -20,6 +20,7 @@ if (photoInput)
     }
   };
 
+// Clearing user avatar
 const formClear = document.querySelector('[for="avatar-clear_id"]');
 if (formClear != null) {
   formClear.innerHTML = "Vymazať";

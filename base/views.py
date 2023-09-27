@@ -9,8 +9,9 @@ from django.db.models.query import QuerySet
 from django.contrib.auth import authenticate, login, logout
 from django.urls import reverse
 from .models import Room, Topic, Message, User
-from .forms import RoomForm, UserCreationForm, UserForm
+from .forms import NewClassForm, RoomForm, UserCreationForm, UserForm
 from online_users.models import OnlineUserActivity
+from django.core.mail import send_mail
 # Create your views here.
 
 
@@ -99,6 +100,22 @@ def home(request: HttpRequest):
     return render(request, 'base/home.html', context)
 
 
+def newClass(request: HttpRequest):
+    form = NewClassForm()
+
+    if request.method == 'POST':
+
+        send_mail(
+            subject='SPŠE Forum žiadosť',
+            message=f'{request.POST.get("meno")} požiadal o vytvorenie skupiny s menom {request.POST.get("set_class")}',
+            from_email='tomas.nosal04@gmail.com',
+            recipient_list=['reknojorke@gufum.com',],
+            fail_silently=False
+        )
+
+    return render(request, 'base/new_class_entry.html', {'form': form})
+
+
 def pinRoom(request: HttpRequest, pk):
     pinned_room: Room = Room.objects.get(id=pk)
     pinned_room.pinned = not pinned_room.pinned
@@ -168,8 +185,11 @@ def userProfile(request: HttpRequest, pk):
                 time_delta=timedelta(seconds=30))))
         )
         topics = Topic.objects.all()
-        context = {'user': user, 'rooms': rooms,
-                   'room_messages': room_messages, 'topics': topics, 'show_topics': sorted(topics[:4], key=lambda x: x.room_set.all().count(), reverse=True), 'active_users': active_users}
+        context = {
+            'user': user, 'rooms': rooms,
+            'room_messages': room_messages, 'topics': topics,
+            'show_topics': sorted(topics[:4], key=lambda x: x.room_set.all().count(), reverse=True), 'active_users': active_users
+        }
         return render(request, 'base/profile.html', context)
     except Exception:
         return fallback(request)
@@ -284,6 +304,22 @@ def updateUser(request: HttpRequest):
 
     return render(request, 'base/update-user.html', {'form': form})
 
+
+@login_required(login_url='login', redirect_field_name=None)
+def deleteUser(request: HttpRequest):
+    
+    if request.method == 'POST':
+        messages = Message.objects.filter(user__name__exact=request.user.name)
+        messages.delete()
+        rooms = list(filter(lambda r: request.user in r.all(), [r.participants for r in Room.objects.all()]))
+        for participants in rooms: participants.get(name__exact=request.user.name)
+        
+        hosted_rooms = Room.objects.filter(host__name__exact=request.user.name)
+        hosted_rooms.delete()
+        user = User.objects.get(name__exact=request.user.name)
+        user.delete()
+    
+    return render(request, 'base/delete-user.html')
 
 def topicsPage(request: HttpRequest):
     q = request.GET.get('q') if request.GET.get('q') != None else ''

@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 
 import os
 from pathlib import Path
+import smtpd
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,8 +21,21 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-3#av2c6nptlbbb6^muqkchu&fe3wv&n$t2+g$v!ir-f5%doocb'
+import json
+import os
+from django.core.exceptions import ImproperlyConfigured
+
+with open(os.path.join(BASE_DIR, 'secrets.json')) as secrets_file:
+    secrets = json.load(secrets_file)
+
+def get_secret(setting, secrets=secrets):
+    """Get secret setting or fail with ImproperlyConfigured"""
+    try:
+        return secrets[setting]
+    except KeyError:
+        raise ImproperlyConfigured("Set the {} setting".format(setting))
+        
+SECRET_KEY = get_secret('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -29,6 +43,7 @@ DEBUG = True
 ALLOWED_HOSTS = ['*']
 
 # Application definition
+
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -153,17 +168,25 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CORS_ALLOW_ALL_ORIGINS = True
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': 'db.sqlite3',
-    },
-    # ↓ For school server use MySQL ↓
     # 'default': {
-    #     'ENGINE'  : 'django.db.backends.mysql', # <-- UPDATED line 
-    #     'NAME'    : 'name_of_DB',                 # <-- UPDATED line 
-    #     'USER'    : 'forum',                     # <-- UPDATED line
-    #     'PASSWORD': 'forum_password',              # <-- UPDATED line
-    #     'HOST'    : 'localhost',                # <-- UPDATED line
-    #     'PORT'    : '<port>',
-    # }
+    #     'ENGINE': 'django.db.backends.sqlite3',
+    #     'NAME': 'db.sqlite3',
+    # },
+    # ↓ For school server use MySQL ↓
+    'default': {
+        'ENGINE'  : 'django.db.backends.mysql', 
+        'NAME'    : 'forum',     
+        'USER'    : get_secret('USER'),        
+        'PASSWORD': get_secret('PASSWORD'),
+        'HOST'    : 'localhost',               
+        'PORT'    : '3306',
+    }
 }
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_USE_TLS = True
+EMAIL_USE_SSL = False
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'tomas.nosal04@gmail.com'
+EMAIL_HOST_PASSWORD = get_secret('EMAIL_HOST_PASSWORD')

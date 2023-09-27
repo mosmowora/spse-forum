@@ -1,9 +1,8 @@
-from typing import Self
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 
 class FromClass(models.Model):
-    set_class = models.CharField(max_length=5)
+    set_class = models.CharField(max_length=30)
 
     def __str__(self) -> str:
         return self.set_class

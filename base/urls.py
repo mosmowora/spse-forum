@@ -18,9 +18,11 @@ urlpatterns = [
     path('upvote-message/<str:pk>/', views.upvoteMessage, name="upvote-message"),
 
     path('update-user/', views.updateUser, name="update-user"),
+    path('delete-user/', views.deleteUser, name="delete-user"),
 
     path('topics/', views.topicsPage, name="topics"),
     path('activity/', views.activityPage, name="activity"),
     
     path('error/', views.fallback, name="fallback"),
+    path('nova-skupina/', views.newClass, name="new-class"),
 ]

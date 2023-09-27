@@ -15,13 +15,36 @@ class UserCreationForm(UserCreationForm):
         fields = ['name', 'username', 'email',
                   'from_class', 'password1', 'password2']
 
+
+class NewClassForm(ModelForm):
+
+    set_class = forms.TextInput(attrs={"maxlength": 30})
+    meno = forms.CharField(
+        label='Meno',
+        widget=forms.TextInput(),
+        max_length=255,
+        required=True
+    )
+    email = forms.CharField(
+        label='Email',
+        widget=forms.TextInput(),
+        max_length=255,
+        required=True
+    )
+
+    class Meta:
+        model = FromClass
+        fields = ['set_class']
+
+
 class RoomForm(ModelForm):
     selection = forms.CheckboxSelectMultiple()
-    
+
     limit_for = forms.ModelMultipleChoiceField(
         queryset=FromClass.objects.all(),
         widget=selection
     )
+
     class Meta:
         model = Room
         fields = ['topic', 'name', 'description', 'pinned', 'limit_for']

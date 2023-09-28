@@ -53,7 +53,7 @@
         <a href="{% url 'room' room.id %}">{{room.name}}</a>
     </div>
     <div class="roomListRoom__meta">
-        {% if room.participants.all.count > 1 %}
+        {% if room.participants.all.count != 1 %}
         <a href="{% url 'room' room.id %}" class="roomListRoom__joined">
             <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
                 <title>user-group</title>

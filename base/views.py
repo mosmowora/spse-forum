@@ -27,7 +27,7 @@ def loginPage(request):
         try:
             user = User.objects.get(email=email)
         except Exception:
-            messages.error(request, 'User does not exist')
+            messages.error(request, 'Užívateľ neexistuje')
 
         user = authenticate(request, email=email, password=password)
 
@@ -35,7 +35,7 @@ def loginPage(request):
             login(request, user)
             return redirect('home')
         else:
-            messages.error(request, 'Invalid username or password')
+            messages.error(request, 'Zlý email alebo heslo')
 
     return render(request, 'base/login_register.html', {'page': page})
 
@@ -79,7 +79,7 @@ def home(request: HttpRequest):
                 (Q(name__icontains=q) |
                  Q(description__contains=q))
             ).filter(
-                Q(limited_for__in=(request.user.from_class.id,)) |
+                Q(limited_for__in=request.user.from_class.all()) |
                 Q(host=request.user)
             ).distinct()
     else:
@@ -197,14 +197,22 @@ def userProfile(request: HttpRequest, pk):
 
 @login_required(login_url='login', redirect_field_name=None)
 def changePassword(request: HttpRequest):
-    form = ChangePasswordForm()
+    user = request.user
+    old_password = user.password
+    form = ChangePasswordForm(instance=user)
     
-    if request.method == 'POST' and request.POST.get('password1') == request.POST.get('password2'):
-        user = User.objects.get(id=request.user.id)
-        user.set_password(request.POST.get('password1'))
-        user.save()
-        messages.success(request, 'Úspešne si si zmenil heslo')
-        return redirect('user-profile', pk=user.id)
+    if request.method == 'POST':
+        if request.POST.get('password1') == request.POST.get('password2'):
+            if user.password == old_password: messages.error(request, "Nemôžeš mať rovnaké heslo ako predtým")
+            
+            else:
+                user.set_password(request.POST.get('password1'))
+                user.save()
+                login(request, user)
+                messages.success(request, 'Úspešne si si zmenil heslo')
+                return redirect('user-profile', pk=user.id)
+        else:
+            messages.error(request, "Heslá nie sú rovnaké")
         
     return render(request, 'base/change_password.html', {'form': form})
 
@@ -239,6 +247,9 @@ def createRoom(request: HttpRequest):
             context['message'] = 'Musíš zaškrtnúť pre koho sa ukáže'
             return render(request, 'base/room_form.html', context)
 
+        if request.user.room_set.all().count() >= 3:
+            messages.error(request, 'Dosiahol si maximálny počet vytvorených diskusií')
+            return redirect('home')
         room.save()
         room.limited_for.set(selected_classes)
         return redirect('home')
@@ -321,7 +332,6 @@ def updateUser(request: HttpRequest):
 
 @login_required(login_url='login', redirect_field_name=None)
 def deleteUser(request: HttpRequest):
-    
     if request.method == 'POST':
         messages = Message.objects.filter(user__name__exact=request.user.name)
         messages.delete()

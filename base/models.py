@@ -14,8 +14,9 @@ class User(AbstractUser):
     bio = models.TextField(null=True, blank=True)
     avatar = models.ImageField(null=True, blank=True, verbose_name='avatar')
 
-    from_class = models.ForeignKey(
-        FromClass, on_delete=models.SET_NULL, null=True)
+    from_class = models.ManyToManyField(
+        FromClass, related_name='from_class'
+    )
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
 

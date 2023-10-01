@@ -38,7 +38,7 @@
           {% elif request.user != user and user.is_superuser %}
           <a class="btn btn--main admin--pill" aria-readonly="true">Admin</a>
           {% else %}
-          <a class="btn btn--main btn--pill" aria-readonly="true">Študent {{ user.from_class.set_class }}</a>
+          <a class="btn btn--main btn--pill" aria-readonly="true">Študent {{ from_class }}</a>
           {% endif %}
         </div>
         <div class="profile__about">

@@ -54,6 +54,8 @@ def registerPage(request: HttpRequest):
             user = form.save(commit=False)
             user.username = user.username.replace(" ", "_").lower()
             user.save()
+            print('from_class', user.from_class)
+            user.from_class.add(form.cleaned_data['from_class'])
             login(request, user)
             return redirect('home')
         else:
@@ -94,7 +96,7 @@ def home(request: HttpRequest):
     topics = Topic.objects.all()
     room_messages = sorted(Message.objects.filter(
         Q(room__topic__name__icontains=q)), key=lambda m: m.created, reverse=True)[:3]
-    print('full path', request.get_full_path())
+        
     context = {'rooms': rooms, 'topics': topics, 'show_topics': sorted(topics[:4], key=lambda x: x.room_set.all().count(), reverse=True),
                'room_count': room_count, 'room_messages': room_messages, 'active_users': active_users}
     return render(request, 'base/home.html', context)
@@ -186,7 +188,7 @@ def userProfile(request: HttpRequest, pk):
         )
         topics = Topic.objects.all()
         context = {
-            'user': user, 'rooms': rooms,
+            'user': user, 'rooms': rooms, 'from_class': user.from_class.filter(set_class__startswith="I")[0],
             'room_messages': room_messages, 'topics': topics,
             'show_topics': sorted(topics[:4], key=lambda x: x.room_set.all().count(), reverse=True), 'active_users': active_users
         }
@@ -197,13 +199,12 @@ def userProfile(request: HttpRequest, pk):
 
 @login_required(login_url='login', redirect_field_name=None)
 def changePassword(request: HttpRequest):
-    user = request.user
-    old_password = user.password
+    user = User.objects.get(id=request.user.id)
     form = ChangePasswordForm(instance=user)
     
     if request.method == 'POST':
         if request.POST.get('password1') == request.POST.get('password2'):
-            if user.password == old_password: messages.error(request, "Nemôžeš mať rovnaké heslo ako predtým")
+            if user.check_password(request.POST.get('password1')): messages.error(request, "Nemôžeš mať rovnaké heslo ako predtým")
             
             else:
                 user.set_password(request.POST.get('password1'))

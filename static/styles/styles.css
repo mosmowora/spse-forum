@@ -102,7 +102,6 @@ body {
   color: var(--color-light);
   background-color: var(--color-bg);
   min-height: 100vh;
-  overflow-y: hidden;
   background: url("../images/background.jpg");
 }
 
@@ -826,11 +825,10 @@ input:disabled {
 .main-container {
   display: flex;
   flex-direction: column;
-  overflow: hidden;
 }
 
 .roomList {
-  overflow-y: auto;
+  overflow-y: scroll;
   height: 83vh;
   -ms-overflow-style: none;
   /* Internet Explorer 10+ */
@@ -1180,7 +1178,7 @@ div#id_limit_for {
   background: var(--color-dark);
   max-height: 87.5vh;
   border-radius: 0.7rem;
-  overflow: hidden;
+  overflow-y: hidden;
   position: relative;
 }
 
@@ -1270,7 +1268,7 @@ button.unpin_room {
 .room__topRight {
   display: flex;
   column-gap: 1em;
-}
+}.
 
 .room__topRight svg {
   fill: var(--color-main-light);
@@ -1278,9 +1276,9 @@ button.unpin_room {
 
 .room__header {
   max-height: 30vh;
-  overflow-y: auto;
+  overflow-y: hidden;
   position: absolute;
-  width: 95%;
+  width: 90%;
   background: var(--color-dark);
   z-index: 999;
   top: 4.4rem;
@@ -1468,7 +1466,7 @@ button.unpin_room {
 .participants__list {
   padding: 2rem;
   height: 82.5vh;
-  overflow-y: scroll;
+  overflow-y: auto;
   padding-bottom: 0;
 }
 
@@ -1626,18 +1624,6 @@ ul.list--icons>li {
 
 .ct8-gap-md {
   gap: var(--ct8-space-md);
-}
-
-.ct8-sr-only {
-  position: absolute;
-  clip: rect(1px, 1px, 1px, 1px);
-  clip-path: inset(50%);
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  padding: 0;
-  border: 0;
-  white-space: nowrap;
 }
 
 .ct8-z-index-1 {

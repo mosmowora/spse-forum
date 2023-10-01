@@ -10,6 +10,8 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
+from django.core.exceptions import ImproperlyConfigured
+import json
 import os
 from pathlib import Path
 import smtpd
@@ -21,12 +23,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
-import json
-import os
-from django.core.exceptions import ImproperlyConfigured
 
 with open(os.path.join(BASE_DIR, 'secrets.json')) as secrets_file:
     secrets = json.load(secrets_file)
+
 
 def get_secret(setting, secrets=secrets):
     """Get secret setting or fail with ImproperlyConfigured"""
@@ -34,7 +34,8 @@ def get_secret(setting, secrets=secrets):
         return secrets[setting]
     except KeyError:
         raise ImproperlyConfigured("Set the {} setting".format(setting))
-        
+
+
 SECRET_KEY = get_secret('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
@@ -68,9 +69,12 @@ REST_FRAMEWORK = {
     )
 }
 
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend'
+]
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    # "corsheaders.middleware.CorsMiddleware",
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -78,7 +82,6 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'online_users.middleware.OnlineNowMiddleware',
-    # 'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
 
@@ -134,17 +137,22 @@ LOGGING = {
     'loggers': {
         'django': {
             'handlers': ['console'],
-             'level': os.getenv('DJANGO_LOG_LEVEL', 'DEBUG'),
+            'level': os.getenv('DJANGO_LOG_LEVEL', 'DEBUG'),
         },
     },
 }
+
+CSRF_TRUSTED_ORIGINS = [
+    ("http://localhost:8000/"),
+    ("https://e582-158-255-249-96.ngrok-free.app")
+]
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.2/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Europe/Vienna'
 
 USE_I18N = True
 
@@ -174,13 +182,17 @@ DATABASES = {
     # },
     # ↓ For school server use MySQL ↓
     'default': {
-        'ENGINE'  : 'django.db.backends.mysql', 
-        'NAME'    : 'forum',     
-        'USER'    : get_secret('USER'),        
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'forum',
+        'USER': get_secret('USER'),
         'PASSWORD': get_secret('PASSWORD'),
-        'HOST'    : 'localhost',               
-        'PORT'    : '3306',
-    }
+        'HOST': 'localhost',
+        'PORT': '3306',
+        'OPTIONS': {
+            'charset': 'utf8mb4',
+            'use_unicode': True, 
+            },
+    },
 }
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'

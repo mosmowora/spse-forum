@@ -43,6 +43,10 @@
 <script>
     const message = $("ul.messages");
 
+    if (window.location.href === "http://localhost:8000/") {
+        $("body").css("overflow-y", "hidden");
+    }
+
     if (message) {
         setTimeout(() => {
             message.css('display', 'none');

@@ -1268,7 +1268,7 @@ button.unpin_room {
 .room__topRight {
   display: flex;
   column-gap: 1em;
-}.
+}
 
 .room__topRight svg {
   fill: var(--color-main-light);

@@ -1,17 +1,29 @@
 from django.contrib import admin
-
 # Register your models here.
 
 from .models import FromClass, Room, Topic, Message, User
-from online_users.models import OnlineUserActivity
 
 class UserAdmin(admin.ModelAdmin):
-    readonly_fields = ('id', 'last_login', 'date_joined')
-    
-class ClassAdmin(admin.ModelAdmin):
-    actions = None
-    ordering = ('set_class',)
+    readonly_fields = ('id', 'last_login', 'date_joined',
+                       'password', 'name', 'username')
 
+
+class AddStudentsToClassInline(admin.TabularInline):
+    extra = 1
+    model = User.from_class.through
+    verbose_name = "Študent"
+    verbose_name_plural = 'Študenti'
+    
+    class Media:
+        css = {
+            'all': ('..\\static\\styles\\admin.css', )     # Include extra css
+        }
+
+class ClassAdmin(admin.ModelAdmin):
+    readonly_fields = ('set_class',)
+    list_display = ['set_class']
+    ordering = ('set_class',)
+    inlines = [AddStudentsToClassInline]
 
 admin.site.register(User, UserAdmin)
 admin.site.register(Room)

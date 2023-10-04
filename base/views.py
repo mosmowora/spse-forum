@@ -9,7 +9,7 @@ from django.db.models.query import QuerySet
 from django.contrib.auth import authenticate, login, logout
 from django.urls import reverse
 from .models import Room, Topic, Message, User
-from .forms import ChangePasswordForm, NewClassForm, RoomForm, UserCreationForm, UserForm
+from .forms import ChangePasswordForm, NewClassForm, ReplyForm, RoomForm, UserCreationForm, UserForm
 from online_users.models import OnlineUserActivity
 from django.core.mail import send_mail
 # Create your views here.
@@ -96,7 +96,7 @@ def home(request: HttpRequest):
     topics = Topic.objects.all()
     room_messages = sorted(Message.objects.filter(
         Q(room__topic__name__icontains=q)), key=lambda m: m.created, reverse=True)[:3]
-        
+
     context = {'rooms': rooms, 'topics': topics, 'show_topics': sorted(topics[:4], key=lambda x: x.room_set.all().count(), reverse=True),
                'room_count': room_count, 'room_messages': room_messages, 'active_users': active_users}
     return render(request, 'base/home.html', context)
@@ -148,17 +148,35 @@ def room(request: HttpRequest, pk):
         id__in=list(map(lambda u: u.user_id, OnlineUserActivity.get_user_activities(
             time_delta=timedelta(seconds=30))))
     )
-
     context = {'room': room, 'room_messages': room_messages,
                'participants': participants, 'upvoted_messages': upvoted_messages, 'active_users': active_users, 'back': any(x in ('room', 'error') for x in back.split("/"))}
-
     if request.method == 'POST':
-        Message.objects.create(
+        content = request.POST.get('body')
+        parent = None
+        reply_form = ReplyForm(data=request.POST)
+
+        if reply_form.is_valid():
+            content = reply_form.cleaned_data['body']
+            try:
+                parent = reply_form.cleaned_data['parent']
+            except Exception:
+                parent = None
+                
+        if content == '':
+            return redirect('room', pk=room.id)
+
+        try:
+            parent = Message.objects.get(id=reply_form['parent'].value())
+        except Exception:
+            parent = None
+
+        message = Message(
             user=request.user,
             room=room,
-            body=request.POST.get('body')
+            body=content,
+            parent=parent
         )
-
+        message.save()
         room.participants.add(request.user)
         return redirect('room', pk=room.id)
 
@@ -201,11 +219,13 @@ def userProfile(request: HttpRequest, pk):
 def changePassword(request: HttpRequest):
     user = User.objects.get(id=request.user.id)
     form = ChangePasswordForm(instance=user)
-    
+
     if request.method == 'POST':
         if request.POST.get('password1') == request.POST.get('password2'):
-            if user.check_password(request.POST.get('password1')): messages.error(request, "Nemôžeš mať rovnaké heslo ako predtým")
-            
+            if user.check_password(request.POST.get('password1')):
+                messages.error(
+                    request, "Nemôžeš mať rovnaké heslo ako predtým")
+
             else:
                 user.set_password(request.POST.get('password1'))
                 user.save()
@@ -214,7 +234,7 @@ def changePassword(request: HttpRequest):
                 return redirect('user-profile', pk=user.id)
         else:
             messages.error(request, "Heslá nie sú rovnaké")
-        
+
     return render(request, 'base/change_password.html', {'form': form})
 
 
@@ -249,7 +269,8 @@ def createRoom(request: HttpRequest):
             return render(request, 'base/room_form.html', context)
 
         if request.user.room_set.all().count() >= 3:
-            messages.error(request, 'Dosiahol si maximálny počet vytvorených diskusií')
+            messages.error(
+                request, 'Dosiahol si maximálny počet vytvorených diskusií')
             return redirect('home')
         room.save()
         room.limited_for.set(selected_classes)
@@ -336,15 +357,18 @@ def deleteUser(request: HttpRequest):
     if request.method == 'POST':
         messages = Message.objects.filter(user__name__exact=request.user.name)
         messages.delete()
-        rooms = list(filter(lambda r: request.user in r.all(), [r.participants for r in Room.objects.all()]))
-        for participants in rooms: participants.get(name__exact=request.user.name)
-        
+        rooms = list(filter(lambda r: request.user in r.all(), [
+                     r.participants for r in Room.objects.all()]))
+        for participants in rooms:
+            participants.get(name__exact=request.user.name)
+
         hosted_rooms = Room.objects.filter(host__name__exact=request.user.name)
         hosted_rooms.delete()
         user = User.objects.get(name__exact=request.user.name)
         user.delete()
-    
+
     return render(request, 'base/delete-user.html')
+
 
 def topicsPage(request: HttpRequest):
     q = request.GET.get('q') if request.GET.get('q') != None else ''

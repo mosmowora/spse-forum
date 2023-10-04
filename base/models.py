@@ -55,16 +55,27 @@ class Room(models.Model):
 class Message(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     room = models.ForeignKey(Room, on_delete=models.CASCADE)
-    body = models.TextField()
+    body = models.TextField(blank=True, null=True)
     updated = models.DateTimeField(auto_now=True)
     created = models.DateTimeField(auto_now_add=True)
     likes = models.ManyToManyField(User, related_name='messages')
+    parent = models.ForeignKey('self', null=True, blank=True, on_delete=models.CASCADE, related_name='replies')
 
     def total_upvotes(self):
         return self.likes.count()
+    
+    @property
+    def children(self):
+        return Message.objects.filter(parent=self).reverse()
+    
+    @property
+    def is_parent(self):
+        if self.parent is None:
+            return True
+        return False
 
     class Meta:
-        ordering = ['updated', 'created']
+        ordering = ['-updated', '-created']
 
     def __str__(self):
         return self.body[0:50]

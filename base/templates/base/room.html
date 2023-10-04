@@ -1,6 +1,7 @@
 {% extends 'main.html' %}
 {% load static %}
 {% load djutils %}
+{% load widget_tweaks %}
 {% block content %}
 <main class="profile-page layout layout--2">
   <div class="container">
@@ -97,9 +98,8 @@
 
         <div class="room__conversation">
           <div class="threads scroll">
-
-
             {% for message in room_messages %}
+            {% if message.is_parent %}
             <div class="thread">
               <div class="thread__top">
                 <div class="thread__author">
@@ -127,7 +127,7 @@
                   <span class="thread__date">{{message.created|timesince}} ago</span>
                 </div>
                 <form action="{% url 'upvote-message' message.pk %}" method="POST"
-                  style="height: 2.2%; width: 2.2%; margin-left: auto; margin-right: 5%; margin-bottom: 0.5%; align-items: center; justify-content: center; display: flex;">
+                  style="align-items: center; justify-content: center; display: flex; width: 10%; margin-left: auto;">
                   {% csrf_token %}
                   <h3 style="font-weight: 700; padding-right: 30%;">{{message.total_upvotes}}</h3>
                   {% if not upvoted_messages|get_value_from_dict:message %}
@@ -161,7 +161,78 @@
               <div class="thread__details">
                 {{message.body}}
               </div>
+              <form action="" method="POST">
+                <input type="text" name="body" class="reply-text" placeholder="Odpovedať" size="auto">
+                <input type="hidden" value="{{ message.pk }}" name="parent">
+                {% csrf_token %}
+                <label class="c-form__toggle" for="checkbox" data-title="Odpovedať"></label>
+              </form>
+              {% for reply in message.children %}
+              <div class="thread">
+                <div class="thread__top">
+                  <div class="thread__author">
+                    <a href="{% url 'user-profile' reply.user.id %}" class="thread__authorInfo">
+                      {% if reply.user not in active_users %}
+                      <div class="avatar avatar--small">
+                        {% if reply.user.avatar.url is not None %}
+                        <img src="{{reply.user.avatar.url}}" alt="" />
+                        {% else %}
+                        <img src="{% static 'images/avatar.svg' %}" alt="" />
+                        {% endif %}
+                      </div>
+                      {% else %}
+                      <div class="avatar avatar--small active">
+                        {% if reply.user.avatar.url is not None %}
+                        <img src="{{reply.user.avatar.url}}" alt="" />
+                        {% else %}
+                        <img src="{% static 'images/avatar.svg' %}" alt="" />
+                        {% endif %}
+  
+                      </div>
+                      {% endif %}
+                      <span>@{{reply.user.username}}</span>
+                    </a>
+                    <span class="thread__date">{{reply.created|timesince}} ago</span>
+                  </div>
+                  <form action="{% url 'upvote-message' reply.pk %}" method="POST"
+                    style="height: 2.2%; width: 2.2%; margin-left: auto; margin-right: 5%; margin-bottom: 0.5%; align-items: center; justify-content: center; display: flex;">
+                    {% csrf_token %}
+                    <h3 style="font-weight: 700; padding-right: 30%;">{{reply.total_upvotes}}</h3>
+                    {% if not upvoted_messages|get_value_from_dict:reply %}
+                    <abbr title="podporujem">
+                      <button type="submit" name="message_id" value="{{reply.id}}" alt="upvote"
+                        class="upvote">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</button>
+                    </abbr>
+                    {% else %}
+                    <abbr title="prestať podporovať">
+                      <button type="submit" name="message_id" value="{{reply.id}}" alt="upvote"
+                        class="downvote">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</button>
+                    </abbr>
+                    {% endif %}
+                  </form>
+  
+                  {% if reply.user == request.user %}
+                  <a href="{% url 'delete-message' reply.id %}">
+                    <div class="thread__delete">
+                      <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+                        <title>remove</title>
+                        <path
+                          d="M27.314 6.019l-1.333-1.333-9.98 9.981-9.981-9.981-1.333 1.333 9.981 9.981-9.981 9.98 1.333 1.333 9.981-9.98 9.98 9.98 1.333-1.333-9.98-9.98 9.98-9.981z">
+                        </path>
+                      </svg>
+                    </div>
+                  </a>
+                  {% else %}
+                  <div></div>
+                  {% endif %}
+                </div>
+                <div class="thread__details">
+                  {{reply.body}}
+                </div>
+              </div>
+              {% endfor %}
             </div>
+            {% endif %}
             {% endfor %}
           </div>
         </div>

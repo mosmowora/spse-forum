@@ -1286,6 +1286,28 @@ button.unpin_room {
   padding-bottom: 1rem;
 }
 
+input.reply-text {
+  border-radius: 12px;
+  padding: 2%;
+  min-width: 90px;
+  width: 25%;
+  height: 2em;
+  background-color: var(--color-bg);
+  border: double 3px var(--color-dark);
+  color: var(--color-light);
+  margin-top: 2%;
+  transition: width .3s ease-in-out;
+  -webkit-transition: width .3s ease-in-out;
+  -moz-transition: width .3s ease-in-out;
+  -ms-transition: width .3s ease-in-out;
+}
+
+input.reply-text:focus {
+  position: relative;
+  transition: .3s;
+  width: 80%;
+}
+
 @media screen and (max-width: 500px) {
   .room__header {
     top: 4.3rem;

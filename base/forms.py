@@ -1,7 +1,7 @@
 from django import forms
 from django.forms import ModelForm
 from django.contrib.auth.forms import UserCreationForm
-from .models import FromClass, Room, User
+from .models import FromClass, Message, Room, User
 
 
 class UserCreationForm(UserCreationForm):
@@ -15,6 +15,22 @@ class UserCreationForm(UserCreationForm):
         fields = ['name', 'username', 'email',
                   'from_class', 'password1', 'password2']
 
+
+class ReplyForm(ModelForm):
+
+    class Meta:
+        model = Message
+        fields = ['body','parent']
+        
+        labels = {
+            'body': (''),
+        }
+        
+        widgets = {
+            'body' : forms.TextInput(),
+        }
+
+    
 
 class NewClassForm(ModelForm):
 
@@ -54,10 +70,10 @@ class UserForm(ModelForm):
     class Meta:
         model = User
         fields = ['avatar', 'name', 'username', 'email', 'bio']
-        
+
 
 class ChangePasswordForm(UserCreationForm, ModelForm):
-    
+
     class Meta:
         model = User
         fields = ['password1', 'password2']

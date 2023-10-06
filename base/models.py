@@ -1,3 +1,4 @@
+from multiprocessing.managers import BaseManager
 from django.db import models
 from django.contrib.auth.models import AbstractUser, PermissionsMixin
 
@@ -65,8 +66,13 @@ class Message(models.Model):
         return self.likes.count()
     
     @property
-    def children(self):
+    def children(self) -> BaseManager:
         return Message.objects.filter(parent=self)
+    
+    @children.setter
+    def children(self, x: BaseManager) -> None:
+        objs = Message.objects.filter(parent=self)
+        objs = x
     
     @property
     def is_parent(self):

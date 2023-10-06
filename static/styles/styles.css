@@ -816,6 +816,10 @@ input:disabled {
     display: block;
     margin-bottom: 2.4rem;
   }
+
+  .mobile-timesince {
+    display: none;
+  }
 }
 
 /*==============================
@@ -1286,6 +1290,14 @@ button.unpin_room {
   padding-bottom: 1rem;
 }
 
+.upvote-form {
+  align-items: center;
+  justify-content: center;
+  display: flex;
+  width: 10%;
+  margin-left: auto;
+}
+
 input.reply-text {
   border-radius: 12px;
   padding: 2%;
@@ -1310,8 +1322,25 @@ input.reply-text:focus {
 
 @media screen and (max-width: 500px) {
   .room__header {
-    top: 4.3rem;
+    top: 4.4rem;
     padding-right: 2rem;
+  }
+  .upvote-form {
+    margin-left: auto;
+    margin-right: 5%;
+  }
+  .upvote-form > h3 {
+    padding-right: 15%;
+    font-size: 15px;
+  }
+  .upvote-form button.upvote, .upvote-form button.downvote {
+    margin-bottom: 25%;
+    width: 90%;
+    height: 50%;
+  }
+  .roomInputForm > input[name=body] {
+    width: 95%;
+    margin-left: 3%;
   }
 }
 
@@ -1328,7 +1357,7 @@ input.reply-text:focus {
     padding-left: 2.5rem;
     padding-right: 2rem;
     height: 80.5vh;
-    overflow-y: auto;
+    overflow-y: hidden;
     padding-bottom: 0;
   }
 }
@@ -1458,15 +1487,16 @@ input.reply-text:focus {
 }
 
 .room__message>form>input:focus {
-  border: 2px solid rgb(51, 51, 51);
-  width: 100%;
+  border: 4px solid rgb(51, 51, 51);
+  /* width: 100%; */
   font-size: 1.4rem;
+  transition: all 0.15s ease-out;
 }
 
 .room__message>form>input:hover {
   transition: all 0.15s ease-out;
-  border: 2px solid rgb(51, 51, 51);
-  width: 100%;
+  border: 4px solid rgb(51, 51, 51);
+  /* width: 100%; */
   font-size: 1.4rem;
 }
 

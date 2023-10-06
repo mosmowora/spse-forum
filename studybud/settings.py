@@ -144,7 +144,7 @@ LOGGING = {
 
 CSRF_TRUSTED_ORIGINS = [
     ("http://localhost:8000/"),
-    ("https://e582-158-255-249-96.ngrok-free.app")
+    ("https://4540-158-255-249-96.ngrok-free.app")
 ]
 
 # Internationalization

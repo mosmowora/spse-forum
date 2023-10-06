@@ -124,12 +124,11 @@
                     {% endif %}
                     <span>@{{message.user.username}}</span>
                   </a>
-                  <span class="thread__date">{{message.created|timesince}} ago</span>
+                  <span class="thread__date mobile-timesince">{{message.created|timesince}} ago</span>
                 </div>
-                <form action="{% url 'upvote-message' message.pk %}" method="POST"
-                  style="align-items: center; justify-content: center; display: flex; width: 10%; margin-left: auto;">
+                <form action="{% url 'upvote-message' message.pk %}" method="POST" class="upvote-form">
                   {% csrf_token %}
-                  <h3 style="font-weight: 700; padding-right: 30%;">{{message.total_upvotes}}</h3>
+                  <h3 style="font-weight: 700; ">{{message.total_upvotes}}</h3>
                   {% if not upvoted_messages|get_value_from_dict:message %}
                   <abbr title="podporujem">
                     <button type="submit" name="message_id" value="{{message.id}}" alt="upvote"
@@ -187,17 +186,16 @@
                         {% else %}
                         <img src="{% static 'images/avatar.svg' %}" alt="" />
                         {% endif %}
-  
+
                       </div>
                       {% endif %}
                       <span>@{{reply.user.username}}</span>
                     </a>
-                    <span class="thread__date">{{reply.created|timesince}} ago</span>
+                    <span class="thread__date mobile-timesince">{{reply.created|timesince}} ago</span>
                   </div>
-                  <form action="{% url 'upvote-message' reply.pk %}" method="POST"
-                    style="height: 2.2%; width: 2.2%; margin-left: auto; margin-right: 5%; margin-bottom: 0.5%; align-items: center; justify-content: center; display: flex;">
+                  <form action="{% url 'upvote-message' reply.pk %}" method="POST" class="upvote-form">
                     {% csrf_token %}
-                    <h3 style="font-weight: 700; padding-right: 30%;">{{reply.total_upvotes}}</h3>
+                    <h3 style="font-weight: 700; ">{{reply.total_upvotes}}</h3>
                     {% if not upvoted_messages|get_value_from_dict:reply %}
                     <abbr title="podporujem">
                       <button type="submit" name="message_id" value="{{reply.id}}" alt="upvote"
@@ -210,7 +208,7 @@
                     </abbr>
                     {% endif %}
                   </form>
-  
+
                   {% if reply.user == request.user %}
                   <a href="{% url 'delete-message' reply.id %}">
                     <div class="thread__delete">
@@ -239,7 +237,7 @@
 
       </div>
       <div class="room__message">
-        <form action="" method="POST">
+        <form action="" method="POST" class="roomInputForm">
           {% csrf_token %}
           <input name="body" placeholder="Chcem sa vyjadriť..." />
         </form>

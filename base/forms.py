@@ -1,7 +1,7 @@
 from django import forms
 from django.forms import ModelForm
 from django.contrib.auth.forms import UserCreationForm
-from .models import FromClass, Message, Room, User
+from .models import FromClass, Message, Room, Topic, User
 
 
 class UserCreationForm(UserCreationForm):
@@ -15,6 +15,44 @@ class UserCreationForm(UserCreationForm):
         fields = ['name', 'username', 'email',
                   'from_class', 'password1', 'password2']
 
+TOPIC_FIELDS_NAME = ['name']
+TOPIC_FIELDS_LABEL = ["Téma"]
+topic_label_list=dict(zip(TOPIC_FIELDS_NAME, TOPIC_FIELDS_LABEL))   
+class TopicForm(ModelForm):
+    class Meta:
+        model=Topic
+        fields='__all__'
+        labels=topic_label_list
+        
+        
+MESSAGE_FIELDS_NAME = ['user', 'room', 'body', 'likes', 'parent']
+MESSAGE_FIELDS_LABEL = ['Napísal', "Názov diskusie", "Správa", "Počet likov", "Odpovedal na"]
+message_label_list=dict(zip(MESSAGE_FIELDS_NAME, MESSAGE_FIELDS_LABEL))
+class MessageForm(ModelForm):
+    class Meta:
+        model=Message
+        fields='__all__'
+        labels=message_label_list
+
+
+ROOM_FIELDS_NAME = ['host', 'topic', 'name', 'description', 'participants', 'pinned', 'limited_for']
+ROOM_FIELDS_LABEL = ['Autor', "Téma", "Názov", "Popis", "Zúčastnení", 'Pinnuté', 'Ukáže sa pre']
+room_label_list=dict(zip(ROOM_FIELDS_NAME, ROOM_FIELDS_LABEL))
+class RoomFormAdmin(ModelForm):
+    class Meta:
+        model=Room
+        fields='__all__'
+        labels=room_label_list
+
+
+USER_FIELDS_NAME = ['name', 'email', 'bio', 'from_class']
+USER_FIELDS_LABEL = ['Meno', "E-mail", "O mne", "Trieda"]
+user_label_list=dict(zip(USER_FIELDS_NAME, USER_FIELDS_LABEL))
+class UserAdminForm(ModelForm):
+    class Meta:
+        model=User
+        fields='__all__'
+        labels=user_label_list
 
 class ReplyForm(ModelForm):
 
@@ -29,8 +67,6 @@ class ReplyForm(ModelForm):
         widgets = {
             'body' : forms.TextInput(),
         }
-
-    
 
 class NewClassForm(ModelForm):
 
@@ -52,7 +88,6 @@ class NewClassForm(ModelForm):
         model = FromClass
         fields = ['set_class']
 
-
 class RoomForm(ModelForm):
     selection = forms.CheckboxSelectMultiple()
 
@@ -65,12 +100,10 @@ class RoomForm(ModelForm):
         model = Room
         fields = ['topic', 'name', 'description', 'pinned', 'limit_for']
 
-
 class UserForm(ModelForm):
     class Meta:
         model = User
         fields = ['avatar', 'name', 'username', 'email', 'bio']
-
 
 class ChangePasswordForm(UserCreationForm, ModelForm):
 

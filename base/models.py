@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractUser, PermissionsMixin
 
 class FromClass(models.Model):
     set_class = models.CharField(max_length=30)
@@ -8,7 +8,7 @@ class FromClass(models.Model):
         return self.set_class
 
 
-class User(AbstractUser):
+class User(AbstractUser, PermissionsMixin):
     name = models.CharField(max_length=220, null=True)
     email = models.EmailField(unique=True, null=True)
     bio = models.TextField(null=True, blank=True)
@@ -66,7 +66,7 @@ class Message(models.Model):
     
     @property
     def children(self):
-        return Message.objects.filter(parent=self).reverse()
+        return Message.objects.filter(parent=self)
     
     @property
     def is_parent(self):

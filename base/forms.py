@@ -45,14 +45,16 @@ class RoomFormAdmin(ModelForm):
         labels=room_label_list
 
 
-USER_FIELDS_NAME = ['name', 'email', 'bio', 'from_class']
-USER_FIELDS_LABEL = ['Meno', "E-mail", "O mne", "Trieda"]
+USER_FIELDS_NAME = ['name', 'email', 'bio', 'from_class', 'date_joined', 'last_login']
+USER_FIELDS_LABEL = ['Meno', "E-mail", "O mne", "Trieda", 'Pridal sa', 'Naposledy na portáli']
 user_label_list=dict(zip(USER_FIELDS_NAME, USER_FIELDS_LABEL))
 class UserAdminForm(ModelForm):
     class Meta:
         model=User
         fields='__all__'
         labels=user_label_list
+        
+        
 
 class ReplyForm(ModelForm):
 

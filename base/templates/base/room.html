@@ -193,21 +193,6 @@
                     </a>
                     <span class="thread__date mobile-timesince">{{reply.created|timesince}} ago</span>
                   </div>
-                  <form action="{% url 'upvote-message' reply.pk %}" method="POST" class="upvote-form">
-                    {% csrf_token %}
-                    <h3 style="font-weight: 700; ">{{reply.total_upvotes}}</h3>
-                    {% if not upvoted_messages|get_value_from_dict:reply %}
-                    <abbr title="podporujem">
-                      <button type="submit" name="message_id" value="{{reply.id}}" alt="upvote"
-                        class="upvote">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</button>
-                    </abbr>
-                    {% else %}
-                    <abbr title="prestať podporovať">
-                      <button type="submit" name="message_id" value="{{reply.id}}" alt="upvote"
-                        class="downvote">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</button>
-                    </abbr>
-                    {% endif %}
-                  </form>
 
                   {% if reply.user == request.user %}
                   <a href="{% url 'delete-message' reply.id %}">

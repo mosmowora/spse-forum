@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.contrib.admin.sites import AdminSite
 from django.db.models import Count
 
 from base.forms import MessageForm, RoomFormAdmin, TopicForm, UserAdminForm, UserForm
@@ -10,13 +11,19 @@ class UserAdmin(admin.ModelAdmin):
     readonly_fields = ('id', 'last_login', 'date_joined',
                        'password', 'name', 'username')
     exclude = ('first_name', 'last_name')
-    fields = ['name', 'email', 'bio', 'from_class']
-    list_display = ['name', 'email', 'bio', 'from_class']
+    fields = ['name', 'email', 'bio', 'from_class', 'date_joined', 'last_login']
+    list_display = ['name', 'email', 'bio', 'fromClass', 'date_Joined', 'last_Login']
     form = UserAdminForm
     
+    def date_Joined(self, obj: User):
+        return obj.date_joined.strftime("%d %b %Y")
+    
+    def last_Login(self, obj: User):
+        return obj.last_login.strftime("%d %b %Y %H:%M")
+    
     @admin.display(description="Trieda")
-    def from_class(self, obj: User):
-        return obj.from_class
+    def fromClass(self, obj: User):
+        return FromClass.objects.filter(id__in=obj.from_class.all())[0]
 
 
 class AddStudentsToClassInline(admin.TabularInline):

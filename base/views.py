@@ -132,9 +132,6 @@ def room(request: HttpRequest, pk):
     room_messages = sorted(
         room_messages, key=lambda mess: mess.likes.count(), reverse=True)
     
-    for message in room_messages:
-        message.children = sorted(message.children, key=lambda reply: reply.likes.count())
-    
     participants = room.participants.all()
 
     upvoted_messages: dict[Message, bool] = {}

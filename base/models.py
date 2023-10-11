@@ -69,11 +69,6 @@ class Message(models.Model):
     def children(self) -> BaseManager:
         return Message.objects.filter(parent=self)
     
-    @children.setter
-    def children(self, x: BaseManager) -> None:
-        objs = Message.objects.filter(parent=self)
-        objs = x
-    
     @property
     def is_parent(self):
         if self.parent is None:
@@ -81,7 +76,7 @@ class Message(models.Model):
         return False
 
     class Meta:
-        ordering = ['-updated', '-created']
+        ordering = ['-created']
 
     def __str__(self):
         return self.body[0:50]

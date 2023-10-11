@@ -15,7 +15,7 @@ from django.core.mail import send_mail
 # Create your views here.
 
 
-def loginPage(request):
+def loginPage(request: HttpRequest):
     page = 'login'
     if request.user.is_authenticated:
         return redirect('home')
@@ -150,7 +150,7 @@ def room(request: HttpRequest, pk):
             time_delta=timedelta(seconds=30))))
     )
     context = {'room': room, 'room_messages': room_messages,
-               'participants': participants, 'upvoted_messages': upvoted_messages, 'active_users': active_users, 'back': any(x in ('room', 'error') for x in back.split("/"))}
+               'participants': participants, 'upvoted_messages': upvoted_messages, 'active_users': active_users, 'back': any(x in ('room', 'error', 'delete-message', 'upvote-message') for x in back.split("/"))}
     if request.method == 'POST':
         content = request.POST.get('body')
         parent = None
@@ -327,7 +327,12 @@ def deleteRoom(request, pk):
 
 @login_required(login_url='login')
 def deleteMessage(request, pk):
-    message = Message.objects.get(id=pk)
+    message = None
+    try:
+        message = Message.objects.get(id=pk)
+    except Exception:
+        messages.error(request, 'Správa neexistuje')
+        return redirect('home')
 
     if request.user != message.user:
         return fallback(request)

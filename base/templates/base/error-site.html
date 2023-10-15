@@ -2,10 +2,10 @@
 {% load static %}
 {% block content %}
 
-<main class="main__fallback">
-    <div class="main_div__fallback">
-        <h1>404 Nevyšlo to</h1>
-    </div>
+<main class="error-main">
+    <h1 class="error">4<span><img src="{% static 'images/icons/ghost.png' %}" alt="ghost"></span>4</h1>
+    <h2 class="error">Error: 404 stránka nebola nájdená</h2>
+    <p class="error">Je mi ľúto, stránka, ktorú hľadáš, nie je prístupná</p>
 </main>
 
 <!-- No Devtools for you -->

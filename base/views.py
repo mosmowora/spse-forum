@@ -131,7 +131,7 @@ def room(request: HttpRequest, pk):
     room_messages: QuerySet[Message] = room.message_set.all()
     room_messages = sorted(
         room_messages, key=lambda mess: mess.likes.count(), reverse=True)
-    
+
     participants = room.participants.all()
 
     upvoted_messages: dict[Message, bool] = {}
@@ -162,7 +162,7 @@ def room(request: HttpRequest, pk):
                 parent = reply_form.cleaned_data['parent']
             except Exception:
                 parent = None
-                
+
         if content == '':
             return redirect('room', pk=room.id)
 
@@ -245,6 +245,11 @@ def fallback(request: HttpRequest):
 
 @login_required(login_url='login', redirect_field_name=None)
 def createRoom(request: HttpRequest):
+    if request.user.room_set.all().count() >= 3:
+        messages.error(
+            request, 'Dosiahol si maximálny počet vytvorených diskusií')
+        return redirect('home')
+    
     form = RoomForm(request.POST)
     topics = Topic.objects.all()
     context = {'form': form, 'topics': topics}
@@ -269,10 +274,6 @@ def createRoom(request: HttpRequest):
             context['message'] = 'Musíš zaškrtnúť pre koho sa ukáže'
             return render(request, 'base/room_form.html', context)
 
-        if request.user.room_set.all().count() >= 3:
-            messages.error(
-                request, 'Dosiahol si maximálny počet vytvorených diskusií')
-            return redirect('home')
         room.save()
         room.limited_for.set(selected_classes)
         return redirect('home')
@@ -313,7 +314,7 @@ def updateRoom(request: HttpRequest, pk):
 
 
 @login_required(login_url='login', redirect_field_name=None)
-def deleteRoom(request, pk):
+def deleteRoom(request: HttpRequest, pk):
     room = Room.objects.get(id=pk)
 
     if request.user != room.host and not request.user.is_superuser:
@@ -322,7 +323,7 @@ def deleteRoom(request, pk):
     if request.method == 'POST':
         room.delete()
         return redirect('home')
-    return render(request, 'base/delete.html', {'obj': room})
+    return render(request, 'base/delete.html', {'obj': room, 'back': any(x == 'delete-room' for x in request.META['HTTP_REFERER'].split("/"))})
 
 
 @login_required(login_url='login')

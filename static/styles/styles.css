@@ -47,6 +47,66 @@
   scrollbar-color: #474f4890 #e1ebee1a;
 }
 
+/* 404 site */
+@import url("https://fonts.googleapis.com/css?family=Montserrat:400,400i,700");
+
+main.error-main {
+  box-sizing: border-box;
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  height: 90vh;
+  justify-content: center;
+  text-align: center;
+}
+
+h1.error {
+  color: #e7ebf2;
+  font-size: 12.5rem;
+  letter-spacing: 0.1em;
+  margin: 0.025em 0;
+  text-shadow: 0.05em 0.05em 0 rgba(0, 0, 0, 0.25);
+  white-space: nowrap;
+}
+
+@media (max-width: 30rem) {
+  h1.error {
+    font-size: 8.5rem;
+  }
+}
+
+h1.error>span {
+  animation: spooky 2s alternate infinite linear;
+  color: #528cce;
+  display: inline-block;
+  max-width: 20%;
+}
+
+h1.error span>img {
+  margin-top: 5%;
+  width: 90%;
+}
+
+h2.error {
+  color: #e7ebf2;
+  margin-bottom: 0.4em;
+}
+
+p.error {
+  color: #ccc;
+  margin-top: 0;
+}
+
+@keyframes spooky {
+  from {
+    transform: translatey(0.15em) scaley(0.95);
+  }
+
+  to {
+    transform: translatey(-0.15em);
+  }
+}
+
 /* Chrome, Edge and Safari */
 *::-webkit-scrollbar {
   height: 10px;
@@ -113,6 +173,7 @@ a {
   display: inline-block;
   color: var(--color-main-light);
   text-decoration: none;
+  cursor: pointer;
 }
 
 /*========== components ==========*/
@@ -1325,20 +1386,25 @@ input.reply-text:focus {
     top: 4.4rem;
     padding-right: 2rem;
   }
+
   .upvote-form {
     margin-left: auto;
     margin-right: 5%;
   }
-  .upvote-form > h3 {
+
+  .upvote-form>h3 {
     padding-right: 15%;
     font-size: 15px;
   }
-  .upvote-form button.upvote, .upvote-form button.downvote {
+
+  .upvote-form button.upvote,
+  .upvote-form button.downvote {
     margin-bottom: 25%;
     width: 90%;
     height: 50%;
   }
-  .roomInputForm > input[name=body] {
+
+  .roomInputForm>input[name=body] {
     width: 95%;
     margin-left: 3%;
   }

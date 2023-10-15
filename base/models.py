@@ -2,6 +2,7 @@ from multiprocessing.managers import BaseManager
 from django.db import models
 from django.contrib.auth.models import AbstractUser, PermissionsMixin
 
+
 class FromClass(models.Model):
     set_class = models.CharField(max_length=30)
 
@@ -23,7 +24,6 @@ class User(AbstractUser, PermissionsMixin):
 
     def __str__(self) -> str:
         return self.name
-
 
 
 class Topic(models.Model):
@@ -51,7 +51,17 @@ class Room(models.Model):
         ordering = ['-pinned', '-updated', '-created']
 
     def __str__(self): return self.name
-    
+
+    @property
+    def messages(self):
+        return [
+            {
+                "id": m.id, "author": m.user.id, "body": m.body,
+                "created_at": m.created, "total_likes": m.total_upvotes(), "parent": None if m.parent is None else m.parent.id
+            }
+            for m in self.message_set.all()
+        ]
+
 
 class Message(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -60,15 +70,16 @@ class Message(models.Model):
     updated = models.DateTimeField(auto_now=True)
     created = models.DateTimeField(auto_now_add=True)
     likes = models.ManyToManyField(User, related_name='messages')
-    parent = models.ForeignKey('self', null=True, blank=True, on_delete=models.CASCADE, related_name='replies')
+    parent = models.ForeignKey(
+        'self', null=True, blank=True, on_delete=models.CASCADE, related_name='replies')
 
     def total_upvotes(self):
         return self.likes.count()
-    
+
     @property
     def children(self) -> BaseManager:
         return Message.objects.filter(parent=self)
-    
+
     @property
     def is_parent(self):
         if self.parent is None:

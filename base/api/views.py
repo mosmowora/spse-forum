@@ -16,6 +16,7 @@ def getRoutes(request):
     ]
     return Response(routes)
 
+
 @api_view()
 def error_page(request):
     return Response({'detail': 'Not found'}, status=status.HTTP_404_NOT_FOUND)

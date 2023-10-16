@@ -15,6 +15,7 @@ class User(AbstractUser, PermissionsMixin):
     email = models.EmailField(unique=True, null=True)
     bio = models.TextField(null=True, blank=True)
     avatar = models.ImageField(null=True, blank=True, verbose_name='avatar')
+    school_year = models.CharField(max_length=50, null=True)
 
     from_class = models.ManyToManyField(
         FromClass, related_name='from_class'

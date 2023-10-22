@@ -1061,13 +1061,13 @@ input:disabled {
 
 .activities {
   background: var(--color-dark);
-  border-radius: 5px;
+  border-radius: 0 0 5px 5px;
   overflow: auto;
   max-height: 80vh;
 }
 
 .activity-container h2 {
-  border-radius: 5px;
+  border-radius: 5px 5px 0 0;
 }
 
 .activities__header h2 {
@@ -1475,6 +1475,25 @@ input.reply-text:focus {
   height: 64%;
 }
 
+.empty__conversation {
+  display: flex;
+  padding: 10%;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+  margin-left: auto;
+}
+
+.empty__conversation h1 {
+  width: 50%;
+  font-size: 23px;
+  font-weight: 600;
+  text-align: center;
+  background: -webkit-linear-gradient(var(--color-gray), var(--color-bg));
+  background-clip: inherit;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
 .threads h3 {
   text-transform: uppercase;
   font-weight: 500;

@@ -30,7 +30,7 @@
           {% endif %}
           <h3>Diskusia</h3>
         </div>
-        {% if room.host == request.user or request.user.is_superuser %}
+        {% if room.host == request.user or request.user.is_staff %}
         <div class="room__topRight">
           <a href="{% url 'update-room' room.id %}">
             <svg enable-background="new 0 0 24 24" height="32" viewBox="0 0 24 24" width="32"
@@ -98,6 +98,11 @@
 
         <div class="room__conversation">
           <div class="threads scroll">
+            {% if amount_of_messages == 0 %}
+            <div class="empty__conversation">
+              <h1>Nikto sa tu ešte neukázal</h1>
+            </div>
+            {% else %}
             {% for message in room_messages %}
             {% if message.is_parent %}
             <div class="thread">
@@ -217,6 +222,7 @@
             </div>
             {% endif %}
             {% endfor %}
+            {% endif %}
           </div>
         </div>
 

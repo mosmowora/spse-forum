@@ -69,7 +69,7 @@ def home(request: HttpRequest):
     q = request.GET.get('q') if request.GET.get('q') != None else ''
     rooms = None
     if not isinstance(request.user, AnonymousUser):
-        if request.user.is_superuser:
+        if request.user.is_staff:
             rooms = Room.objects.filter(
                 (Q(topic__name__iexact=q) if q != '' else Q(topic__name__icontains=q)) |
                 (Q(name__icontains=q) |
@@ -131,6 +131,7 @@ def room(request: HttpRequest, pk):
     room_messages: QuerySet[Message] = room.message_set.all()
     room_messages = sorted(
         room_messages, key=lambda mess: mess.likes.count(), reverse=True)
+    
 
     participants = room.participants.all()
 
@@ -149,7 +150,7 @@ def room(request: HttpRequest, pk):
         id__in=list(map(lambda u: u.user_id, OnlineUserActivity.get_user_activities(
             time_delta=timedelta(seconds=30))))
     )
-    context = {'room': room, 'room_messages': room_messages,
+    context = {'room': room, 'room_messages': room_messages, 'amount_of_messages': len(room_messages),
                'participants': participants, 'upvoted_messages': upvoted_messages, 'active_users': active_users, 'back': any(x in ('room', 'error', 'delete-message', 'upvote-message') for x in back.split("/"))}
     if request.method == 'POST':
         content = request.POST.get('body')
@@ -290,7 +291,7 @@ def updateRoom(request: HttpRequest, pk):
     context = {'form': form, 'topics': topics, 'room': room, 'back': any(
         x == 'update-room' for x in request.META['HTTP_REFERER'].split("/"))}
 
-    if request.user != room.host and not request.user.is_superuser:
+    if request.user != room.host and not request.user.is_staff:
         return fallback(request)
 
     if request.method == 'POST':
@@ -317,7 +318,7 @@ def updateRoom(request: HttpRequest, pk):
 def deleteRoom(request: HttpRequest, pk):
     room = Room.objects.get(id=pk)
 
-    if request.user != room.host and not request.user.is_superuser:
+    if request.user != room.host and not request.user.is_staff:
         return fallback(request)
 
     if request.method == 'POST':

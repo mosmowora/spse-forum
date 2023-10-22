@@ -24,7 +24,7 @@
         </a>
         <div class="roomListRoom__actions"
             style="display: flex; align-items: flex-start; gap: 1rem; position: relative; margin-right: 0;">
-            {% if room.host.name == request.user.name or request.user.is_superuser %}
+            {% if room.host.name == request.user.name or request.user.is_staff %}
             <form action="{% url 'pinit' room.id %}" method="POST">
                 {% csrf_token %}
                 <abbr title="pripnúť tuto diskusiu">

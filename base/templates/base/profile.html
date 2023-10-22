@@ -33,9 +33,9 @@
         <div class="profile__info">
           <h3>{{user.name}}</h3>
           {% if request.user == user %}
-          <a href="{% url 'update-user' %}" class="btn btn--main btn--pill">Editovať</a>
+          <a href="{% url 'update-user' %}" class="btn btn--main btn--pill">Upraviť</a>
           <a class="btn btn--main admin--pill" href="{% url 'delete-user' %}">Zmazať účet</a>
-          {% elif request.user != user and user.is_superuser %}
+          {% elif request.user != user and user.is_staff %}
           <a class="btn btn--main admin--pill" aria-readonly="true">Admin</a>
           {% else %}
           <a class="btn btn--main btn--pill" aria-readonly="true">Študent {{ from_class }}</a>
@@ -44,7 +44,7 @@
         <div class="profile__about">
           <h3>O mne</h3>
           {% if user.bio is None or user.bio == "" %}
-          {% if user.is_superuser %}
+          {% if user.is_staff %}
           <p>
             -- Zamestnanec nezverejnil nič --
           </p>

@@ -67,6 +67,8 @@ def registerPage(request: HttpRequest):
 
 def home(request: HttpRequest):
     q = request.GET.get('q') if request.GET.get('q') != None else ''
+    request.session.set_expiry(timedelta(hours=6))
+    request.session.clear_expired()
     rooms = None
     if not isinstance(request.user, AnonymousUser):
         if request.user.is_staff:

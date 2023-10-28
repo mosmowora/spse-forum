@@ -894,7 +894,7 @@ input:disabled {
 
 .roomList {
   overflow-y: scroll;
-  height: 83vh;
+  height: 80vh;
   -ms-overflow-style: none;
   /* Internet Explorer 10+ */
   scrollbar-width: none;

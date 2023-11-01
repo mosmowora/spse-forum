@@ -249,11 +249,12 @@ def changePassword(request: HttpRequest):
     if request.method == 'POST':
         if request.POST.get('password1') == request.POST.get('password2'):
             if isinstance(user, AnonymousUser):
+                # TODO: create a html mail with a button consisting of clickable link
                 send_mail(
                     subject='SPŠE Forum zabudnuté heslo',
                     message=f'Bola zaslaná žiadosť o zmene hesla na tvoj účet {request.POST.get("email")}, \nak si to nebol ty tak kontaktuj niekoho z vedenia školy alebo ignoruj tento mail.\nAk si správu zaslal ty, tak neváhaj a stlač tlačidlo pre nastavenie tvojho nového hesla. http://localhost:8000/email-response/{User.objects.get(email=request.POST.get("email")).pk}/{encrypt(request.POST.get("password1"))}',
                     from_email='tomas.nosal04@gmail.com',
-                    recipient_list=['malminepse@gufum.com',],
+                    recipient_list=[f'{request.POST.get("email")}',],
                     fail_silently=False
                 )
             else:

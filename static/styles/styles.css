@@ -274,6 +274,11 @@ a {
   height: 105%;
 }
 
+.btn--pass {
+  color: var(--color-dark-light);
+  margin-right: 45%;
+}
+
 .btn--link {
   border-radius: 0;
   padding: 0;

@@ -1,3 +1,4 @@
+from typing import Any
 from django import forms
 from django.forms import ModelForm
 from django.contrib.auth.forms import UserCreationForm
@@ -109,6 +110,13 @@ class UserForm(ModelForm):
 
 class ChangePasswordForm(UserCreationForm, ModelForm):
 
+    email = None
+    
+    def __init__(self, email: bool = False, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+        if email:
+            self.email = forms.EmailField()
+            
     class Meta:
         model = User
-        fields = ['password1', 'password2']
+        fields = ['email', 'password1', 'password2']

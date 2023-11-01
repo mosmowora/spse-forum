@@ -14,6 +14,8 @@ from online_users.models import OnlineUserActivity
 from django.core.mail import send_mail
 # Create your views here.
 
+ENCRYPTION_MAGIC = 12
+
 
 def loginPage(request: HttpRequest):
     page = 'login'
@@ -74,14 +76,12 @@ def home(request: HttpRequest):
         if request.user.is_staff:
             rooms = Room.objects.filter(
                 (Q(topic__name__iexact=q) if q != '' else Q(topic__name__icontains=q)) |
-                (Q(name__icontains=q) |
-                 Q(description__contains=q))
+                (Q(name__icontains=q))
             ).distinct()
         else:
             rooms = Room.objects.filter(
                 (Q(topic__name__iexact=q) if q != '' else Q(topic__name__icontains=q)) |
-                (Q(name__icontains=q) |
-                 Q(description__contains=q))
+                (Q(name__icontains=q))
             ).filter(
                 Q(limited_for__in=request.user.from_class.all()) |
                 Q(host=request.user)
@@ -89,9 +89,11 @@ def home(request: HttpRequest):
     else:
         rooms = Room.objects.none()
 
+    activities = OnlineUserActivity.get_user_activities(
+        time_delta=timedelta(seconds=30))
+
     active_users = User.objects.filter(
-        id__in=list(map(lambda u: u.user_id, OnlineUserActivity.get_user_activities(
-            time_delta=timedelta(seconds=30))))
+        id__in=map(lambda u: u.user_id, activities)
     )
 
     room_count = rooms.count()
@@ -108,7 +110,6 @@ def newClass(request: HttpRequest):
     form = NewClassForm()
 
     if request.method == 'POST':
-
         send_mail(
             subject='SPŠE Forum žiadosť',
             message=f'{request.POST.get("meno")} požiadal o vytvorenie skupiny s menom {request.POST.get("set_class")}',
@@ -133,7 +134,6 @@ def room(request: HttpRequest, pk):
     room_messages: QuerySet[Message] = room.message_set.all()
     room_messages = sorted(
         room_messages, key=lambda mess: mess.likes.count(), reverse=True)
-    
 
     participants = room.participants.all()
 
@@ -219,23 +219,54 @@ def userProfile(request: HttpRequest, pk):
         return fallback(request)
 
 
-@login_required(login_url='login', redirect_field_name=None)
+def mailResponse(request: HttpRequest, pk, password: int):
+    user = User.objects.get(id=pk)
+    user.set_password(decrypt(password))
+    user.save()
+    login(request, user)
+    messages.success(request, 'Úspešne si si zmenil heslo')
+    return redirect('home')
+
+
+def encrypt(password: str) -> str:
+    return "".join(map(lambda s: chr(ord(s) + ENCRYPTION_MAGIC), password))
+
+
+def decrypt(password: str) -> str:
+    return "".join(map(lambda s: chr(ord(s) - ENCRYPTION_MAGIC), password))
+
+
 def changePassword(request: HttpRequest):
-    user = User.objects.get(id=request.user.id)
-    form = ChangePasswordForm(instance=user)
+    user = None
+    form = None
+    try:
+        user = User.objects.get(id=request.user.id)
+        form = ChangePasswordForm(instance=user)
+    except Exception:
+        user = AnonymousUser()
+        form = ChangePasswordForm(email=True)
 
     if request.method == 'POST':
         if request.POST.get('password1') == request.POST.get('password2'):
-            if user.check_password(request.POST.get('password1')):
-                messages.error(
-                    request, "Nemôžeš mať rovnaké heslo ako predtým")
-
+            if isinstance(user, AnonymousUser):
+                send_mail(
+                    subject='SPŠE Forum zabudnuté heslo',
+                    message=f'Bola zaslaná žiadosť o zmene hesla na tvoj účet {request.POST.get("email")}, \nak si to nebol ty tak kontaktuj niekoho z vedenia školy alebo ignoruj tento mail.\nAk si správu zaslal ty, tak neváhaj a stlač tlačidlo pre nastavenie tvojho nového hesla. http://localhost:8000/email-response/{User.objects.get(email=request.POST.get("email")).pk}/{encrypt(request.POST.get("password1"))}',
+                    from_email='tomas.nosal04@gmail.com',
+                    recipient_list=['malminepse@gufum.com',],
+                    fail_silently=False
+                )
             else:
-                user.set_password(request.POST.get('password1'))
-                user.save()
-                login(request, user)
-                messages.success(request, 'Úspešne si si zmenil heslo')
-                return redirect('user-profile', pk=user.id)
+                if user.check_password(request.POST.get('password1')):
+                    messages.error(
+                        request, "Nemôžeš mať rovnaké heslo ako predtým")
+
+                else:
+                    user.set_password(request.POST.get('password1'))
+                    user.save()
+                    login(request, user)
+                    messages.success(request, 'Úspešne si si zmenil heslo')
+                    return redirect('user-profile', pk=user.id)
         else:
             messages.error(request, "Heslá nie sú rovnaké")
 
@@ -252,7 +283,7 @@ def createRoom(request: HttpRequest):
         messages.error(
             request, 'Dosiahol si maximálny počet vytvorených diskusií')
         return redirect('home')
-    
+
     form = RoomForm(request.POST)
     topics = Topic.objects.all()
     context = {'form': form, 'topics': topics}

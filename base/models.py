@@ -9,6 +9,10 @@ class FromClass(models.Model):
     def __str__(self) -> str:
         return self.set_class
 
+class EmailPasswordVerification(models.Model):
+    user = models.ForeignKey('base.User', on_delete=models.CASCADE)
+    token_created = models.DateTimeField(auto_now_add=True)
+
 
 class User(AbstractUser, PermissionsMixin):
     name = models.CharField(max_length=220, null=True)

@@ -121,11 +121,11 @@ def home(request: HttpRequest):
             Q(room__limited_for__in=request.user.from_class.all())
         ), key=lambda x: x.created, reverse=True)
 
-    if isinstance(request.user, AnonymousUser):
+    elif isinstance(request.user, AnonymousUser):
         for message in room_messages:
             message.body = '?' * len(message.body)
             message.room.name = 'neznáme'
-
+    print(len(topics))
     context = {'rooms': rooms, 'topics': topics, 'show_topics': sorted(topics[:4], key=lambda x: x.room_set.all().count(), reverse=True),
                'room_count': room_count, 'room_messages': room_messages[:3], 'active_users': active_users}
     return render(request, 'base/home.html', context)
@@ -150,9 +150,10 @@ def newClass(request: HttpRequest):
 
 
 def pinRoom(request: HttpRequest, pk):
-    """
+    r"""
     Logic for pinning\unpinning a room
     """
+    
     pinned_room: Room = Room.objects.get(id=pk)
     pinned_room.pinned = not pinned_room.pinned
     pinned_room.save()
@@ -240,6 +241,7 @@ def userProfile(request: HttpRequest, pk):
     """
     User's profile page
     """
+    user = None
     try:
         user = User.objects.get(id=pk)
         rooms = user.room_set.all()
@@ -256,7 +258,11 @@ def userProfile(request: HttpRequest, pk):
         }
         return render(request, 'base/profile.html', context)
     except Exception:
-        return fallback(request)
+        if user is None:
+            return fallback(request, message="Nenašiel som užívateľa")
+        else:
+            # This shouldn't happen
+            return fallback(request, message="Tu nemáš čo hľadať")
 
 
 def mailResponse(request: HttpRequest, pk, password: int):
@@ -287,13 +293,13 @@ def mailResponse(request: HttpRequest, pk, password: int):
     user.set_password(decrypt(password))
     user.save()
     login(request, user)
-    messages.success(request, 'Úspešne si si zmenil heslo')
+    messages.success(request, 'Úspešne zmenené heslo')
     return redirect('home')
 
 
 def encrypt(password: str) -> str:
     """
-    Encryption logic for encrypting the user's new password into the confirmation url
+    Encryption logic for encrypting the user's new password into the confirmation URL
     
     Params
     ------
@@ -304,7 +310,7 @@ def encrypt(password: str) -> str:
 
 def decrypt(password: str) -> str:
     """
-    Decryption logic for decrypting the user's new password from the confirmation url
+    Decryption logic for decrypting the user's new password from the confirmation URL
     
     Params
     ------
@@ -333,7 +339,7 @@ def changePassword(request: HttpRequest):
             if isinstance(user, AnonymousUser):
                 student = User.objects.get(email=request.POST.get("email"))
                 password = f'http://localhost:8000/email-response/{student.pk}/{quote(quote(encrypt(request.POST.get("password1")), encoding="utf-8"), safe=":/")}'
-                htmly = get_template('base/changed_password.html')
+                htmly = get_template('base/email_template.html')
                 html_content = htmly.render(
                     {'student': student, 'password': password})
                 msg = EmailMultiAlternatives(

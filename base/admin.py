@@ -71,7 +71,7 @@ class TopicAdmin(admin.ModelAdmin):
 
 class MessageAdmin(admin.ModelAdmin):
     list_display = ['user', 'room', 'body', 'likes_count', 'parent']
-    fields = ['user', 'room', 'body', 'likes_count', 'parent']
+    fields = ['user', 'room', 'body', 'likes', 'parent']
     form = MessageForm
 
     @admin.display(description='Počet palcov hore')

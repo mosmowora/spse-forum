@@ -27,7 +27,7 @@ class TopicForm(ModelForm):
         
         
 MESSAGE_FIELDS_NAME = ['user', 'room', 'body', 'likes', 'parent']
-MESSAGE_FIELDS_LABEL = ['Napísal', "Názov diskusie", "Správa", "Počet likov", "Odpovedal na"]
+MESSAGE_FIELDS_LABEL = ['Napísal', "Názov diskusie", "Správa", "Palce hore", "Odpovedal na"]
 message_label_list=dict(zip(MESSAGE_FIELDS_NAME, MESSAGE_FIELDS_LABEL))
 class MessageForm(ModelForm):
     class Meta:

@@ -125,15 +125,14 @@ def home(request: HttpRequest):
         for message in room_messages:
             message.body = '?' * len(message.body)
             message.room.name = 'neznáme'
-    print(len(topics))
-    context = {'rooms': rooms, 'topics': topics, 'show_topics': sorted(topics[:4], key=lambda x: x.room_set.all().count(), reverse=True),
+    context = {'rooms': rooms, 'topics': tuple(filter(lambda x: x.room_set.all().count() != 0, topics)), 'show_topics': tuple(filter(lambda y: y.room_set.all().count() != 0, sorted(topics, key=lambda x: x.room_set.all().count(), reverse=True)))[:4],
                'room_count': room_count, 'room_messages': room_messages[:3], 'active_users': active_users}
     return render(request, 'base/home.html', context)
 
 
 def newClass(request: HttpRequest):
     """
-    Form for creating a new class\group
+    Form for creating a new class or group
     """
     form = NewClassForm()
 
@@ -150,8 +149,8 @@ def newClass(request: HttpRequest):
 
 
 def pinRoom(request: HttpRequest, pk):
-    r"""
-    Logic for pinning\unpinning a room
+    """
+    Logic for pinning or unpinning a room
     """
     
     pinned_room: Room = Room.objects.get(id=pk)
@@ -224,7 +223,7 @@ def room(request: HttpRequest, pk):
 
 def upvoteMessage(request: HttpRequest, pk):
     """
-    Logic for upvoting\downvoting a message
+    Logic for upvoting or downvoting a message
     """
     message = Message.objects.get(id=request.POST.get('message_id'))
 
@@ -562,7 +561,7 @@ def topicsPage(request: HttpRequest):
         Q(name__icontains=q)), key=lambda x: x.room_set.all().count(), reverse=True) if type_of == "topic" \
         else sorted(User.objects.filter(Q(name__icontains=q) | Q(from_class__set_class__icontains=q)), key=lambda user: [alphabet.get(c, ord(c)) for c in user.name.split()[0]])
 
-    return render(request, 'base/topics.html', {'topics': topics, 'render_value': render_value, "type_of": type_of})
+    return render(request, 'base/topics.html', {'topics': tuple(filter(lambda x: x.room_set.all().count() != 0, topics)), 'render_value': render_value, "type_of": type_of})
 
 
 def activityPage(request):

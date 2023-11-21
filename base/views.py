@@ -123,8 +123,9 @@ def home(request: HttpRequest):
 
     elif isinstance(request.user, AnonymousUser):
         for message in room_messages:
-            message.body = '?' * len(message.body)
+            message.body = '????'
             message.room.name = 'neznáme'
+            
     context = {'rooms': rooms, 'topics': tuple(filter(lambda x: x.room_set.all().count() != 0, topics)), 'show_topics': tuple(filter(lambda y: y.room_set.all().count() != 0, sorted(topics, key=lambda x: x.room_set.all().count(), reverse=True)))[:4],
                'room_count': room_count, 'room_messages': room_messages[:3], 'active_users': active_users}
     return render(request, 'base/home.html', context)
@@ -164,59 +165,62 @@ def room(request: HttpRequest, pk):
     """
     Page for showing everything about the room, handling room messages, message upvotes, participants, etc.
     """
-    room = Room.objects.get(id=pk)
-    room_messages: QuerySet[Message] = room.message_set.all()
-    room_messages = sorted(
-        room_messages, key=lambda mess: mess.likes.count(), reverse=True)
+    try:
+        room = Room.objects.get(id=pk)
+        room_messages: QuerySet[Message] = room.message_set.all()
+        room_messages = sorted(
+            room_messages, key=lambda mess: mess.likes.count(), reverse=True)
 
-    participants = room.participants.all()
+        participants = room.participants.all()
 
-    upvoted_messages: dict[Message, bool] = {}
+        upvoted_messages: dict[Message, bool] = {}
 
-    back: str = request.META['HTTP_REFERER']
+        back: str = request.META['HTTP_REFERER']
 
-    for message in room_messages:
-        upvoted = False
-        if message.likes.filter(id=request.user.id).exists():
-            upvoted = True
+        for message in room_messages:
+            upvoted = False
+            if message.likes.filter(id=request.user.id).exists():
+                upvoted = True
 
-        upvoted_messages[message] = upvoted
+            upvoted_messages[message] = upvoted
 
-    active_users = User.objects.filter(
-        id__in=list(map(lambda u: u.user_id, OnlineUserActivity.get_user_activities(
-            time_delta=timedelta(seconds=30))))
-    )
-    context = {'room': room, 'room_messages': room_messages, 'amount_of_messages': len(room_messages),
-               'participants': participants, 'upvoted_messages': upvoted_messages, 'active_users': active_users, 'back': any(x in ('room', 'error', 'delete-message', 'upvote-message') for x in back.split("/"))}
-    if request.method == 'POST':
-        content = request.POST.get('body')
-        parent = None
-        reply_form = ReplyForm(data=request.POST)
+        active_users = User.objects.filter(
+            id__in=list(map(lambda u: u.user_id, OnlineUserActivity.get_user_activities(
+                time_delta=timedelta(seconds=30))))
+        )
+        context = {'room': room, 'room_messages': room_messages, 'amount_of_messages': len(room_messages),
+                'participants': participants, 'upvoted_messages': upvoted_messages, 'active_users': active_users, 'back': any(x in ('room', 'error', 'delete-message', 'upvote-message') for x in back.split("/"))}
+        if request.method == 'POST':
+            content = request.POST.get('body')
+            parent = None
+            reply_form = ReplyForm(data=request.POST)
 
-        if reply_form.is_valid():
-            content = reply_form.cleaned_data['body']
+            if reply_form.is_valid():
+                content = reply_form.cleaned_data['body']
+                try:
+                    parent = reply_form.cleaned_data['parent']
+                except Exception:
+                    parent = None
+
+            if content == '':
+                return redirect('room', pk=room.id)
+
             try:
-                parent = reply_form.cleaned_data['parent']
+                parent = Message.objects.get(id=reply_form['parent'].value())
             except Exception:
                 parent = None
 
-        if content == '':
+            message = Message(
+                user=request.user,
+                room=room,
+                body=content,
+                parent=parent
+            )
+            message.save()
+            room.participants.add(request.user)
             return redirect('room', pk=room.id)
-
-        try:
-            parent = Message.objects.get(id=reply_form['parent'].value())
-        except Exception:
-            parent = None
-
-        message = Message(
-            user=request.user,
-            room=room,
-            body=content,
-            parent=parent
-        )
-        message.save()
-        room.participants.add(request.user)
-        return redirect('room', pk=room.id)
+    except Exception:
+        return fallback(request, "Nemožno zobraziť túto diskusiu.")
 
     return render(request, 'base/room.html', context)
 
@@ -392,38 +396,41 @@ def createRoom(request: HttpRequest):
     """
     Site for room creation, basically the form backend
     """
-    if request.user.room_set.all().count() >= 3:
-        messages.error(
-            request, 'Dosiahol si maximálny počet vytvorených diskusií')
-        return redirect('home')
+    try:
+        if request.user.room_set.all().count() >= 10:
+            messages.error(
+                request, 'Dosiahol si maximálny počet vytvorených diskusií')
+            return redirect('home')
 
-    form = RoomForm(request.POST)
-    topics = Topic.objects.all()
-    context = {'form': form, 'topics': topics}
+        form = RoomForm(request.POST)
+        topics = Topic.objects.all()
+        context = {'form': form, 'topics': topics}
 
-    if request.method == 'POST':
-        topic_name = request.POST.get('topic')
-        topic, _ = Topic.objects.get_or_create(name=topic_name)
-        class_list = request.POST.getlist("limit_for")
-        context['back'] = any(
-            x == 'create-room' for x in request.META['HTTP_REFERER'].split("/"))
+        if request.method == 'POST':
+            topic_name = request.POST.get('topic')
+            topic, _ = Topic.objects.get_or_create(name=topic_name)
+            class_list = request.POST.getlist("limit_for")
+            context['back'] = any(
+                x == 'create-room' for x in request.META['HTTP_REFERER'].split("/"))
 
-        room = Room(
-            host=request.user,
-            topic=topic,
-            name=request.POST.get('name'),
-            description=request.POST.get('description'),
-            pinned=True if request.POST.get('pinned') == "on" else False
-        )
+            room = Room(
+                host=request.user,
+                topic=topic,
+                name=request.POST.get('name'),
+                description=request.POST.get('description'),
+                pinned=True if request.POST.get('pinned') == "on" else False
+            )
 
-        selected_classes = set(int(x) for x in class_list)
-        if len(selected_classes) == 0:
-            context['message'] = 'Musíš zaškrtnúť pre koho sa ukáže'
-            return render(request, 'base/room_form.html', context)
+            selected_classes = set(int(x) for x in class_list)
+            if len(selected_classes) == 0:
+                context['message'] = 'Musíš zaškrtnúť pre koho sa ukáže'
+                return render(request, 'base/room_form.html', context)
 
-        room.save()
-        room.limited_for.set(selected_classes)
-        return redirect('home')
+            room.save()
+            room.limited_for.set(selected_classes)
+            return redirect('home')
+    except Exception:
+        return fallback(request, "Niečo sa stalo pri vytváraní diskusie.")
 
     return render(request, 'base/room_form.html', context)
 
@@ -433,32 +440,36 @@ def updateRoom(request: HttpRequest, pk):
     """
     Site for room updates, basically the form backend
     """
-    room = Room.objects.get(id=pk)
-    form = RoomForm(instance=room)
-    topics = Topic.objects.all()
-    form['limit_for'].initial = room.limited_for.get_queryset()
-    context = {'form': form, 'topics': topics, 'room': room, 'back': any(
-        x == 'update-room' for x in request.META['HTTP_REFERER'].split("/"))}
+    try:
+        room = Room.objects.get(id=pk)
+        form = RoomForm(instance=room)
+        topics = Topic.objects.all()
+        form['limit_for'].initial = room.limited_for.get_queryset()
+        context = {'form': form, 'topics': topics, 'room': room, 'back': any(
+            x == 'update-room' for x in request.META['HTTP_REFERER'].split("/"))}
 
-    if request.user != room.host and not request.user.is_staff:
+        if request.user != room.host and not request.user.is_staff:
+            return fallback(request)
+
+        if request.method == 'POST':
+            class_list = request.POST.getlist("limit_for")
+            topic_name = request.POST.get('topic')
+            topic, _ = Topic.objects.get_or_create(name=topic_name)
+            room.name = request.POST.get('name')
+            room.topic = topic
+            room.description = request.POST.get('description')
+            room.pinned = True if request.POST.get('pinned') == "on" else False
+            room.limited_for.set(request.POST.getlist("limit_for"))
+            selected_classes = set(int(x) for x in class_list)
+            if len(selected_classes) == 0:
+                context['message'] = 'Musíš zaškrtnúť pre koho sa ukáže'
+                return render(request, 'base/room_form.html', context)
+
+            room.save()
+            return redirect('home')
+        
+    except Exception:
         return fallback(request)
-
-    if request.method == 'POST':
-        class_list = request.POST.getlist("limit_for")
-        topic_name = request.POST.get('topic')
-        topic, _ = Topic.objects.get_or_create(name=topic_name)
-        room.name = request.POST.get('name')
-        room.topic = topic
-        room.description = request.POST.get('description')
-        room.pinned = True if request.POST.get('pinned') == "on" else False
-        room.limited_for.set(request.POST.getlist("limit_for"))
-        selected_classes = set(int(x) for x in class_list)
-        if len(selected_classes) == 0:
-            context['message'] = 'Musíš zaškrtnúť pre koho sa ukáže'
-            return render(request, 'base/room_form.html', context)
-
-        room.save()
-        return redirect('home')
 
     return render(request, 'base/room_form.html', context)
 
@@ -492,12 +503,13 @@ def deleteMessage(request, pk):
         return redirect('home')
 
     if request.user != message.user:
-        return fallback(request)
+        return fallback(request, "Takto odstránenie správy nefunguje.")
 
     if request.method == 'POST':
         message.delete()
         # redirect user back to the room
         return redirect('room', pk=message.room.id)
+    
     return render(request, 'base/delete.html', {'obj': message})
 
 
@@ -509,11 +521,14 @@ def updateUser(request: HttpRequest):
     user = request.user
     form = UserForm(instance=user)
 
-    if request.method == 'POST':
-        form = UserForm(request.POST, request.FILES, instance=user)
-        if form.is_valid():
-            form.save()
-            return redirect('user-profile', pk=user.id)
+    try:
+        if request.method == 'POST':
+            form = UserForm(request.POST, request.FILES, instance=user)
+            if form.is_valid():
+                form.save()
+                return redirect('user-profile', pk=user.id)
+    except Exception:
+        return fallback(request, "Niečo neočakávané sa stalo.")
 
     return render(request, 'base/update-user.html', {'form': form})
 
@@ -523,18 +538,21 @@ def deleteUser(request: HttpRequest):
     """
     Site for deleting everything about the user
     """
-    if request.method == 'POST':
-        messages = Message.objects.filter(user__name__exact=request.user.name)
-        messages.delete()
-        rooms = list(filter(lambda r: request.user in r.all(), [
-                     r.participants for r in Room.objects.all()]))
-        for participants in rooms:
-            participants.get(name__exact=request.user.name)
+    try:
+        if request.method == 'POST':
+            messages = Message.objects.filter(user__email__exact=request.user.email)
+            messages.delete()
+            rooms = list(filter(lambda r: request.user in r.all(), [
+                        r.participants for r in Room.objects.all()]))
+            for participants in rooms:
+                participants.get(email__exact=request.user.email).delete()
 
-        hosted_rooms = Room.objects.filter(host__name__exact=request.user.name)
-        hosted_rooms.delete()
-        user = User.objects.get(name__exact=request.user.name)
-        user.delete()
+            hosted_rooms = Room.objects.filter(host__name__exact=request.user.name)
+            hosted_rooms.delete()
+            user = User.objects.get(email__exact=request.user.email)
+            user.delete()
+    except Exception:
+        return fallback(request, "Niečo sa stalo pri odstraňovaní tvojho účtu.")
 
     return render(request, 'base/delete-user.html')
 
@@ -547,20 +565,23 @@ def topicsPage(request: HttpRequest):
     render_value = ""
     type_of = "topic"
 
-    if request.method == "GET":
-        if request.GET.get("search_for_students") is None:
-            render_value = request.GET.get("search_for_topics")
-            type_of = 'topic'
-        else:
-            render_value = request.GET.get("search_for_students")
-            type_of = 'user'
+    try:
+        if request.method == "GET":
+            if request.GET.get("search_for_students") is None:
+                render_value = request.GET.get("search_for_topics")
+                type_of = 'topic'
+            else:
+                render_value = request.GET.get("search_for_students")
+                type_of = 'user'
 
-    alphabet = {c: i for i, c in enumerate(
-        'AÁÄBCČDĎDZDŽEÉFGHCHIÍJKLĹĽMNŇOÓÔPQRŔSŠTŤUÚVWXYÝZŽ')}
-    topics = sorted(Topic.objects.filter(
-        Q(name__icontains=q)), key=lambda x: x.room_set.all().count(), reverse=True) if type_of == "topic" \
-        else sorted(User.objects.filter(Q(name__icontains=q) | Q(from_class__set_class__icontains=q)), key=lambda user: [alphabet.get(c, ord(c)) for c in user.name.split()[0]])
-
+        alphabet = {c: i for i, c in enumerate(
+            'AÁÄBCČDĎDZDŽEÉFGHCHIÍJKLĹĽMNŇOÓÔPQRŔSŠTŤUÚVWXYÝZŽ')}
+        topics = sorted(Topic.objects.filter(
+            Q(name__icontains=q)), key=lambda x: x.room_set.all().count(), reverse=True) if type_of == "topic" \
+            else sorted(User.objects.filter(Q(name__icontains=q) | Q(from_class__set_class__icontains=q)), key=lambda user: [alphabet.get(c, ord(c)) for c in user.name.split()[0]])
+    except Exception:
+        return fallback(request)
+    
     return render(request, 'base/topics.html', {'topics': tuple(filter(lambda x: x.room_set.all().count() != 0, topics)), 'render_value': render_value, "type_of": type_of})
 
 

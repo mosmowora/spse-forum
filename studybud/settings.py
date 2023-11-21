@@ -138,7 +138,7 @@ LOGGING = {
 
 CSRF_TRUSTED_ORIGINS = [
     ("http://localhost:8000/"),
-    ("https://3fbc-193-87-77-23.ngrok-free.app")
+    ("https://ab35-193-87-77-23.ngrok-free.app")
 ]
 
 # Internationalization
@@ -177,7 +177,7 @@ DATABASES = {
     # ↓ For school server use MySQL ↓
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'forum',
+        'NAME': 'dod23',
         'USER': get_secret('USER'),
         'PASSWORD': get_secret('PASSWORD'),
         'HOST': 'localhost',

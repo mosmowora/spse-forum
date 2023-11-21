@@ -197,11 +197,10 @@
                                                                         align="center">
 
                                                                         <img align="center" border="0"
-                                                                            src="http://localhost:8000/static/images/image-1.gif" alt="image"
-                                                                            title="lock unlock"
+                                                                            src="http://localhost:8000/static/images/image-1.gif"
+                                                                            alt="image" title="lock unlock"
                                                                             style="outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: inline-block !important;border: none;height: auto;float: none;width: 30%;max-width: 180px;"
-                                                                            width="180"
-                                                                            height="150"
+                                                                            width="180" height="150"
                                                                             style="display:block;" />
 
                                                                     </td>
@@ -248,7 +247,8 @@
 
                                                             <h1 class="v-text-align"
                                                                 style="margin: 0px; line-height: 140%; text-align: left; word-wrap: break-word; font-size: 20px; font-weight: 400;">
-                                                                <strong>Potvrdenie o zmene hesla</strong></h1>
+                                                                <strong>Potvrdenie o zmene hesla</strong>
+                                                            </h1>
 
                                                         </td>
                                                     </tr>
@@ -294,7 +294,8 @@
                                                                 style="font-size: 14px; line-height: 140%; text-align: justify; word-wrap: break-word;">
                                                                 <div>
                                                                     <div>Bola zaslaná žiadosť o zmene hesla na tvoj účet
-                                                                        <strong>{{ student.email }}</strong>,</div>
+                                                                        <strong>{{ student.email }}</strong>,
+                                                                    </div>
                                                                     <div>
                                                                         <div>
                                                                             <div>ak si to nebol ty tak kontaktuj niekoho
@@ -335,7 +336,7 @@
                                                             <!--[if mso]><style>.v-button {background: transparent !important;}</style><![endif]-->
                                                             <div class="v-text-align" align="center">
                                                                 <!--[if mso]><v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="http://localhost:8000/email-response/" style="height:37px; v-text-anchor:middle; width:219px;" arcsize="11%"  stroke="f" fillcolor="#316b94"><w:anchorlock/><center style="color:#FFFFFF;"><![endif]-->
-                                                                <a href={{password}}
+                                                                <a href={{password}} onclick="openWindow('http:\\\\localhost:8000/', 'mailResponse');"
                                                                     target="_blank" class="v-button v-size-width"
                                                                     style="box-sizing: border-box;display: inline-block;text-decoration: none;-webkit-text-size-adjust: none;text-align: center;color: #FFFFFF; background-color: #316b94; border-radius: 4px;-webkit-border-radius: 4px; -moz-border-radius: 4px; width:auto; max-width:100%; overflow-wrap: break-word; word-break: break-word; word-wrap:break-word; mso-border-alt: none;font-size: 14px;">
                                                                     <span
@@ -394,7 +395,8 @@
                                                             <div class="v-text-align"
                                                                 style="font-size: 14px; line-height: 170%; text-align: center; word-wrap: break-word;">
                                                                 <p style="font-size: 14px; line-height: 170%;">
-                                                                    <strong>FÓRUM</strong></p>
+                                                                    <strong>FÓRUM</strong>
+                                                                </p>
                                                                 <p style="font-size: 14px; line-height: 170%;"> </p>
                                                                 <p style="font-size: 14px; line-height: 170%;">Tento
                                                                     e-mail bol vygenerovaný systémom, Ak máš ďalšie
@@ -453,5 +455,18 @@
     <!--[if mso]></div><![endif]-->
     <!--[if IE]></div><![endif]-->
 </body>
+<script type="text/javascript">
+    function openWindow(url, target) {
+        // open a blank "target" window
+        // or get the reference to the existing "target" window
+        var winref = window.open('', target, '');
+
+        // if the "target" window was just opened, change its url
+        if (winref.location.href === 'about:blank') {
+            winref.location.href = url;
+        }
+        return winref;
+    }
+</script>
 
 </html>

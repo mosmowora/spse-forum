@@ -13,6 +13,24 @@ option {
     font-family: Arial, Helvetica, sans-serif;
 }
 
+#from-class_select {
+    border-radius: 8px;
+    margin-top: 2%;
+}
+
+#changelist-filter > ul > li:nth-child(2) {
+    width: 80%;
+    margin: 0 auto 0 0;
+}
+
+a#from-class_submit {
+    margin: 0 auto 0 2%;
+    text-align: center;
+    text-transform: capitalize;
+    font-weight: 650;
+    letter-spacing: 1.25px;
+}
+
 * {
     scrollbar-width: thin;
     scrollbar-color: #474f4890 #e1ebee1a;

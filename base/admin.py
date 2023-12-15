@@ -14,6 +14,7 @@ from .models import FromClass, Room, Topic, Message, User
 
 
 class UserAdmin(admin.ModelAdmin):
+    User.get_short_name = lambda user_instance: user_instance.name
     readonly_fields = ('id', 'last_login', 'date_joined',
                        'name', 'username')
     list_filter = ['is_superuser', 'is_staff',
@@ -25,6 +26,7 @@ class UserAdmin(admin.ModelAdmin):
                     'fromClass', 'date_Joined', 'last_Login']
     filter_horizontal = ['from_class',]
     form = UserAdminForm
+    
     delete_selected.short_description = u'Vymazať vybraných užívateľov'
 
     def get_actions(self, request: HttpRequest) -> OrderedDict[Any, Any]:
@@ -64,15 +66,17 @@ class UserAdmin(admin.ModelAdmin):
             messages.SUCCESS
         )
 
+    actions = [promote_to_admin, demote_to_user]
+    
     def date_Joined(self, obj: User):
         return obj.date_joined.strftime("%d %b %Y")
 
     def last_Login(self, obj: User):
         return obj.last_login.strftime("%d %b %Y %H:%M")
 
-    actions = [promote_to_admin, demote_to_user]
 
     class Media:
+        js = ('..\\static\\js\\admin.js',)
         css = {
             'all': ('..\\static\\styles\\admin.css', )     # Include extra css
         }
@@ -137,3 +141,6 @@ admin.site.register(Room, RoomAdmin)
 admin.site.register(Topic, TopicAdmin)
 admin.site.register(Message, MessageAdmin)
 admin.site.register(FromClass, ClassAdmin)
+admin.site.site_title = "SPŠE Administrácia"
+admin.site.site_header = "SPŠE Forum Administrácia"
+admin.site.index_title = "SPŠE Forum Administrácia | Domov"

@@ -59,6 +59,7 @@ INSTALLED_APPS = [
     'widget_tweaks',
     'djutils',
     'online_users',
+    'more_admin_filters',
 ]
 
 AUTH_USER_MODEL = 'base.User'

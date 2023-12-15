@@ -11,7 +11,6 @@ from django.contrib.auth import authenticate, login, logout
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import get_template
 from django.urls import reverse
-import pytz
 from .models import EmailPasswordVerification, Room, Topic, Message, User
 from .forms import ChangePasswordForm, NewClassForm, ReplyForm, RoomForm, UserCreationForm, UserForm
 from online_users.models import OnlineUserActivity
@@ -142,6 +141,7 @@ def newClass(request: HttpRequest):
             subject='SPŠE Forum žiadosť',
             message=f'{request.POST.get("meno")} požiadal o vytvorenie skupiny s menom {request.POST.get("set_class")}',
             from_email='tomas.nosal04@gmail.com',
+            # TODO: email from request ↓
             recipient_list=['reknojorke@gufum.com',],
             fail_silently=False
         )

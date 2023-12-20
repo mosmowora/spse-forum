@@ -25,6 +25,7 @@ option {
 
 a#from-class_submit {
     margin: 0 auto 0 2%;
+    width: 70%;
     text-align: center;
     text-transform: capitalize;
     font-weight: 650;

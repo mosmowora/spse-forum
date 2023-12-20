@@ -1,8 +1,8 @@
 from rest_framework.decorators import api_view
 from rest_framework import status
 from rest_framework.response import Response
-from base.models import Room, User
-from .serializers import RoomSerializer, UserSerializer
+from base.models import (Room, User)
+from .serializers import (RoomSerializer, UserSerializer)
 
 
 @api_view(['GET'])

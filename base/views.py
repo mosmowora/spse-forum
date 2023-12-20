@@ -11,8 +11,13 @@ from django.contrib.auth import authenticate, login, logout
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import get_template
 from django.urls import reverse
-from .models import EmailPasswordVerification, Room, Topic, Message, User
-from .forms import ChangePasswordForm, NewClassForm, ReplyForm, RoomForm, UserCreationForm, UserForm
+from .models import (
+    EmailPasswordVerification, Room, Topic, Message, User
+)
+from .forms import (
+    ChangePasswordForm, NewClassForm,
+    ReplyForm, RoomForm, UserCreationForm, UserForm
+)
 from online_users.models import OnlineUserActivity
 from django.core.mail import send_mail
 from urllib.parse import quote, unquote
@@ -85,6 +90,7 @@ def home(request: HttpRequest):
     request.session.set_expiry(timedelta(hours=6))
     request.session.clear_expired()
     rooms = None
+    
     if not isinstance(request.user, AnonymousUser):
         if request.user.is_staff:
             rooms = Room.objects.filter(
@@ -124,7 +130,7 @@ def home(request: HttpRequest):
         for message in room_messages:
             message.body = '????'
             message.room.name = 'neznáme'
-            
+
     context = {'rooms': rooms, 'topics': tuple(filter(lambda x: x.room_set.all().count() != 0, topics)), 'show_topics': tuple(filter(lambda y: y.room_set.all().count() != 0, sorted(topics, key=lambda x: x.room_set.all().count(), reverse=True)))[:4],
                'room_count': room_count, 'room_messages': room_messages[:3], 'active_users': active_users}
     return render(request, 'base/home.html', context)
@@ -153,7 +159,7 @@ def pinRoom(request: HttpRequest, pk):
     """
     Logic for pinning or unpinning a room
     """
-    
+
     pinned_room: Room = Room.objects.get(id=pk)
     pinned_room.pinned = not pinned_room.pinned
     pinned_room.save()
@@ -189,7 +195,7 @@ def room(request: HttpRequest, pk):
                 time_delta=timedelta(seconds=30))))
         )
         context = {'room': room, 'room_messages': room_messages, 'amount_of_messages': len(room_messages),
-                'participants': participants, 'upvoted_messages': upvoted_messages, 'active_users': active_users, 'back': any(x in ('room', 'error', 'delete-message', 'upvote-message') for x in back.split("/"))}
+                   'participants': participants, 'upvoted_messages': upvoted_messages, 'active_users': active_users, 'back': any(x in ('room', 'error', 'delete-message', 'upvote-message') for x in back.split("/"))}
         if request.method == 'POST':
             content = request.POST.get('body')
             parent = None
@@ -273,14 +279,14 @@ def mailResponse(request: HttpRequest, pk, password: int):
     E-mail confirmation handler\n
     get's the user based on his id and after decrypting the password from the url sets his new password.\n
     Handles password confirmation token expiry. Token expires after 1H.
-    
+
     Params
     -----
-    
+
     pk `str` - user's id\n
     password `str` - encrypted password taken from the url for decryption
     """
-    
+
     user = User.objects.get(id=pk)
     expires = EmailPasswordVerification.objects.get(
         user__id=user.id).token_created + datetime.timedelta(hours=2)
@@ -290,7 +296,7 @@ def mailResponse(request: HttpRequest, pk, password: int):
     now = datetime.datetime.now(tz=datetime.datetime.now(
         datetime.timezone.utc).astimezone().tzinfo)
 
-    # Debugging purposes 
+    # Debugging purposes
     # print(expires)
     # print(now)
 
@@ -307,7 +313,7 @@ def mailResponse(request: HttpRequest, pk, password: int):
 def encrypt(password: str) -> str:
     """
     Encryption logic for encrypting the user's new password into the confirmation URL
-    
+
     Params
     ------
     password `str` - raw password to encrypt
@@ -318,7 +324,7 @@ def encrypt(password: str) -> str:
 def decrypt(password: str) -> str:
     """
     Decryption logic for decrypting the user's new password from the confirmation URL
-    
+
     Params
     ------
     password `str` - raw password to decrypt
@@ -357,7 +363,7 @@ def changePassword(request: HttpRequest):
                 try:
                     got_user = EmailPasswordVerification.objects.get(
                         user=student)  # This is neccessary !!!
-                    got_user.token_created=datetime.datetime.now() + datetime.timedelta(hours=1)
+                    got_user.token_created = datetime.datetime.now() + datetime.timedelta(hours=1)
                     got_user.save()
                 except Exception:
                     created = EmailPasswordVerification.objects.create(
@@ -387,7 +393,7 @@ def changePassword(request: HttpRequest):
 def fallback(request: HttpRequest, message: str = None):
     """
     Error handler site (404 page)
-    
+
     Params:
     ------
     message - `str`: optional message to display on the 404 page
@@ -471,7 +477,7 @@ def updateRoom(request: HttpRequest, pk):
 
             room.save()
             return redirect('home')
-        
+
     except Exception:
         return fallback(request)
 
@@ -513,7 +519,7 @@ def deleteMessage(request, pk):
         message.delete()
         # redirect user back to the room
         return redirect('room', pk=message.room.id)
-    
+
     return render(request, 'base/delete.html', {'obj': message})
 
 
@@ -544,14 +550,16 @@ def deleteUser(request: HttpRequest):
     """
     try:
         if request.method == 'POST':
-            messages = Message.objects.filter(user__email__exact=request.user.email)
+            messages = Message.objects.filter(
+                user__email__exact=request.user.email)
             messages.delete()
             rooms = list(filter(lambda r: request.user in r.all(), [
-                        r.participants for r in Room.objects.all()]))
+                r.participants for r in Room.objects.all()]))
             for participants in rooms:
                 participants.get(email__exact=request.user.email).delete()
 
-            hosted_rooms = Room.objects.filter(host__name__exact=request.user.name)
+            hosted_rooms = Room.objects.filter(
+                host__name__exact=request.user.name)
             hosted_rooms.delete()
             user = User.objects.get(email__exact=request.user.email)
             user.delete()
@@ -585,7 +593,7 @@ def topicsPage(request: HttpRequest):
             else sorted(User.objects.filter(Q(name__icontains=q) | Q(from_class__set_class__icontains=q)), key=lambda user: [alphabet.get(c, ord(c)) for c in user.name.split()[0]])
     except Exception:
         return fallback(request)
-    
+
     return render(request, 'base/topics.html', {'topics': tuple(filter(lambda x: x.room_set.all().count() != 0, topics)), 'render_value': render_value, "type_of": type_of})
 
 

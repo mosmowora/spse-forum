@@ -24,8 +24,7 @@ class TopicForm(ModelForm):
         model=Topic
         fields='__all__'
         labels=topic_label_list
-        
-        
+         
 MESSAGE_FIELDS_NAME = ['user', 'room', 'body', 'likes', 'parent']
 MESSAGE_FIELDS_LABEL = ['Napísal', "Názov diskusie", "Správa", "Palce hore", "Odpovedal na"]
 message_label_list=dict(zip(MESSAGE_FIELDS_NAME, MESSAGE_FIELDS_LABEL))
@@ -35,11 +34,10 @@ class MessageForm(ModelForm):
         fields='__all__'
         labels=message_label_list
 
-
 ROOM_FIELDS_NAME = ['host', 'topic', 'name', 'description', 'participants', 'pinned', 'limited_for']
 ROOM_FIELDS_LABEL = ['Autor', "Téma", "Názov", "Popis", "Zúčastnení", 'Pinnuté', 'Ukáže sa pre']
 room_label_list=dict(zip(ROOM_FIELDS_NAME, ROOM_FIELDS_LABEL))
-class RoomFormAdmin(ModelForm):
+class RoomAdminForm(ModelForm):
     class Meta:
         model=Room
         fields='__all__'
@@ -55,8 +53,6 @@ class UserAdminForm(ModelForm):
         fields='__all__'
         labels=user_label_list
         
-        
-
 class ReplyForm(ModelForm):
 
     class Meta:
@@ -120,3 +116,13 @@ class ChangePasswordForm(UserCreationForm, ModelForm):
     class Meta:
         model = User
         fields = ['email', 'password1', 'password2']
+
+
+FROMCLASS_FIELDS_NAME = ['set_class']
+FROMCLASS_FIELDS_LABEL = ['Trieda']
+fromclass_label_list=dict(zip(FROMCLASS_FIELDS_NAME, FROMCLASS_FIELDS_LABEL))
+class FromClassAdminForm(ModelForm):
+    class Meta:
+        model=FromClass
+        fields='__all__'
+        labels=fromclass_label_list

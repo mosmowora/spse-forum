@@ -8,6 +8,10 @@ class FromClass(models.Model):
 
     def __str__(self) -> str:
         return self.set_class
+    
+    class Meta:
+        verbose_name = "Trieda"
+        verbose_name_plural = "Triedy"
 
 class EmailPasswordVerification(models.Model):
     user = models.ForeignKey('base.User', on_delete=models.CASCADE)
@@ -15,7 +19,7 @@ class EmailPasswordVerification(models.Model):
 
 
 class User(AbstractUser, PermissionsMixin):
-    name = models.CharField(max_length=220, null=True)
+    name = models.CharField(max_length=220, null=True, db_column="Meno")
     email = models.EmailField(unique=True, null=True)
     bio = models.TextField(null=True, blank=True)
     avatar = models.ImageField(null=True, blank=True, verbose_name='avatar')
@@ -29,6 +33,10 @@ class User(AbstractUser, PermissionsMixin):
 
     def __str__(self) -> str:
         return self.name
+    
+    class Meta:
+        verbose_name = "Užívateľ"
+        verbose_name_plural = "Užívatelia"
 
 
 class Topic(models.Model):
@@ -36,6 +44,11 @@ class Topic(models.Model):
 
     def __str__(self):
         return self.name
+    
+    
+    class Meta:
+        verbose_name = "Téma diskusie"
+        verbose_name_plural = "Témy diskusií"
 
 
 class Room(models.Model):
@@ -54,6 +67,8 @@ class Room(models.Model):
 
     class Meta:
         ordering = ['-pinned', '-updated', '-created']
+        verbose_name = "Diskusia"
+        verbose_name_plural = "Diskusie"
 
     def __str__(self): return self.name
 
@@ -93,6 +108,8 @@ class Message(models.Model):
 
     class Meta:
         ordering = ['-created']
+        verbose_name = "Správa diskusie"
+        verbose_name_plural = "Správy diskusií"
 
     def __str__(self):
         return self.body[0:50]

@@ -178,7 +178,7 @@ DATABASES = {
     # ↓ For school server use MySQL ↓
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'dod23',
+        'NAME': 'forum',
         'USER': get_secret('USER'),
         'PASSWORD': get_secret('PASSWORD'),
         'HOST': 'localhost',

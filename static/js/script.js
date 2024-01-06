@@ -6,6 +6,7 @@ const dropdownButton = document.querySelector(".dropdown-button");
 if (dropdownButton) {
   dropdownButton.addEventListener("click", () => {
     dropdownMenu.classList.toggle("show");
+    document.querySelector("main.layout.layout--3").classList.toggle("dimmed");
   });
 }
 

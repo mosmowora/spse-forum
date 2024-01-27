@@ -139,7 +139,7 @@ LOGGING = {
 
 CSRF_TRUSTED_ORIGINS = [
     ("http://localhost:8000/"),
-    ("https://ab35-193-87-77-23.ngrok-free.app")
+    # ("https://ab35-193-87-77-23.ngrok-free.app")
 ]
 
 # Internationalization

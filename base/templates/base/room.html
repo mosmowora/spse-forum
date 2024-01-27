@@ -30,8 +30,8 @@
           {% endif %}
           <h3>Diskusia</h3>
         </div>
-        {% if room.host == request.user or request.user.is_staff %}
         <div class="room__topRight">
+          {% if room.host == request.user %}
           <a href="{% url 'update-room' room.id %}">
             <svg enable-background="new 0 0 24 24" height="32" viewBox="0 0 24 24" width="32"
               xmlns="http://www.w3.org/2000/svg">
@@ -51,16 +51,18 @@
               </g>
             </svg>
           </a>
+          {% endif %}
+          {% if request.user == room.host or request.user.is_staff %}
           <a href="{% url 'delete-room' room.id %}">
             <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
               <title>remove</title>
               <path
-                d="M27.314 6.019l-1.333-1.333-9.98 9.981-9.981-9.981-1.333 1.333 9.981 9.981-9.981 9.98 1.333 1.333 9.981-9.98 9.98 9.98 1.333-1.333-9.98-9.98 9.98-9.981z">
-              </path>
-            </svg>
-          </a>
-        </div>
+              d="M27.314 6.019l-1.333-1.333-9.98 9.981-9.981-9.981-1.333 1.333 9.981 9.981-9.981 9.98 1.333 1.333 9.981-9.98 9.98 9.98 1.333-1.333-9.98-9.98 9.98-9.981z">
+            </path>
+          </svg>
+        </a>
         {% endif %}
+        </div>
 
       </div>
       <div class="room__box scroll">
@@ -147,7 +149,7 @@
                   {% endif %}
                 </form>
 
-                {% if message.user == request.user %}
+                {% if message.user == request.user or request.user.is_staff %}
                 <a href="{% url 'delete-message' message.id %}">
                   <div class="thread__delete">
                     <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
@@ -198,8 +200,7 @@
                     </a>
                     <span class="thread__date mobile-timesince">{{reply.created|timesince}} ago</span>
                   </div>
-
-                  {% if reply.user == request.user %}
+                  {% if reply.user == request.user or request.user.is_staff %}
                   <a href="{% url 'delete-message' reply.id %}">
                     <div class="thread__delete">
                       <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">

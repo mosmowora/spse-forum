@@ -90,7 +90,7 @@ def home(request: HttpRequest):
     request.session.set_expiry(timedelta(hours=6))
     request.session.clear_expired()
     rooms = None
-    
+
     if not isinstance(request.user, AnonymousUser):
         if request.user.is_staff:
             rooms = Room.objects.filter(
@@ -571,7 +571,7 @@ def deleteUser(request: HttpRequest):
 
 def topicsPage(request: HttpRequest):
     """
-    Site for showing topics
+    Site for showing topics and students/teachers
     """
     q = request.GET.get('q') if request.GET.get('q') != None else ''
     render_value = ""
@@ -588,13 +588,17 @@ def topicsPage(request: HttpRequest):
 
         alphabet = {c: i for i, c in enumerate(
             'AÁÄBCČDĎDZDŽEÉFGHCHIÍJKLĹĽMNŇOÓÔPQRŔSŠTŤUÚVWXYÝZŽ')}
+        # Topics
         topics = sorted(Topic.objects.filter(
-            Q(name__icontains=q)), key=lambda x: x.room_set.all().count(), reverse=True) if type_of == "topic" \
-            else sorted(User.objects.filter(Q(name__icontains=q) | Q(from_class__set_class__icontains=q)), key=lambda user: [alphabet.get(c, ord(c)) for c in user.name.split()[0]])
+            Q(name__icontains=q)), key=lambda x: x.room_set.all().count(), reverse=True) \
+            if type_of == "topic" \
+            \
+            else sorted(User.objects.filter(Q(name__icontains=q) | Q(from_class__set_class__icontains=q)), # Students
+                        key=lambda user: [alphabet.get(c, ord(c)) for c in user.name.split()[0]])
     except Exception:
         return fallback(request)
 
-    return render(request, 'base/topics.html', {'topics': tuple(filter(lambda x: x.room_set.all().count() != 0, topics)), 'render_value': render_value, "type_of": type_of})
+    return render(request, 'base/topics.html', {'topics': tuple(filter(lambda x: x.room_set.all().count() != 0, topics)) if type_of != 'user' else topics, 'render_value': render_value, "type_of": type_of})
 
 
 def activityPage(request):

@@ -48,7 +48,7 @@
           </li>
           {% for topic in topics %}
           <li>
-            <a href="{% url 'home' %}?q={{topic.name}}">{{ topic.name }} <span>Počet: {{topic.room_set.all.count}}</span></a>
+            <a href="{% url 'home' %}?q={{topic.name}}">{{ topic.name }} <span>{{topic.room_set.all.count}} Hosťované</span></a>
           </li>
           {% endfor %}
           {% else %}
@@ -59,9 +59,9 @@
           <li>
             <a href="{% url 'user-profile' user.id %}">
               {% if user.avatar.url is not None %}
-                <img src="{{ user.avatar.url }}" alt="" style="border-radius: 30px; width: 7%; height: auto; max-height: 44px;" />
+                <img src="{{ user.avatar.url }}" alt="avatar" style="border-radius: 30px; width: 7%; height: auto; max-height: 44px;" />
                 {% else %}
-                <img src="{% static 'images/avatar.svg' %}" alt=""  style="width: 10%; width: 7%; height: auto; max-height: 44px;"/>
+                <img src="{% static 'images/avatar.svg' %}" alt="avatar" style="width: 10%; width: 7%; height: auto; max-height: 44px;"/>
                 {% endif %}
               <span style="padding-top: 2%; padding-left: 3%; margin-right: auto;">
                 {{ user.name }}

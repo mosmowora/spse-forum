@@ -130,8 +130,7 @@ def home(request: HttpRequest):
         for message in room_messages:
             message.body = '????'
             message.room.name = 'neznáme'
-
-    context = {'rooms': rooms, 'topics': tuple(filter(lambda x: x.room_set.all().count() != 0, topics)), 'show_topics': tuple(filter(lambda y: y.room_set.all().count() != 0, sorted(topics, key=lambda x: x.room_set.all().count(), reverse=True)))[:4],
+    context = {'rooms': rooms, 'topics': tuple(filter(lambda x: x.room_set.all().count() != 0, topics)), 'show_topics': tuple(filter(lambda y: y.room_set.all().count() != 0, sorted(topics, key=lambda x: x.room_set.all().count(), reverse=True)))[:3],
                'room_count': room_count, 'room_messages': room_messages[:3], 'active_users': active_users}
     return render(request, 'base/home.html', context)
 
@@ -151,8 +150,8 @@ def newClass(request: HttpRequest):
             recipient_list=['reknojorke@gufum.com',],
             fail_silently=False
         )
-
-    return render(request, 'base/new_class_entry.html', {'form': form})
+    print(request.META.get("HTTP_REFERER").split("/"))
+    return render(request, 'base/new_class_entry.html', {'form': form, "back": "register" in request.META.get("HTTP_REFERER").split("/")})
 
 
 def pinRoom(request: HttpRequest, pk):
@@ -216,12 +215,17 @@ def room(request: HttpRequest, pk):
             except Exception:
                 parent = None
 
-            message = Message(
+            try:
+                message = Message(
                 user=request.user,
                 room=room,
                 body=content,
                 parent=parent
             )
+            except Exception as e:
+                print(e.with_traceback())
+                messages.error(request, "Problém s pripojením")
+                return redirect('room', args=[room.pk])
             message.save()
             room.participants.add(request.user)
             return redirect('room', pk=room.id)
@@ -260,6 +264,7 @@ def userProfile(request: HttpRequest, pk):
                 time_delta=timedelta(seconds=30))))
         )
         topics = Topic.objects.all()
+        topics = tuple(filter(lambda y: y.room_set.all().count() != 0, sorted(topics, key=lambda x: x.room_set.all().count(), reverse=True)))
         context = {
             'user': user, 'rooms': rooms, 'from_class': user.from_class.filter(set_class__startswith="I")[0],
             'room_messages': room_messages, 'topics': topics,
@@ -312,7 +317,7 @@ def mailResponse(request: HttpRequest, pk, password: int):
 
 def encrypt(password: str) -> str:
     """
-    Encryption logic for encrypting the user's new password into the confirmation URL
+    Encryption logic for the user's new password into the confirmation URL
 
     Params
     ------
@@ -323,7 +328,7 @@ def encrypt(password: str) -> str:
 
 def decrypt(password: str) -> str:
     """
-    Decryption logic for decrypting the user's new password from the confirmation URL
+    Decryption logic for the user's new password from the confirmation URL
 
     Params
     ------
@@ -350,8 +355,13 @@ def changePassword(request: HttpRequest):
     if request.method == 'POST':
         if request.POST.get('password1') == request.POST.get('password2'):
             if isinstance(user, AnonymousUser):
-                student = User.objects.get(email=request.POST.get("email"))
+                try:
+                    student = User.objects.get(email=request.POST.get("email"))
+                except Exception:
+                    messages.error(request, "Užívateľ neexistuje")
+                    return redirect('change-password')
                 password = f'http://localhost:8000/email-response/{student.pk}/{quote(quote(encrypt(request.POST.get("password1")), encoding="utf-8"), safe=":/")}'
+                # password = f'http://www.forum.spse-po.sk/email-response/{student.pk}/{quote(quote(encrypt(request.POST.get("password1")), encoding="utf-8"), safe=":/")}'
                 htmly = get_template('base/email_template.html')
                 html_content = htmly.render(
                     {'student': student, 'password': password})
@@ -598,7 +608,7 @@ def topicsPage(request: HttpRequest):
     except Exception:
         return fallback(request)
 
-    return render(request, 'base/topics.html', {'topics': tuple(filter(lambda x: x.room_set.all().count() != 0, topics)) if type_of != 'user' else topics, 'render_value': render_value, "type_of": type_of})
+    return render(request, 'base/topics.html', {'topics': tuple(filter(lambda x: x.room_set.all().count() != 0, topics)) if type_of != 'user' else set(topics), 'render_value': render_value, "type_of": type_of})
 
 
 def activityPage(request):

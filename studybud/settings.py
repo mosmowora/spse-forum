@@ -14,7 +14,6 @@ from django.core.exceptions import ImproperlyConfigured
 import json
 import os
 from pathlib import Path
-import smtpd
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -39,6 +38,7 @@ def get_secret(setting, secrets=secrets):
 SECRET_KEY = get_secret('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
+# Change this to False when you have a hosting service available
 DEBUG = True
 
 ALLOWED_HOSTS = ['*']
@@ -139,6 +139,7 @@ LOGGING = {
 
 CSRF_TRUSTED_ORIGINS = [
     ("http://localhost:8000/"),
+    ("http://www.forum.spse-po.sk/"),
     # ("https://ab35-193-87-77-23.ngrok-free.app")
 ]
 

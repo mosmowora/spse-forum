@@ -48,8 +48,9 @@
             </label>
           </form>
           <div class="mobile-menuItems">
+            <a class="btn btn--main btn--pill btn--menu" href="{% url 'new-class' %}">Nová skupina</a>
             <a class="btn btn--main btn--pill" href="{% url 'topics' %}">Vyhľadávať</a>
-            <a class="btn btn--main btn--pill" href="{% url 'activity' %}">Nedávna Aktivita</a>
+            <a class="btn btn--main btn--pill" href="{% url 'activity' %}">Aktivita</a>
           </div>
         </div>
 
@@ -59,6 +60,7 @@
     </div>
     <!-- Room List End -->
     <button class="btn--mobile-scroll" onclick="scrollToTop()">↑</button>
+    <a class="btn btn--main btn--pill btn--new-class" href="{% url 'new-class' %}">Nová skupina</a>
     <!-- Activities Start -->
     {% include 'base/activity_component.html' %}
 

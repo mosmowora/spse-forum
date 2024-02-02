@@ -171,6 +171,7 @@ body {
   color: var(--color-light);
   background-color: var(--color-bg);
   min-height: 100vh;
+  overflow-y: hidden;
   background: url("../images/background.jpg");
 }
 
@@ -329,6 +330,12 @@ a {
   height: auto;
   width: 50px;
   border-radius: 50%;
+}
+
+.btn--new-class {
+  position: fixed;
+  bottom: 20px;
+  left: 30px;
 }
 
 .btn>svg {
@@ -1289,6 +1296,10 @@ div#id_limit_for {
     display: none;
   }
 
+  body > main > div > a.btn--new-class {
+    display: none;
+  }
+
   .layout--2>.container>div:first-child {
     flex-basis: 100%;
   }
@@ -1608,7 +1619,6 @@ ul.messages li[class="20"] {
   width: 30%;
   margin-left: auto;
   margin-right: auto;
-  transform: translateX(-1vw);
   padding: 5px 0;
   list-style-type: none;
   text-align: center;
@@ -1624,7 +1634,6 @@ ul.messages li[class="25"] {
   width: 30%;
   margin-left: auto;
   margin-right: auto;
-  transform: translateX(-1vw);
   padding: 5px 0;
   list-style-type: none;
   text-align: center;
@@ -1640,7 +1649,6 @@ ul.messages li[class="40"] {
   width: 30%;
   margin-left: auto;
   margin-right: auto;
-  transform: translateX(-1vw);
   padding: 5px 0;
   list-style-type: none;
   text-align: center;

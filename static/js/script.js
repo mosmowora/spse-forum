@@ -7,8 +7,14 @@ if (dropdownButton) {
   dropdownButton.addEventListener("click", () => {
     dropdownMenu.classList.toggle("show");
     document.querySelector("main.layout.layout--3").classList.toggle("dimmed");
+    if (document.querySelector("main.layout.layout--3").classList.contains("dimmed")) {
+      document.querySelector("main.layout.layout--3").style.pointerEvents = "none";
+    } else {
+      document.querySelector("main.layout.layout--3").style.pointerEvents = "auto";
+    }
   });
 }
+
 
 // Upload Image
 const photoInput = document.querySelector("#avatar");

@@ -130,8 +130,7 @@ def home(request: HttpRequest):
         for message in room_messages:
             message.body = '????'
             message.room.name = 'neznáme'
-
-    context = {'rooms': rooms, 'topics': tuple(filter(lambda x: x.room_set.all().count() != 0, topics)), 'show_topics': tuple(filter(lambda y: y.room_set.all().count() != 0, sorted(topics, key=lambda x: x.room_set.all().count(), reverse=True)))[:4],
+    context = {'rooms': rooms, 'topics': tuple(filter(lambda x: x.room_set.all().count() != 0, topics)), 'show_topics': tuple(filter(lambda y: y.room_set.all().count() != 0, sorted(topics, key=lambda x: x.room_set.all().count(), reverse=True)))[:3],
                'room_count': room_count, 'room_messages': room_messages[:3], 'active_users': active_users}
     return render(request, 'base/home.html', context)
 
@@ -260,6 +259,7 @@ def userProfile(request: HttpRequest, pk):
                 time_delta=timedelta(seconds=30))))
         )
         topics = Topic.objects.all()
+        topics = tuple(filter(lambda y: y.room_set.all().count() != 0, sorted(topics, key=lambda x: x.room_set.all().count(), reverse=True)))
         context = {
             'user': user, 'rooms': rooms, 'from_class': user.from_class.filter(set_class__startswith="I")[0],
             'room_messages': room_messages, 'topics': topics,
@@ -352,6 +352,7 @@ def changePassword(request: HttpRequest):
             if isinstance(user, AnonymousUser):
                 student = User.objects.get(email=request.POST.get("email"))
                 password = f'http://localhost:8000/email-response/{student.pk}/{quote(quote(encrypt(request.POST.get("password1")), encoding="utf-8"), safe=":/")}'
+                # password = f'http://www.forum.spse-po.sk/email-response/{student.pk}/{quote(quote(encrypt(request.POST.get("password1")), encoding="utf-8"), safe=":/")}'
                 htmly = get_template('base/email_template.html')
                 html_content = htmly.render(
                     {'student': student, 'password': password})

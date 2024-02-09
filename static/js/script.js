@@ -51,3 +51,7 @@ if (formClear != null) {
 function prevent(e) {
   return !(e.which == 13 || e.keyCode == 13);
 }
+
+function disableDropdown(e) {
+  return (e.which == 13 || e.keyCode == 13);
+}

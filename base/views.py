@@ -12,7 +12,7 @@ from django.core.mail import EmailMultiAlternatives
 from django.template.loader import get_template
 from django.urls import reverse
 from .models import (
-    EmailPasswordVerification, Room, Topic, Message, User
+    EmailPasswordVerification, FromClass, Room, Topic, Message, User
 )
 from .forms import (
     ChangePasswordForm, NewClassForm,
@@ -71,7 +71,6 @@ def registerPage(request: HttpRequest):
             user = form.save(commit=False)
             user.username = user.username.replace(" ", "_").lower()
             user.save()
-            print('from_class', user.from_class)
             user.from_class.add(form.cleaned_data['from_class'])
             login(request, user)
             return redirect('home')
@@ -130,8 +129,9 @@ def home(request: HttpRequest):
         for message in room_messages:
             message.body = '????'
             message.room.name = 'neznáme'
+            
     context = {'rooms': rooms, 'topics': tuple(filter(lambda x: x.room_set.all().count() != 0, topics)), 'show_topics': tuple(filter(lambda y: y.room_set.all().count() != 0, sorted(topics, key=lambda x: x.room_set.all().count(), reverse=True)))[:3],
-               'room_count': room_count, 'room_messages': room_messages[:3], 'active_users': active_users}
+               'room_count': room_count, 'room_messages': room_messages[:3], 'active_users': active_users, 'is_empty_token': request.session.is_empty()}
     return render(request, 'base/home.html', context)
 
 
@@ -139,18 +139,25 @@ def newClass(request: HttpRequest):
     """
     Form for creating a new class or group
     """
-    form = NewClassForm()
+    try:
+        user = User.objects.get(id=request.user.id)
+        form = NewClassForm(instance=user)
+    except Exception:
+        form = NewClassForm()
 
     if request.method == 'POST':
+        if request.POST.get("set_class") in map(lambda skupina: skupina.set_class, FromClass.objects.all()):
+            messages.info(request, "Skupina už existuje")
+            return redirect("new-class")
+
         send_mail(
             subject='SPŠE Forum žiadosť',
-            message=f'{request.POST.get("meno")} požiadal o vytvorenie skupiny s menom {request.POST.get("set_class")}',
-            from_email='tomas.nosal04@gmail.com',
-            # TODO: email from request ↓
-            recipient_list=['reknojorke@gufum.com',],
+            message=f'{request.POST.get("name")} ({request.POST.get("email")}) požiadal o vytvorenie skupiny {request.POST.get("set_class")}',
+            from_email=request.POST.get("email"),
+            recipient_list=['tomas.nosal04@gmail.com'],
             fail_silently=False
         )
-    print(request.META.get("HTTP_REFERER").split("/"))
+
     return render(request, 'base/new_class_entry.html', {'form': form, "back": "register" in request.META.get("HTTP_REFERER").split("/")})
 
 
@@ -217,11 +224,11 @@ def room(request: HttpRequest, pk):
 
             try:
                 message = Message(
-                user=request.user,
-                room=room,
-                body=content,
-                parent=parent
-            )
+                    user=request.user,
+                    room=room,
+                    body=content,
+                    parent=parent
+                )
             except Exception as e:
                 print(e.with_traceback())
                 messages.error(request, "Problém s pripojením")
@@ -264,7 +271,8 @@ def userProfile(request: HttpRequest, pk):
                 time_delta=timedelta(seconds=30))))
         )
         topics = Topic.objects.all()
-        topics = tuple(filter(lambda y: y.room_set.all().count() != 0, sorted(topics, key=lambda x: x.room_set.all().count(), reverse=True)))
+        topics = tuple(filter(lambda y: y.room_set.all().count() != 0, sorted(
+            topics, key=lambda x: x.room_set.all().count(), reverse=True)))
         context = {
             'user': user, 'rooms': rooms, 'from_class': user.from_class.filter(set_class__startswith="I")[0],
             'room_messages': room_messages, 'topics': topics,
@@ -418,7 +426,7 @@ def createRoom(request: HttpRequest):
     """
     try:
         if request.user.room_set.all().count() >= 10:
-            messages.error(
+            messages.info(
                 request, 'Dosiahol si maximálny počet vytvorených diskusií')
             return redirect('home')
 
@@ -603,7 +611,7 @@ def topicsPage(request: HttpRequest):
             Q(name__icontains=q)), key=lambda x: x.room_set.all().count(), reverse=True) \
             if type_of == "topic" \
             \
-            else sorted(User.objects.filter(Q(name__icontains=q) | Q(from_class__set_class__icontains=q)), # Students
+            else sorted(User.objects.filter(Q(name__icontains=q) | Q(from_class__set_class__icontains=q)),  # Students
                         key=lambda user: [alphabet.get(c, ord(c)) for c in user.name.split()[0]])
     except Exception:
         return fallback(request)

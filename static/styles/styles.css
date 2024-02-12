@@ -691,6 +691,130 @@ a {
   flex-basis: 25%;
 }
 
+/*========== Cookies banner ==========*/
+.termsfeed-com---palette-light.termsfeed-com---nb {
+  background-color: #f2f2f2;
+  color: #111;
+}
+
+.termsfeed-com---nb-simple {
+  right: .3%;
+  top: auto;
+  bottom: 1%;
+  left: auto;
+  max-width: 50%;
+  position: fixed;
+  border-radius: 14px;
+}
+
+.termsfeed-com---nb {
+  overflow: auto;
+  z-index: 99999999999;
+  font-size: 16px;
+}
+
+.termsfeed-com---palette-light .cc-nb-title {
+  color: #111;
+}
+
+.termsfeed-com---nb .cc-nb-text {
+  font-size: 16px;
+  margin: 0 0 1.25rem 0;
+}
+
+.termsfeed-com---palette-light .cc-nb-okagree {
+  color: #fff;
+  background-color: green;
+}
+
+.termsfeed-com---nb .cc-nb-okagree,
+.termsfeed-com---nb .cc-nb-reject,
+.termsfeed-com---nb .cc-nb-changep {
+  font-weight: bold;
+  font-size: 14px;
+  margin-right: 0.25rem !important;
+  margin-bottom: 0.25rem !important;
+}
+
+.termsfeed-com---reset button {
+  border-radius: 14px;
+  padding: 0.5rem 1rem;
+  outline: none;
+  background: #dcdae5;
+  color: #111;
+  cursor: pointer;
+  border: none;
+  transition: all ease .3s;
+}
+
+.termsfeed-com---reset button,
+.termsfeed-com---reset select {
+  text-transform: none;
+}
+
+.termsfeed-com---reset button,
+.termsfeed-com---reset input {
+  overflow: visible;
+}
+
+.termsfeed-com---nb .cc-nb-title {
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.termsfeed-com---reset p {
+  margin-top: 0;
+  margin-bottom: 1rem;
+}
+
+.termsfeed-com---nb .cc-nb-main-container {
+  padding: 3rem;
+}
+
+.termsfeed-com---reset div {
+  display: block;
+}
+
+.termsfeed-com---reset *,
+.termsfeed-com---reset *::before,
+.termsfeed-com---reset *::after {
+  box-sizing: border-box;
+}
+
+.termsfeed-com---reset {
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+  -ms-overflow-style: scrollbar;
+  -webkit-tap-highlight-color: transparent;
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.5;
+  color: #212529;
+  text-align: left;
+  background-color: #fff;
+}
+
+@media screen and (max-width: 500px) {
+  .termsfeed-com---nb .cc-nb-text {
+    font-size: 15px;
+    margin: 0 0 1.25rem 0;
+  }
+
+  .termsfeed-com---nb-simple {
+    right: 10%;
+    top: auto;
+    bottom: 25%;
+    left: auto;
+    max-height: 60%;
+    max-width: 80%;
+    position: fixed;
+    border-radius: 14px;
+  }
+}
+
+
 /*========== Layout Box ==========*/
 
 .layout__box {
@@ -700,7 +824,7 @@ a {
   position: absolute;
   top: 47%;
   left: 50%;
-  transform: translate(-50%, -41%);
+  transform: translate(-50%, -42.7%);
   background-color: var(--color-dark);
   border-radius: 1rem;
   box-shadow: 1px 1px 6px 3px rgba(0, 0, 0, 0.1);
@@ -917,7 +1041,9 @@ input:disabled {
     margin-bottom: 2.4rem;
   }
 
-  ul.messages li[class="40"], ul.messages li[class="20"], ul.messages li[class="25"] {
+  ul.messages li[class="40"],
+  ul.messages li[class="20"],
+  ul.messages li[class="25"] {
     min-width: 80%;
     margin: 0;
   }
@@ -1213,7 +1339,7 @@ div#id_limit_for {
 }
 
 .auth__action {
-  margin-top: 3rem;
+  margin-top: 1rem;
   text-align: center;
 }
 
@@ -1296,7 +1422,7 @@ div#id_limit_for {
     display: none;
   }
 
-  body > main > div > a.btn--new-class {
+  body>main>div>a.btn--new-class {
     display: none;
   }
 
@@ -1541,6 +1667,7 @@ input.reply-text:focus {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
+
 .threads h3 {
   text-transform: uppercase;
   font-weight: 500;
@@ -1595,12 +1722,15 @@ input.reply-text:focus {
   0% {
     opacity: 0;
   }
+
   30% {
     opacity: 100;
   }
+
   80% {
     opacity: 50;
   }
+
   100% {
     opacity: 0;
   }

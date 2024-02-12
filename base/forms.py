@@ -7,7 +7,7 @@ from .models import FromClass, Message, Room, Topic, User
 
 class UserCreationForm(UserCreationForm):
     from_class = forms.ModelChoiceField(
-        queryset=FromClass.objects.all(),
+        queryset=FromClass.objects.exclude(set_class__in=("Administrátori", "Učitelia")),
         widget=forms.Select
     )
 
@@ -69,23 +69,23 @@ class ReplyForm(ModelForm):
 
 class NewClassForm(ModelForm):
 
-    set_class = forms.TextInput(attrs={"maxlength": 30})
-    meno = forms.CharField(
-        label='Meno',
+    name = forms.CharField(
+        label='Tvoje Meno',
         widget=forms.TextInput(),
         max_length=255,
         required=True
     )
     email = forms.CharField(
-        label='Email',
+        label='Tvoj Email',
         widget=forms.TextInput(),
         max_length=255,
         required=True
     )
+    set_class = forms.CharField(max_length=30, label='Nová skupina', required=True, widget=forms.TextInput())
 
     class Meta:
-        model = FromClass
-        fields = ['set_class']
+        model = User
+        fields = ['name', 'email']
 
 class RoomForm(ModelForm):
     selection = forms.CheckboxSelectMultiple()

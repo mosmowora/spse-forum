@@ -2,6 +2,28 @@
 {% load static %}
 {% block content %}
 
+<div
+  class="termsfeed-com---reset termsfeed-com---nb termsfeed-com---palette-light termsfeed-com---nb-simple termsfeed-com---lang-sk"
+  id="termsfeed-com---nb" role="dialog" aria-modal="true" aria-labelledby="cc-nb-title" aria-describedby="cc-nb-text">
+  <div class="cc-nb-main-container">
+    <div class="cc-nb-title-container">
+      <p class="cc-nb-title" id="cc-nb-title">Používame cookies</p>
+    </div>
+    <div class="cc-nb-text-container">
+      <p class="cc-nb-text" id="cc-nb-text">
+        Stránka využíva nevyhnutné cookies, ktoré zabezpečujú správne fungovanie
+        webstránky a majú tiež za účel zvýšenie užívateľského komfortu návštevníka webstránky. Nevyhnutné cookies
+        zabezpečujú, aby správne fungovalo nielen prezeranie webstránky, ale aby správne fungovali aj funkcionality,
+        ktoré majú slúžiť návštevníkovi webstránky. Tieto cookies sa pri zatvorení okna stránky udržiavajú po dobu
+        maximálne 6 hodín po úspešnom prihlásení a automaticky sa vymažú po odhlásení.
+      </p>
+    </div>
+    <div class="cc-nb-buttons-container">
+      <button class="cc-nb-okagree" role="button" onclick="disableCookieBanner()">Rozumiem </button>
+    </div>
+  </div>
+</div>
+
 <main class="layout layout--3">
   <div class="container">
 
@@ -47,11 +69,19 @@
               <input name="q" placeholder="Prehľadávať..." />
             </label>
           </form>
+          {% if request.user.is_authenticated %}
           <div class="mobile-menuItems">
             <a class="btn btn--main btn--pill btn--menu" href="{% url 'new-class' %}">Nová skupina</a>
             <a class="btn btn--main btn--pill" href="{% url 'topics' %}">Vyhľadávať</a>
             <a class="btn btn--main btn--pill" href="{% url 'activity' %}">Aktivita</a>
           </div>
+          {% else %}
+          <div class="mobile-menuItems">
+            <a class="btn btn--main btn--pill btn--menu" href="{% url 'login' %}">Nová skupina</a>
+            <a class="btn btn--main btn--pill" href="{% url 'login' %}">Vyhľadávať</a>
+            <a class="btn btn--main btn--pill" href="{% url 'login' %}">Aktivita</a>
+          </div>
+          {% endif %}
         </div>
 
         {% include 'base/feed_component.html' %}
@@ -60,13 +90,25 @@
     </div>
     <!-- Room List End -->
     <button class="btn--mobile-scroll" onclick="scrollToTop()">↑</button>
-    <a class="btn btn--main btn--pill btn--new-class" href="{% url 'new-class' %}">Nová skupina</a>
+    <a class="btn btn--main btn--pill btn--new-class" href="{% url 'new-class' %}">+ Skupina</a>
     <!-- Activities Start -->
     {% include 'base/activity_component.html' %}
 
     <!-- Activities End -->
   </div>
 </main>
+
+
+<script>
+  var shouldDisplay = true;
+  if (shouldDisplay) {
+    document.querySelector("#termsfeed-com---nb").style.display = "block";
+  }
+  function disableCookieBanner() {
+    shouldDisplay = false;
+    document.querySelector("#termsfeed-com---nb").style.display = "none";
+  }
+</script>
 
 <!-- <script type="module">
   import devtools from "{% static 'js/node_modules/devtools-detect/index.js' %}";

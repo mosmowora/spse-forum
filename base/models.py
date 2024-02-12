@@ -10,8 +10,8 @@ class FromClass(models.Model):
         return self.set_class
     
     class Meta:
-        verbose_name = "Trieda"
-        verbose_name_plural = "Triedy"
+        verbose_name = r"Triedu/skupinu"
+        verbose_name_plural = "Triedy a skupiny"
 
 class EmailPasswordVerification(models.Model):
     user = models.ForeignKey('base.User', on_delete=models.CASCADE)

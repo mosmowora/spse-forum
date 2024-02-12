@@ -138,9 +138,9 @@ LOGGING = {
 }
 
 CSRF_TRUSTED_ORIGINS = [
+    ("https://2466-158-255-249-96.ngrok-free.app"),
     ("http://localhost:8000/"),
     ("http://www.forum.spse-po.sk/"),
-    # ("https://ab35-193-87-77-23.ngrok-free.app")
 ]
 
 # Internationalization

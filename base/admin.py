@@ -81,9 +81,9 @@ class UserAdmin(admin.ModelAdmin):
             'all': ('..\\static\\styles\\admin.css', )     # Include extra css
         }
 
-    @admin.display(description="Trieda")
+    @admin.display(description=r"Trieda/Skupina")
     def fromClass(self, obj: User):
-        return FromClass.objects.filter(id__in=obj.from_class.all())[0]
+        return n if (n:=FromClass.objects.filter(id__in=obj.from_class.all())[0]) is not None else None
 
 class AddStudentsToClassInline(admin.TabularInline):
     extra = 1

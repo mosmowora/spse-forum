@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import timedelta, tzinfo
 import datetime
 from django.shortcuts import render, redirect
 from django.http import HttpRequest, HttpResponseRedirect
@@ -116,22 +116,22 @@ def home(request: HttpRequest):
 
     room_count = rooms.count()
     topics = Topic.objects.all()
-    room_messages = Message.objects.filter(
-        Q(room__topic__name__icontains=q)
-    )
-
-    if not isinstance(request.user, AnonymousUser):
+    room_messages = Message.objects.all()
+    
+    if not isinstance(request.user, AnonymousUser) and not request.user.is_staff:
         room_messages = sorted(room_messages.filter(
             Q(room__limited_for__in=request.user.from_class.all())
         ), key=lambda x: x.created, reverse=True)
 
     elif isinstance(request.user, AnonymousUser):
         for message in room_messages:
+            message.user.username = '????'
             message.body = '????'
             message.room.name = 'neznáme'
-            
+
     context = {'rooms': rooms, 'topics': tuple(filter(lambda x: x.room_set.all().count() != 0, topics)), 'show_topics': tuple(filter(lambda y: y.room_set.all().count() != 0, sorted(topics, key=lambda x: x.room_set.all().count(), reverse=True)))[:3],
-               'room_count': room_count, 'room_messages': room_messages[:3], 'active_users': active_users, 'is_empty_token': request.session.is_empty()}
+               'room_count': room_count, 'room_messages': room_messages[:3], 'active_users': active_users}
+
     return render(request, 'base/home.html', context)
 
 

@@ -19,7 +19,8 @@
       </p>
     </div>
     <div class="cc-nb-buttons-container">
-      <button class="cc-nb-okagree" role="button" onclick="disableCookieBanner()">Rozumiem </button>
+      <button class="cc-nb-okagree" role="button" onclick="consentGranted()">Rozumiem</button>
+      <button class="cc-nb-okinfo" role="button" onclick="window.open('https:\\\\www.osobnyudaj.sk/informovanie/161829/sk/zakladne-informacie')">GDPR</button>
     </div>
   </div>
 </div>
@@ -100,13 +101,19 @@
 
 
 <script>
-  var shouldDisplay = true;
-  if (shouldDisplay) {
-    document.querySelector("#termsfeed-com---nb").style.display = "block";
+  function consentGranted() {
+    document.querySelector('div.termsfeed-com---reset').style.display = "none";
+  };
+
+  var isUserAuthenticated = "{{request.user.is_authenticated}}" == 'True';
+
+  if (isUserAuthenticated) {
+    document.querySelector('div.termsfeed-com---reset').style.display = "none";
+    console.log("token is not expired");
   }
-  function disableCookieBanner() {
-    shouldDisplay = false;
-    document.querySelector("#termsfeed-com---nb").style.display = "none";
+  else {
+    document.querySelector('div.termsfeed-com---reset').style.display = "block";
+    console.log("token is expired");
   }
 </script>
 

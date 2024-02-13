@@ -659,6 +659,9 @@ a {
 /*==============================
 =>  Layout
 ================================*/
+body > header > div > nav > div.header__user > button > svg {
+  fill: #fff;
+}
 
 .layout {
   margin-top: 2.4rem;
@@ -725,6 +728,12 @@ a {
 .termsfeed-com---palette-light .cc-nb-okagree {
   color: #fff;
   background-color: green;
+}
+
+.termsfeed-com---palette-light .cc-nb-okinfo {
+  color: #fff;
+  background-color: var(--color-dark);
+  font-size: 15px;
 }
 
 .termsfeed-com---nb .cc-nb-okagree,
@@ -803,14 +812,15 @@ a {
   }
 
   .termsfeed-com---nb-simple {
-    right: 10%;
+    right: 5%;
     top: auto;
-    bottom: 25%;
+    bottom: 1%;
     left: auto;
     max-height: 60%;
-    max-width: 80%;
+    max-width: 90%;
     position: fixed;
     border-radius: 14px;
+    overflow-y: hidden;
   }
 }
 

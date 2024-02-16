@@ -20,7 +20,7 @@
         </div>
       </div>
       <div class="layout__body">
-        <form class="form" action="" method="POST"
+        <form class="form" action="" method="POST" enctype='multipart/form-data'
           style="display: block; align-items: center; justify-content: center;">
           {% csrf_token %}
 
@@ -46,10 +46,17 @@
             <label for="room_description">Popis</label>
             {{form.description}}
           </div>
+          
+          {% if request.user.is_staff %}
+          <div class="form__group">
+            <label for="room_description">Pripnúť</label>
+            {{form.pinned}}
+          </div>
+          {% endif %}
 
           <div class="form__group">
-            <label for="room_pinned">Pripnúť</label>
-            {{form.pinned}}
+            <label for="room_description">Súbory</label>
+            {{form.file}}
           </div>
 
           <div class="form__group">

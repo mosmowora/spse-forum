@@ -117,7 +117,7 @@ def home(request: HttpRequest):
     room_count = rooms.count()
     topics = Topic.objects.all()
     room_messages = Message.objects.all()
-    
+
     if not isinstance(request.user, AnonymousUser) and not request.user.is_staff:
         room_messages = sorted(room_messages.filter(
             Q(room__limited_for__in=request.user.from_class.all())
@@ -202,6 +202,7 @@ def room(request: HttpRequest, pk):
         )
         context = {'room': room, 'room_messages': room_messages, 'amount_of_messages': len(room_messages),
                    'participants': participants, 'upvoted_messages': upvoted_messages, 'active_users': active_users, 'back': any(x in ('room', 'error', 'delete-message', 'upvote-message') for x in back.split("/"))}
+
         if request.method == 'POST':
             content = request.POST.get('body')
             parent = None
@@ -233,6 +234,7 @@ def room(request: HttpRequest, pk):
                 print(e.with_traceback())
                 messages.error(request, "Problém s pripojením")
                 return redirect('room', args=[room.pk])
+
             message.save()
             room.participants.add(request.user)
             return redirect('room', pk=room.id)
@@ -430,25 +432,27 @@ def createRoom(request: HttpRequest):
                 request, 'Dosiahol si maximálny počet vytvorených diskusií')
             return redirect('home')
 
-        form = RoomForm(request.POST)
+        form = RoomForm()
         topics = Topic.objects.all()
         context = {'form': form, 'topics': topics}
 
         if request.method == 'POST':
+            form = RoomForm(request.POST or None, request.FILES or None)
             topic_name = request.POST.get('topic')
             topic, _ = Topic.objects.get_or_create(name=topic_name)
             class_list = request.POST.getlist("limit_for")
-            context['back'] = any(
-                x == 'create-room' for x in request.META['HTTP_REFERER'].split("/"))
+            if request.META.get("HTTP_REFERER") is not None:
+                context['back'] = any(
+                    x == 'create-room' for x in request.META['HTTP_REFERER'].split("/"))
 
             room = Room(
                 host=request.user,
                 topic=topic,
                 name=request.POST.get('name'),
                 description=request.POST.get('description'),
-                pinned=True if request.POST.get('pinned') == "on" else False
+                pinned=True if request.POST.get('pinned') == "on" else False,
+                file=request.FILES.get('file')
             )
-
             selected_classes = set(int(x) for x in class_list)
             if len(selected_classes) == 0:
                 context['message'] = 'Musíš zaškrtnúť pre koho sa ukáže'
@@ -457,7 +461,11 @@ def createRoom(request: HttpRequest):
             room.save()
             room.limited_for.set(selected_classes)
             return redirect('home')
-    except Exception:
+    except Exception as e:
+        if e[1] == "Data too long for column 'file' at row 1":
+            messages.info(request, "Názov súboru je pridlhý")
+            return redirect('create-room')
+        print(e)
         return fallback(request, "Niečo sa stalo pri vytváraní diskusie.")
 
     return render(request, 'base/room_form.html', context)
@@ -473,13 +481,19 @@ def updateRoom(request: HttpRequest, pk):
         form = RoomForm(instance=room)
         topics = Topic.objects.all()
         form['limit_for'].initial = room.limited_for.get_queryset()
-        context = {'form': form, 'topics': topics, 'room': room, 'back': any(
-            x == 'update-room' for x in request.META['HTTP_REFERER'].split("/"))}
+        
+        
+        context = {'form': form, 'topics': topics, 'room': room}
+        if request.META.get("HTTP_REFERER") is not None:
+            context['back'] = any(
+                x == 'update-room' for x in request.META['HTTP_REFERER'].split("/"))
 
         if request.user != room.host and not request.user.is_staff:
             return fallback(request)
 
         if request.method == 'POST':
+            form = RoomForm(request.POST,
+                            request.FILES, instance=room)
             class_list = request.POST.getlist("limit_for")
             topic_name = request.POST.get('topic')
             topic, _ = Topic.objects.get_or_create(name=topic_name)
@@ -487,8 +501,10 @@ def updateRoom(request: HttpRequest, pk):
             room.topic = topic
             room.description = request.POST.get('description')
             room.pinned = True if request.POST.get('pinned') == "on" else False
+            room.file = request.FILES.get('file')
             room.limited_for.set(request.POST.getlist("limit_for"))
             selected_classes = set(int(x) for x in class_list)
+
             if len(selected_classes) == 0:
                 context['message'] = 'Musíš zaškrtnúť pre koho sa ukáže'
                 return render(request, 'base/room_form.html', context)
@@ -496,7 +512,8 @@ def updateRoom(request: HttpRequest, pk):
             room.save()
             return redirect('home')
 
-    except Exception:
+    except Exception as e:
+        print(f"{e.with_traceback()=}")
         return fallback(request)
 
     return render(request, 'base/room_form.html', context)

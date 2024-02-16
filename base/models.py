@@ -60,6 +60,7 @@ class Room(models.Model):
         User, related_name='participants', blank=True)
     updated = models.DateTimeField(auto_now=True)
     created = models.DateTimeField(auto_now_add=True)
+    file = models.ImageField(null=True, blank=True, verbose_name='room_image', max_length=512, upload_to="images/")
 
     pinned = models.BooleanField(null=False, default=False)
     limited_for = models.ManyToManyField(

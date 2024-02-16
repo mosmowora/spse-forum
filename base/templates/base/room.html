@@ -85,9 +85,9 @@
               {% else %}
               <div class="avatar avatar--small active">
                 {% if room.host.avatar %}
-                <img src="{{room.host.avatar.url}}" />
+                <img src="{{room.host.avatar.url}}" alt="activity"/>
                 {% else %}
-                <img src="{% static 'images/avatar.svg' %}" />
+                <img src="{% static 'images/avatar.svg' %}" alt="activity"/>
                 {% endif %}
               </div>
               {% endif %}
@@ -96,7 +96,15 @@
           </div>
           <span class="room__topics">{{room.topic}}</span>
           <div>{{room.description}}</div>
+          <div>
+            {% if room.file.url is not None %}
+            <img src="{{room.file.url}}" alt="room_image">
+            {% endif %}
+          </div>
         </div>
+        {% if room.file.url is not None %}
+        <div class="fill_in"></div>
+        {% endif %}
 
         <div class="room__conversation">
           <div class="threads scroll">
@@ -225,14 +233,13 @@
             {% endfor %}
             {% endif %}
           </div>
+          <div class="room__message">
+            <form action="" method="POST" class="roomInputForm">
+              {% csrf_token %}
+              <input name="body" placeholder="Chcem sa vyjadriť..." />
+            </form>
+          </div>
         </div>
-
-      </div>
-      <div class="room__message">
-        <form action="" method="POST" class="roomInputForm">
-          {% csrf_token %}
-          <input name="body" placeholder="Chcem sa vyjadriť..." />
-        </form>
       </div>
     </div>
     <!-- Room End -->

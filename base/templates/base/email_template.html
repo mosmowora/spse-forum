@@ -143,6 +143,40 @@
                 padding: 10px 10px 20px !important;
             }
         }
+
+        .avatar.avatar--small:after {
+            width: 0.7rem;
+            height: 0.7rem;
+            bottom: 0px;
+            right: -6px;
+        }
+
+        .avatar.avatar--small img {
+            width: 2.8rem;
+            height: 2.8rem;
+            border-radius: 50%;
+        }
+
+        .avatar::after {
+            content: "";
+            display: block;
+            position: absolute;
+            background-color: #8b8b8b;
+            z-index: 111;
+            border-radius: 50%;
+            border: 0.3rem solid #0079c1;
+        }
+
+        .avatar {
+            position: relative;
+            display: inline-block;
+            border-radius: 50%;
+            border: 2px solid #76d7de;
+        }
+
+        .avatar.active::after {
+            background-color: #5dd693;
+        }
     </style>
 
 
@@ -150,7 +184,6 @@
     <!--[if !mso]><!-->
     <link href="https://fonts.googleapis.com/css?family=Raleway:400,700&display=swap" rel="stylesheet" type="text/css">
     <!--<![endif]-->
-
 </head>
 
 <body class="clean-body u_body"
@@ -245,12 +278,17 @@
                                                         <td class="v-container-padding-padding"
                                                             style="overflow-wrap:break-word;word-break:break-word;padding:50px 60px 0px;font-family:'Raleway',sans-serif;"
                                                             align="left">
-
+                                                            {% if body is None %}
                                                             <h1 class="v-text-align"
                                                                 style="margin: 0px; line-height: 140%; text-align: left; word-wrap: break-word; font-size: 20px; font-weight: 400;">
                                                                 <strong>Potvrdenie o zmene hesla</strong>
                                                             </h1>
-
+                                                            {% else %}
+                                                            <h1 class="v-text-align"
+                                                                style="margin: 0px; line-height: 140%; text-align: left; word-wrap: break-word; font-size: 20px; font-weight: 400;">
+                                                                <strong>Nová správa v diskusii</strong>
+                                                            </h1>
+                                                            {% endif %}
                                                         </td>
                                                     </tr>
                                                 </tbody>
@@ -277,7 +315,6 @@
                                                                     </tr>
                                                                 </tbody>
                                                             </table>
-
                                                         </td>
                                                     </tr>
                                                 </tbody>
@@ -293,7 +330,7 @@
 
                                                             <div class="v-text-align"
                                                                 style="font-size: 14px; line-height: 140%; text-align: justify; word-wrap: break-word;">
-                                                                <div>
+                                                                {% if body is None %} <div>
                                                                     <div>Bola zaslaná žiadosť o zmene hesla na tvoj účet
                                                                         <strong>{{ student.email }}</strong>,
                                                                     </div>
@@ -317,9 +354,49 @@
                                                                         </div>
                                                                     </div>
                                                                 </div>
-                                                                <p style="line-height: 140%;">Admin</p>
-                                                            </div>
+                                                                    {% else %}
+                                                                    <div>V diskusii <strong>{{ room.name }}</strong> bola poslaná nová
+                                                                        správa
+                                                                        <div> </div>
+                                                                        <div style="
+                                                                    border-left: 5px solid #0079c1;
+                                                                    padding-left: 1rem;
+                                                                    margin: 2rem 0;
+                                                                    border-radius: 15px;
+                                                                    background-color: #1a282d;
+                                                                    padding: 2rem;">
+                                                                            <div style="display: flex;
+                                                                        align-items: center;
+                                                                        justify-content: space-between;">
+                                                                                <div style="display: flex;
+                                                                            align-items: center;
+                                                                            gap: 1.5rem;
+                                                                            font-size: 1.4rem;">
+                                                                                    <div
+                                                                                        class="avatar avatar--small active">
+                                                                                        <!-- FIXME: replace with user's image -->
+                                                                                        <img src="http://localhost:8000/{{student.avatar.url}}"
+                                                                                            alt="">
 
+                                                                                    </div>
+                                                                                    <strong style="color: white;">@{{ student.username }}</strong>
+                                                                                </div>
+                                                                            </div>
+                                                                            <div style="
+                                                                        font-size: 1.4rem;
+                                                                        color: white;
+                                                                        margin-top: 0.5rem;">
+                                                                                {{ body }}
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div>
+                                                                        <div> </div>
+                                                                        <div> </div>
+                                                                    </div>
+                                                                    {% endif %}
+                                                                </div>
+                                                            </div>
                                                         </td>
                                                     </tr>
                                                 </tbody>
@@ -338,7 +415,10 @@
                                                             <div class="v-text-align" align="center">
                                                                 <!--[if mso]><v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="http://localhost:8000/email-response/" style="height:37px; v-text-anchor:middle; width:219px;" arcsize="11%"  stroke="f" fillcolor="#316b94"><w:anchorlock/><center style="color:#FFFFFF;"><![endif]-->
                                                                 <!-- <a href={{password}} onclick="openWindow('http:\\\\www.forum.spse-po.sk/', 'mailResponse');" -->
-                                                                <a href={{password}} onclick="openWindow('https:\\\\5e39-193-87-77-23.ngrok-free.app', 'mailResponse');"
+                                                                {% if body is None %}
+                                                                <a href={{password}}
+                                                                <!-- FIXME: replace with host -->
+                                                                    onclick="openWindow('http:\\\\localhost:8000\\email-response', '_self');"
                                                                     target="_blank" class="v-button v-size-width"
                                                                     style="box-sizing: border-box;display: inline-block;text-decoration: none;-webkit-text-size-adjust: none;text-align: center;color: #FFFFFF; background-color: #316b94; border-radius: 4px;-webkit-border-radius: 4px; -moz-border-radius: 4px; width:auto; max-width:100%; overflow-wrap: break-word; word-break: break-word; word-wrap:break-word; mso-border-alt: none;font-size: 14px;">
                                                                     <span
@@ -346,6 +426,17 @@
                                                                             style="line-height: 16.8px;">Prihlásiť sa s
                                                                             novým heslom</span></span>
                                                                 </a>
+                                                                {% else %}
+                                                                <!-- FIXME: replace with host -->
+                                                                <a href=http://localhost:8000/room/{{room.id}}
+                                                                    onclick="openWindow('http:\\\\localhost:8000\\room\\', '_self');"
+                                                                    target="_blank" class="v-button v-size-width"
+                                                                    style="box-sizing: border-box;display: inline-block;text-decoration: none;-webkit-text-size-adjust: none;text-align: center;color: #FFFFFF; background-color: #316b94; border-radius: 4px;-webkit-border-radius: 4px; -moz-border-radius: 4px; width:auto; max-width:100%; overflow-wrap: break-word; word-break: break-word; word-wrap:break-word; mso-border-alt: none;font-size: 14px;">
+                                                                    <span
+                                                                        style="display:block;padding:10px 20px;line-height:120%;"><span
+                                                                            style="line-height: 16.8px;">Pozrieť</span></span>
+                                                                </a>
+                                                                {% endif %}
                                                                 <!--[if mso]></center></v:roundrect><![endif]-->
                                                             </div>
 
@@ -466,6 +557,9 @@
         // if the "target" window was just opened, change its url
         if (winref.location.href === 'about:blank') {
             winref.location.href = url;
+        }
+        if (url.contains("room")) {
+            winref.location.href += "{{room.id}}";
         }
         return winref;
     }

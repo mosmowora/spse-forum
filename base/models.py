@@ -61,6 +61,7 @@ class Room(models.Model):
         User, related_name='participants', blank=True)
     updated = models.DateTimeField(auto_now=True)
     created = models.DateTimeField(auto_now_add=True)
+    subscribing = models.ManyToManyField(User, related_name="subscribing_rooms")
     file = models.ImageField(null=True, blank=True, verbose_name='room_image', max_length=512, upload_to="images/")
 
     pinned = models.BooleanField(null=False, default=False)
@@ -78,8 +79,12 @@ class Room(models.Model):
     def messages(self):
         return [
             {
-                "id": m.id, "author": m.user.id, "body": m.body,
-                "created_at": m.created, "total_likes": m.total_upvotes(), "parent": None if m.parent is None else m.parent.id
+                "id": m.id, 
+                "author": m.user.id, 
+                "body": m.body,
+                "created_at": m.created, 
+                "total_likes": m.total_upvotes(), 
+                "parent": None if m.parent is None else m.parent.id
             }
             for m in self.message_set.all()
         ]

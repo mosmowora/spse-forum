@@ -171,6 +171,16 @@ def pinRoom(request: HttpRequest, pk):
     pinned_room.save()
     return HttpResponseRedirect(reverse('home'))
 
+def subscribeRoom(request, pk):
+    room = Room.objects.get(id=pk)
+    user = User.objects.get(id=request.user.id)
+    if user in room.subscribing.all():
+        room.subscribing.remove(user)
+    else:
+        room.subscribing.add(user)
+        
+    return redirect('room', pk=room.id)
+
 
 @login_required(login_url='login', redirect_field_name=None)
 def room(request: HttpRequest, pk):
@@ -231,14 +241,22 @@ def room(request: HttpRequest, pk):
                     parent=parent
                 )
             except Exception as e:
-                print(e.with_traceback())
+                print(e)
                 messages.error(request, "Problém s pripojením")
-                return redirect('room', args=[room.pk])
+                return redirect('room', pk=room.id)
 
             message.save()
             room.participants.add(request.user)
+            htmly = get_template('base/email_template.html')
+            html_content = htmly.render(
+                {'student': request.user, 'body': content, 'room': room})
+            msg = EmailMultiAlternatives(
+                "SPŠE Forum nová správa", "SPŠE Forum nová správa", "tomas.nosal04@gmail.com", tuple(map(lambda user: user.email, room.subscribing.all())))
+            msg.attach_alternative(html_content, "text/html")
+            msg.send(fail_silently=False)
             return redirect('room', pk=room.id)
-    except Exception:
+    except Exception as e:
+        print(e)
         return fallback(request, "Nemožno zobraziť túto diskusiu.")
 
     return render(request, 'base/room.html', context)

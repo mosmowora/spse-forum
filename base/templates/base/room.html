@@ -32,6 +32,13 @@
         </div>
         <div class="room__topRight">
           {% if room.host == request.user %}
+          <a href="{% url 'subscribe-room' room.id %}" style="width: 14.4px; height: 14.4px;">
+            {% if request.user in room.subscribing.all %}
+            <img src="{% static 'images/icons/bell-full.png' %}" alt="unsubscribe">
+            {% else %}
+            <img src="{% static 'images/icons/bell.png' %}" alt="subscribe">
+            {% endif %}
+          </a>
           <a href="{% url 'update-room' room.id %}">
             <svg enable-background="new 0 0 24 24" height="32" viewBox="0 0 24 24" width="32"
               xmlns="http://www.w3.org/2000/svg">
@@ -98,15 +105,16 @@
           <div>{{room.description}}</div>
         </div>
         {% if room.file.url is not None %}
-        <div class="fill_in"></div>
+        <div style="height: 12rem"></div>
+        {% else %}
+        <div style="height: 15rem;"></div>
         {% endif %}
-        <div>
-          {% if room.file.url is not None %}
-          <img src="{{room.file.url}}" alt="room_image">
-          {% endif %}
-        </div>
-
         <div class="room__conversation">
+          <div>
+            {% if room.file.url is not None %}
+            <img src="{{room.file.url}}" alt="room_image">
+            {% endif %}
+          </div>
           <div class="threads scroll">
             {% if amount_of_messages == 0 %}
             <div class="empty__conversation">

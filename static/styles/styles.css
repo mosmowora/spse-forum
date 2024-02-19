@@ -517,12 +517,6 @@ a {
   gap: 1rem;
 }
 
-@media screen and (min-width: 500px) {
-  .mobile-menu {
-    display: none;
-  }
-}
-
 /*==============================
 =>  Header Section
 ================================*/
@@ -1428,6 +1422,7 @@ div#id_limit_for {
   max-height: 87.5vh;
   border-radius: 0.7rem;
   overflow-y: auto;
+  overflow-x: hidden;
   position: relative;
 }
 
@@ -1615,22 +1610,26 @@ input.reply-text:focus {
     padding-left: 2.5rem;
     padding-right: 2rem;
     min-height: 50vh;
-    height: 100vh;
-    overflow-y: auto;
+    height: 80vh;
+    overflow-y: hidden;
+    overflow-x: hidden;
     padding-bottom: 0;
   }
-  body > main > div > div.room > div.room__box.scroll > div.room__header.scroll > div:nth-child(5) > img {
-    width: 20vw;
+  .room {
+    overflow-x: hidden;
+  }
+  div.room > div.room__box.scroll > div:nth-child(3) {
+    margin-top: 20rem;
+    width: 20rem;
+  }
+  .room__header {
+    padding-bottom: 0;
   }
   .room__message {
     width: 105%;
   }
-  .threads {
-    height: 5vh;
-  }
-
   .fill_in {
-    height: 15%;
+    height: 0;
   }
 }
 
@@ -1684,7 +1683,9 @@ input.reply-text:focus {
 .empty__conversation {
   display: flex;
   padding: 10%;
-  height: 93vh;
+  margin-top: 16%;
+  height: 60%;
+  overflow-y: hidden;
   align-items: center;
   justify-content: center;
   margin-left: auto;
@@ -1711,8 +1712,9 @@ input.reply-text:focus {
   background: var(--color-bg);
   border-radius: 0.7rem;
   overflow-y: auto;
-  height: 98vh;
-  margin-top: 28vh;
+  height: 100%;
+  margin-top: 55.5%;
+  overflow-x: hidden;
   padding: 0 2rem 4rem 2rem;
 }
 
@@ -1970,6 +1972,7 @@ ul.list--icons>li {
   }
 }
 
+
 .changelog__separator {
   height: 1px;
   background-color: hsla(var(--ct8-color-contrast-higher-hsl), 0.15);
@@ -2054,5 +2057,81 @@ ul.list--icons>li {
 
   .ct8-col-8\@md {
     grid-column-end: span 8;
+  }
+}
+
+@media screen and (min-width: 500px) {
+  .mobile-menu {
+    display: none;
+  }
+}
+
+@media screen and (max-width: 500px) {
+  .threads {
+    height: 156.6% !important;
+    margin-top: 83%;
+    padding-bottom: 0;
+  }
+  .empty__conversation {
+    height: 10rem;
+    overflow-y: hidden;
+    margin-top: 13%;
+  }
+  .room__conversation {
+    height: 20%;
+    position: absolute;
+    bottom: 43rem;
+    width: 90%;
+    left: 5%;
+    right: 5%;
+  }
+  .room {
+    height: 88rem;
+  }
+}
+
+@media screen and (max-width: 400px) {
+  .room__box {
+    padding-left: 2.5rem;
+    padding-right: 2rem;
+    min-height: 50vh;
+    height: 83vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-bottom: 0;
+  }
+  div.room > div.room__box.scroll > div:nth-child(3) {
+    margin-top: 0rem;
+    width: 33rem;
+  }
+  .room {
+    overflow-x: hidden;
+    overflow-y: auto;
+    height: 88rem;
+    padding-bottom: 5rem;
+  }
+  .room__message {
+    width: 105% !important;
+    padding-bottom: 1rem;
+  }
+  .room__conversation {
+    margin-top: 15rem;
+  }
+  .room__conversation h1 {
+    overflow-y: hidden;
+    bottom: 30rem;
+  }
+  .fill_in {
+    height: 15rem;
+  }
+  .room__header {
+    padding-bottom: 0;
+  }
+  .empty__conversation {
+    overflow-y: hidden;
+  }
+  .threads {
+    margin-top: 46rem;
+    height: 48rem!important;
   }
 }

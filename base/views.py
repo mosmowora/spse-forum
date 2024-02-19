@@ -603,20 +603,28 @@ def deleteUser(request: HttpRequest):
     """
     try:
         if request.method == 'POST':
-            messages = Message.objects.filter(
+            posted_messages = Message.objects.filter(
                 user__email__exact=request.user.email)
-            messages.delete()
+            posted_messages.delete()
             rooms = list(filter(lambda r: request.user in r.all(), [
                 r.participants for r in Room.objects.all()]))
+            subscribed_to = list(filter(lambda r: request.user in r.all(), [
+                r.subscribing for r in Room.objects.all()
+            ]))
             for participants in rooms:
                 participants.get(email__exact=request.user.email).delete()
+
+            for subscriber in subscribed_to:
+                if subscriber.filter(email__exact=request.user.email).exists():
+                    subscriber.get(email__exact=request.user.email).delete()
 
             hosted_rooms = Room.objects.filter(
                 host__name__exact=request.user.name)
             hosted_rooms.delete()
-            user = User.objects.get(email__exact=request.user.email)
-            user.delete()
-    except Exception:
+            messages.success(request, "Odstránil si si účet")
+            return redirect('home')
+    except Exception as e:
+        print(e.with_traceback())
         return fallback(request, "Niečo sa stalo pri odstraňovaní tvojho účtu.")
 
     return render(request, 'base/delete-user.html')

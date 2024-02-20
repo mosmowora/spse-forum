@@ -1,9 +1,10 @@
 {% extends 'main.html' %}
 {% load static %}
 {% block content %}
+<h1 id="pc" style="font-size:3rem; display: none;">Táto stránka sa lepšie zobrazuje na PC 😁</h1>
 <main class="delete-item layout">
     <div class="container">
-        <div class="layout__box">
+        <div class="layout__new_class">
             <div class="layout__boxHeader">
                 <div class="layout__boxTitle">
                     {% if back %}
@@ -38,22 +39,79 @@
                     <div class="form__group form__group">
                         {% if field.label == 'Set class' %}
                         <label for="class_name">Nová Skupina</label>
+                        {% elif field.label == "Users" %}
+                        <label for="class_name">Koho okrem seba chceš do skupiny?</label>
+                        {{form.users}}
                         {% else %}
                         <label for="class_name">{{field.label}}</label>
                         {% endif %}
+                        {% if field.label != 'Users' %}
                         {{field}}
+                        {% endif %}
                     </div>
                     {% endfor %}
-
-                    <div class="for__group">
-                        <input class="btn btn--main" type="submit" value="Požiadať" />
-                    </div>
-
+                    <input class="btn btn--main" type="submit" value="Vytoriť skupinu" />
                 </form>
             </div>
         </div>
     </div>
+    </div>
 </main>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+<script>
+    const classes = "{{classes}}".split(", ").map((item) => item.replace("&lt;", "").replace("&gt;", "").replace("FromClass: ", "").replace("[", "").replace("]", ""));
+
+    $('#id_set_class').on('input', function (evt) {
+        var value = evt.target.value
+
+        if (value.length === 0) {
+            evt.target.className = '';
+            return;
+        }
+
+        if (!classes.includes(value)) {
+            evt.target.className = 'valid'
+        } else {
+            evt.target.className = 'invalid'
+        }
+
+        if (document.getElementById("id_set_class").className === 'invalid') {
+            document.getElementById("id_set_class").style.border = "1px #e30022 solid";
+            let node = document.createElement("p");
+            node.innerHTML = "Skupina už existuje";
+            document.getElementById("id_set_class").after(node);
+        } else {
+            document.getElementById("id_set_class").style.border = "1px lightgreen solid";
+            document.getElementById("id_set_class").nextSibling.remove();
+        }
+    });
+</script>
+<link rel="stylesheet" type="text/css" href="{% static 'admin/css/widgets.css' %}" />
+
+<script type="text/javascript" src="{% url 'admin:jsi18n' %}"></script>
+<script type="text/javascript" src="{% static 'admin/js/core.js' %}"></script>
+<script type="text/javascript" src="{% static 'admin/js/vendor/jquery/jquery.js' %}"></script>
+<script type="text/javascript" src="{% static 'admin/js/jquery.init.js' %}"></script>
+
+<script type="text/javascript" src="{% static 'admin/js/SelectBox.js' %}"></script>
+<script type="text/javascript" src="{% static 'admin/js/SelectFilter2.js' %}"></script>
+<script>
+    setTimeout(() => {
+        document.querySelector("body > main > div > div > div.layout__body > form > div:nth-child(5) > div > div.selector-available > h2").innerHTML = "Možný výber";
+        document.querySelector("#id_users_selector_chosen > h2").innerHTML = "Vybratí";
+    }, 10);
+</script>
+<script>
+</script>
+<script>
+    setInterval(() => {
+        if (window.innerWidth < 1000) {
+            document.getElementById("pc").style.display = "block";
+        } else {
+            document.getElementById("pc").style.display = "none";
+        }
+    }, 500);
+</script>
 <!-- <script type="module">
     import devtools from "{% static 'js/node_modules/devtools-detect/index.js' %}";
 

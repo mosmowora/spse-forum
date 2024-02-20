@@ -337,6 +337,12 @@ a {
   left: 30px;
 }
 
+@media screen and (max-width: 1200px) {
+  .layout__new_class {
+    display: none;
+  }
+}
+
 .btn>svg {
   fill: currentColor;
   width: 1.6rem;
@@ -1328,6 +1334,46 @@ div#id_limit_for {
 
 .delete-item.layout .layout__box {
   max-width: 68rem;
+}
+
+.delete-item.layout .layout__new_class {
+  max-width: 84rem;
+  min-height: 40rem;
+  position: absolute;
+  top: 47%;
+  left: 50%;
+  transform: translate(-50%, -42.7%);
+  background-color: var(--color-dark);
+  border-radius: 1rem;
+  box-shadow: 1px 1px 6px 3px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+#id_users_from, #id_users_to {
+  background-color: var(--color-bg);
+  color: white;
+}
+
+#id_users_add_all_link, #id_users_remove_all_link {
+  display: none;
+}
+
+#id_users_input, #id_users_selected_input {
+  background-color: var(--color-bg);
+  color: white;
+  min-height: 3rem;
+  border-radius: 8rem;
+  font-size: large;
+  font-weight: 600;
+  text-align: center;
+}
+
+#id_users_from > option {
+  background-color: var(--color-bg);
+}
+
+#id_users_filter > label > span, #id_users_filter_selected > label > span {
+  display: unset;
 }
 
 /*==============================

@@ -72,13 +72,11 @@
           </form>
           {% if request.user.is_authenticated %}
           <div class="mobile-menuItems">
-            <a class="btn btn--main btn--pill btn--menu" href="{% url 'new-class' %}">Nová skupina</a>
             <a class="btn btn--main btn--pill" href="{% url 'topics' %}">Vyhľadávať</a>
             <a class="btn btn--main btn--pill" href="{% url 'activity' %}">Aktivita</a>
           </div>
           {% else %}
           <div class="mobile-menuItems">
-            <a class="btn btn--main btn--pill btn--menu" href="{% url 'login' %}">Nová skupina</a>
             <a class="btn btn--main btn--pill" href="{% url 'login' %}">Vyhľadávať</a>
             <a class="btn btn--main btn--pill" href="{% url 'login' %}">Aktivita</a>
           </div>

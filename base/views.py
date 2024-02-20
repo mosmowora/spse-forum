@@ -1,4 +1,4 @@
-from datetime import timedelta, tzinfo
+from datetime import timedelta
 import datetime
 from django.shortcuts import render, redirect
 from django.http import HttpRequest, HttpResponseRedirect
@@ -145,20 +145,22 @@ def newClass(request: HttpRequest):
     except Exception:
         form = NewClassForm()
 
+    if user.registered_groups + 1 > 5:
+        messages.info(request, "Dosiahol si maximálny počet vytvorených skupín")
+        return redirect('home')
+    
+    back_button = request.META.get("HTTP_REFERER").split("/") if request.META.get("HTTP_REFERER") is not None else 'new-class'
+
     if request.method == 'POST':
-        if request.POST.get("set_class") in map(lambda skupina: skupina.set_class, FromClass.objects.all()):
-            messages.info(request, "Skupina už existuje")
-            return redirect("new-class")
-
-        send_mail(
-            subject='SPŠE Forum žiadosť',
-            message=f'{request.POST.get("name")} ({request.POST.get("email")}) požiadal o vytvorenie skupiny {request.POST.get("set_class")}',
-            from_email=request.POST.get("email"),
-            recipient_list=['tomas.nosal04@gmail.com'],
-            fail_silently=False
-        )
-
-    return render(request, 'base/new_class_entry.html', {'form': form, "back": "register" in request.META.get("HTTP_REFERER").split("/")})
+        # FromClass.objects.create(set_class=request.POST.get("set_class"))
+        clazz = request.POST.get("set_class")
+        if user.registered_groups + 1 <= 5:
+            print(request.POST.getlist("users"))
+            # user.registered_groups += 1
+            # user.save()
+        # return redirect("home")
+    
+    return render(request, 'base/new_class_entry.html', {'form': form, "back": "register" in back_button})
 
 
 def pinRoom(request: HttpRequest, pk):
@@ -171,6 +173,7 @@ def pinRoom(request: HttpRequest, pk):
     pinned_room.save()
     return HttpResponseRedirect(reverse('home'))
 
+
 def subscribeRoom(request, pk):
     room = Room.objects.get(id=pk)
     user = User.objects.get(id=request.user.id)
@@ -178,7 +181,7 @@ def subscribeRoom(request, pk):
         room.subscribing.remove(user)
     else:
         room.subscribing.add(user)
-        
+
     return redirect('room', pk=room.id)
 
 
@@ -499,8 +502,7 @@ def updateRoom(request: HttpRequest, pk):
         form = RoomForm(instance=room)
         topics = Topic.objects.all()
         form['limit_for'].initial = room.limited_for.get_queryset()
-        
-        
+
         context = {'form': form, 'topics': topics, 'room': room}
         if request.META.get("HTTP_REFERER") is not None:
             context['back'] = any(

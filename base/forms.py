@@ -3,7 +3,7 @@ from django import forms
 from django.forms import ModelForm
 from django.contrib.auth.forms import UserCreationForm
 from .models import FromClass, Message, Room, Topic, User
-
+from django.contrib.admin.widgets import FilteredSelectMultiple
 
 class UserCreationForm(UserCreationForm):
     from_class = forms.ModelChoiceField(
@@ -101,8 +101,10 @@ class NewClassForm(ModelForm):
         required=True
     )
     set_class = forms.CharField(
-        max_length=30, label='Nová skupina', required=True, widget=forms.TextInput())
-
+        max_length=30, label='Názov skupiny', required=True, widget=forms.TextInput())
+    
+    users = forms.ModelMultipleChoiceField(User.objects.values_list("email", flat=True), widget=FilteredSelectMultiple("User", False, attrs={'rows':'2'}))
+    
     class Meta:
         model = User
         fields = ['name', 'email']

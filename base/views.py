@@ -142,6 +142,7 @@ def newClass(request: HttpRequest):
     try:
         user = User.objects.get(id=request.user.id)
         form = NewClassForm(instance=user)
+        form.fields['users'].queryset = User.objects.values_list("email", flat=True).filter(~Q(email__exact=request.user.email))
     except Exception:
         form = NewClassForm()
 
@@ -151,16 +152,21 @@ def newClass(request: HttpRequest):
     
     back_button = request.META.get("HTTP_REFERER").split("/") if request.META.get("HTTP_REFERER") is not None else 'new-class'
 
-    if request.method == 'POST':
-        # FromClass.objects.create(set_class=request.POST.get("set_class"))
+    if request.method == 'POST' and user.registered_groups + 1 <= 5:
         clazz = request.POST.get("set_class")
-        if user.registered_groups + 1 <= 5:
-            print(request.POST.getlist("users"))
-            # user.registered_groups += 1
-            # user.save()
-        # return redirect("home")
+        picked_users = User.objects.filter(email__in=request.POST.getlist("users"))
+        clazz = FromClass.objects.create(set_class=clazz)
+        user.registered_groups += 1
+        user.save()
+        for user in picked_users:
+            if clazz not in user.from_class.all():
+                user.from_class.add(clazz)
+                print(f"Added {clazz} to user: {user}")
+                
+        messages.success(request, "Úspešne vytvorená skupina")
+        return redirect("home")
     
-    return render(request, 'base/new_class_entry.html', {'form': form, "back": "register" in back_button})
+    return render(request, 'base/new_class_entry.html', {'form': form, "back": "register" in back_button, 'classes': tuple(FromClass.objects.all())})
 
 
 def pinRoom(request: HttpRequest, pk):

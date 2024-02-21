@@ -59,8 +59,7 @@
 </main>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 <script>
-    const classes = "{{classes}}".split(", ").map((item) => item.replace("&lt;", "").replace("&gt;", "").replace("FromClass: ", "").replace("[", "").replace("]", ""));
-
+    const classes = "{{classes}}".split(", ").map((item) => item.replace("&lt;", "").replace("&gt;", "").replace("FromClass: ", "").replace("(", "").replace(")", ""));
     $('#id_set_class').on('input', function (evt) {
         var value = evt.target.value
 
@@ -82,7 +81,7 @@
             document.getElementById("id_set_class").after(node);
         } else {
             document.getElementById("id_set_class").style.border = "1px lightgreen solid";
-            document.getElementById("id_set_class").nextSibling.remove();
+            document.getElementById("id_set_class").nextSibling?.remove();
         }
     });
 </script>

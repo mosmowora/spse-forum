@@ -1352,6 +1352,9 @@ div#id_limit_for {
 #id_users_from, #id_users_to {
   background-color: var(--color-bg);
   color: white;
+  border-radius: 8px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-bg);
 }
 
 #id_users_add_all_link, #id_users_remove_all_link {
@@ -1361,16 +1364,24 @@ div#id_limit_for {
 #id_users_input, #id_users_selected_input {
   background-color: var(--color-bg);
   color: white;
-  min-height: 3rem;
   border-radius: 8rem;
-  font-size: large;
+  font-size: medium;
   font-weight: 600;
   text-align: center;
 }
 
-#id_users_from > option {
+
+#id_users_from > option, #id_users_to > option {
   background-color: var(--color-bg);
 }
+body > main > div > div > div.layout__body > form > div:nth-child(5) > div > div.selector-available {
+  margin-bottom: 0;
+}
+
+#id_users_add_link, #id_users_remove_link {
+  opacity: 0.88;
+}
+
 
 #id_users_filter > label > span, #id_users_filter_selected > label > span {
   display: unset;

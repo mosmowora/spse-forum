@@ -62,9 +62,13 @@
       </div>
 
       <div class="roomList__header">
-        <div>
-          <h2>Hosťované diskusie</a>
+        <div style="display: flex; justify-content: space-between; width: 100%;">
+          <h2>
+            Hosťované diskusie - {{user.room_set.count}}/10
           </h2>
+          <h2>
+            Vytvorené skupiny - {{user.registered_groups}}/5
+          </hľ>
         </div>
       </div>
       {% include 'base/feed_component.html' %}

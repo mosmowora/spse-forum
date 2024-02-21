@@ -89,7 +89,6 @@ def home(request: HttpRequest):
     request.session.set_expiry(timedelta(hours=6))
     request.session.clear_expired()
     rooms = None
-
     if not isinstance(request.user, AnonymousUser):
         if request.user.is_staff:
             rooms = Room.objects.filter(
@@ -155,16 +154,20 @@ def newClass(request: HttpRequest):
     if request.method == 'POST' and user.registered_groups + 1 <= 5:
         clazz = request.POST.get("set_class")
         picked_users = User.objects.filter(email__in=request.POST.getlist("users"))
-        clazz = FromClass.objects.create(set_class=clazz)
-        user.registered_groups += 1
-        user.save()
-        for user in picked_users:
-            if clazz not in user.from_class.all():
-                user.from_class.add(clazz)
-                print(f"Added {clazz} to user: {user}")
-                
-        messages.success(request, "Úspešne vytvorená skupina")
-        return redirect("home")
+        if clazz not in FromClass.objects.values_list("set_class", flat=True):
+            clazz = FromClass.objects.create(set_class=clazz)
+            user.registered_groups += 1
+            user.save()
+            for user in picked_users:
+                if clazz not in user.from_class.all():
+                    user.from_class.add(clazz)
+                    print(f"Added {clazz} to user: {user}")
+            request.user.from_class.add(clazz)
+
+            messages.success(request, "Úspešne vytvorená skupina")
+            return redirect("home")
+        else:
+            messages.error(request, "Táto skupina už existuje!")
     
     return render(request, 'base/new_class_entry.html', {'form': form, "back": "register" in back_button, 'classes': tuple(FromClass.objects.all())})
 
@@ -303,12 +306,13 @@ def userProfile(request: HttpRequest, pk):
         topics = tuple(filter(lambda y: y.room_set.all().count() != 0, sorted(
             topics, key=lambda x: x.room_set.all().count(), reverse=True)))
         context = {
-            'user': user, 'rooms': rooms, 'from_class': user.from_class.filter(set_class__startswith="I")[0],
+            'user': user, 'rooms': rooms, 'from_class': user.from_class.all()[0],
             'room_messages': room_messages, 'topics': topics,
             'show_topics': sorted(topics[:4], key=lambda x: x.room_set.all().count(), reverse=True), 'active_users': active_users
         }
         return render(request, 'base/profile.html', context)
-    except Exception:
+    except Exception as e:
+        print(e)
         if user is None:
             return fallback(request, message="Nenašiel som užívateľa")
         else:

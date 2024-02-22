@@ -5,6 +5,7 @@ from django.contrib.auth.models import AbstractUser, PermissionsMixin
 
 class FromClass(models.Model):
     set_class = models.CharField(max_length=30)
+    custom = models.BooleanField(default=False, null=False)
 
     def __str__(self) -> str:
         return self.set_class
@@ -24,7 +25,7 @@ class User(AbstractUser, PermissionsMixin):
     bio = models.TextField(null=True, blank=True)
     avatar = models.ImageField(null=True, blank=True, verbose_name='avatar')
     school_year = models.CharField(max_length=50, null=True)
-    registered_groups = models.BigIntegerField(null=False, default=0)
+    registered_groups = models.ManyToManyField(FromClass, related_name="registered_groups")
 
     from_class = models.ManyToManyField(
         FromClass, related_name='from_class'
@@ -33,6 +34,10 @@ class User(AbstractUser, PermissionsMixin):
     REQUIRED_FIELDS = []
 
     def __str__(self) -> str:
+        return self.email
+    
+    @property
+    def users_name(self) -> str:
         return self.name
     
     class Meta:

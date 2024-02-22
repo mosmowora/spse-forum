@@ -89,7 +89,7 @@
     </div>
     <!-- Room List End -->
     <button class="btn--mobile-scroll" onclick="scrollToTop()">↑</button>
-    <!-- <a class="btn btn--main btn--pill btn--new-class" href="{% url 'new-class' %}">+ Skupina</a> -->
+    <a class="btn btn--main btn--pill btn--new-class" href="{% url 'new-class' %}">+ Skupina</a>
     <!-- Activities Start -->
     {% include 'base/activity_component.html' %}
 
@@ -107,11 +107,9 @@
 
   if (isUserAuthenticated) {
     document.querySelector('div.termsfeed-com---reset').style.display = "none";
-    console.log("token is not expired");
   }
   else {
     document.querySelector('div.termsfeed-com---reset').style.display = "block";
-    console.log("token is expired");
   }
 </script>
 

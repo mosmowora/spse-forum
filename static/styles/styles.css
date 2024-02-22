@@ -1349,7 +1349,8 @@ div#id_limit_for {
   overflow: hidden;
 }
 
-#id_users_from, #id_users_to {
+#id_users_from,
+#id_users_to {
   background-color: var(--color-bg);
   color: white;
   border-radius: 8px;
@@ -1357,11 +1358,13 @@ div#id_limit_for {
   scrollbar-color: var(--color-bg);
 }
 
-#id_users_add_all_link, #id_users_remove_all_link {
+#id_users_add_all_link,
+#id_users_remove_all_link {
   display: none;
 }
 
-#id_users_input, #id_users_selected_input {
+#id_users_input,
+#id_users_selected_input {
   background-color: var(--color-bg);
   color: white;
   border-radius: 8rem;
@@ -1371,19 +1374,23 @@ div#id_limit_for {
 }
 
 
-#id_users_from > option, #id_users_to > option {
+#id_users_from>option,
+#id_users_to>option {
   background-color: var(--color-bg);
 }
-body > main > div > div > div.layout__body > form > div:nth-child(5) > div > div.selector-available {
+
+body>main>div>div>div.layout__body>form>div:nth-child(5)>div>div.selector-available {
   margin-bottom: 0;
 }
 
-#id_users_add_link, #id_users_remove_link {
+#id_users_add_link,
+#id_users_remove_link {
   opacity: 0.88;
 }
 
 
-#id_users_filter > label > span, #id_users_filter_selected > label > span {
+#id_users_filter>label>span,
+#id_users_filter_selected>label>span {
   display: unset;
 }
 
@@ -1479,9 +1486,13 @@ body > main > div > div > div.layout__body > form > div:nth-child(5) > div > div
   background: var(--color-dark);
   max-height: 87.5vh;
   border-radius: 0.7rem;
-  overflow-y: auto;
+  overflow-y: hidden;
   overflow-x: hidden;
   position: relative;
+}
+
+.room__no_file {
+  height: 15rem;
 }
 
 @media screen and (max-width: 900px) {
@@ -1635,6 +1646,10 @@ input.reply-text:focus {
     transform: translateX(-2px);
   }
 
+  .room__no_file {
+    height: 10rem;
+  }
+
   .upvote-form {
     margin-left: auto;
     margin-right: 5%;
@@ -1681,6 +1696,7 @@ input.reply-text:focus {
   }
 
   .room {
+    overflow-y: auto;
     overflow-x: hidden;
   }
 
@@ -1776,7 +1792,7 @@ input.reply-text:focus {
   background: var(--color-bg);
   border-radius: 0.7rem;
   overflow-y: auto;
-  height: 100%;
+  height: 90%;
   margin-top: 0rem;
   overflow-x: hidden;
   padding: 0 2rem 4rem 2rem;
@@ -1919,6 +1935,10 @@ ul.messages li[class="40"] {
   font-weight: 500;
   position: relative;
   transition: all 0.2s ease-out;
+}
+
+body>main>div>div>div.layout__body>form>div {
+  margin-bottom: 1rem;
 }
 
 .room__message>form>input:focus {
@@ -2142,7 +2162,7 @@ ul.list--icons>li {
 
 @media screen and (max-width: 500px) {
   .threads {
-    height: 40rem;
+    height: 40rem !important;
     margin-top: 0;
     width: 100%;
     padding-bottom: 0;
@@ -2164,6 +2184,7 @@ ul.list--icons>li {
   }
 
   .room {
+    overflow-y: auto;
     height: 88rem;
   }
 
@@ -2196,6 +2217,7 @@ ul.list--icons>li {
   }
 
   .room {
+    overflow-y: auto;
     height: 88rem;
   }
 
@@ -2233,6 +2255,7 @@ body>main>div>div.room>div.room__box.scroll>div.room__conversation>div:nth-child
   }
 
   .room {
+    overflow-y: auto;
     height: 88rem;
   }
 
@@ -2250,6 +2273,9 @@ body>main>div>div.room>div.room__box.scroll>div.room__conversation>div:nth-child
     overflow-y: auto;
     overflow-x: hidden;
     padding-bottom: 0;
+  }
+  .room__no_file {
+    height: 0rem;
   }
 
   div.room>div.room__box.scroll>div:nth-child(3) {

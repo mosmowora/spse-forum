@@ -16,6 +16,7 @@ from .models import FromClass, Room, Topic, Message, User
 
 class UserAdmin(admin.ModelAdmin):
     User.get_short_name = lambda user_instance: user_instance.name.split()[-1]
+    
     readonly_fields = ('id', 'last_login', 'date_joined',
                        'name', 'username')
     list_filter = ['is_superuser', 'is_staff',
@@ -87,10 +88,11 @@ class UserAdmin(admin.ModelAdmin):
 
 class AddStudentsToClassInline(admin.TabularInline):
     extra = 1
+    # Display users that belong to this class
     model = User.from_class.through
     verbose_name = "Študent"
     verbose_name_plural = 'Študenti'
-
+    
     class Media:
         css = {
             'all': ('..\\static\\styles\\admin.css', )     # Include extra css
@@ -128,11 +130,11 @@ class MessageAdmin(admin.ModelAdmin):
     list_display = ['user', 'room', 'body', 'likes_count', 'parent']
     fields = ['user', 'room', 'body', 'likes', 'parent']
     form = MessageForm
-    search_fields = ['user', 'room', 'body']
+    search_fields = ['room__name', 'body']
     
     @admin.display(description='Počet palcov hore')
     def likes_count(self, obj: Message):
-        return obj.likes.all().count()
+        return obj.likes.count()
 
     class Media:
         js = ('..\\static\\js\\admin.js',)

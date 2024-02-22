@@ -145,18 +145,18 @@ def newClass(request: HttpRequest):
     except Exception:
         form = NewClassForm()
 
-    if user.registered_groups + 1 > 5:
+    if user.registered_groups.count() + 1 > 5:
         messages.info(request, "Dosiahol si maximálny počet vytvorených skupín")
         return redirect('home')
     
     back_button = request.META.get("HTTP_REFERER").split("/") if request.META.get("HTTP_REFERER") is not None else 'new-class'
 
-    if request.method == 'POST' and user.registered_groups + 1 <= 5:
+    if request.method == 'POST' and user.registered_groups.count() + 1 <= 5:
         clazz = request.POST.get("set_class")
         picked_users = User.objects.filter(email__in=request.POST.getlist("users"))
         if clazz not in FromClass.objects.values_list("set_class", flat=True):
-            clazz = FromClass.objects.create(set_class=clazz)
-            user.registered_groups += 1
+            clazz = FromClass.objects.create(set_class=clazz, custom=True)
+            user.registered_groups.add(clazz)
             user.save()
             for user in picked_users:
                 if clazz not in user.from_class.all():
@@ -464,6 +464,7 @@ def createRoom(request: HttpRequest):
             return redirect('home')
 
         form = RoomForm()
+        form.fields['limit_for'].queryset = FromClass.objects.exclude(~Q(id__in=request.user.from_class.all()) & Q(custom=True))
         topics = Topic.objects.all()
         context = {'form': form, 'topics': topics}
 

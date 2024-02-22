@@ -35,8 +35,12 @@ const handler = _ => {
         default:
             break;
     }
-    selectText[2] = selectText[2].replace("to", "pre");
-    selectText[3] = selectText[3].replace("change", "zmenu");
+    if (selectText[2] != null) {
+        selectText[2] = selectText[2].replace("to", "pre");
+    }
+    if (selectText[3] != null) {
+        selectText[3] = selectText[3].replace("change", "zmenu");
+    }
     document.querySelector("div#content > h1").innerHTML = document.querySelector("div#content > h1").innerHTML.replace(document.querySelector("div#content > h1").innerHTML, selectText.join(" "));
 
     let addButton = document.querySelector("#content-main > ul > li > a").innerHTML.trim();
@@ -67,7 +71,6 @@ const handler = _ => {
     
     // Main content sidebar translation
     authText = document.querySelector("#content-main > div.app-auth.module > table > caption > a");
-    console.log(authText);
     if (authText != null) {
         authText.innerHTML = "Autentifikácia a Autorizácia";
         document.querySelector("#content-main > div.app-auth.module > table > caption > a").innerHTML = authText.innerHTML;
@@ -83,6 +86,10 @@ const handler = _ => {
     if (onlineUsers != null) {
         onlineUsers.innerHTML = "Online užívatelia";
         document.querySelector("#content-main > div.app-online_users.module > table > caption > a").innerHTML = onlineUsers.innerHTML;
+    }
+    const change = document.querySelector("#content > h1");
+    if (change != null) {
+        change.innerHTML = change.innerHTML.replace("Change", "Zmeniť");
     }
 }
 document.addEventListener('DOMContentLoaded', handler)

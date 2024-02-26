@@ -209,7 +209,8 @@ def room(request: HttpRequest, pk):
 
         upvoted_messages: dict[Message, bool] = {}
 
-        back: str = request.META['HTTP_REFERER']
+        back: str = request.META.get('HTTP_REFERER')
+        back = any(x in ('room', 'error', 'delete-message', 'upvote-message') for x in back.split("/")) if back is not None else None
 
         for message in room_messages:
             upvoted = False
@@ -223,7 +224,7 @@ def room(request: HttpRequest, pk):
                 time_delta=timedelta(seconds=30))))
         )
         context = {'room': room, 'room_messages': room_messages, 'amount_of_messages': len(room_messages),
-                   'participants': participants, 'upvoted_messages': upvoted_messages, 'active_users': active_users, 'back': any(x in ('room', 'error', 'delete-message', 'upvote-message') for x in back.split("/"))}
+                   'participants': participants, 'upvoted_messages': upvoted_messages, 'active_users': active_users, 'back': back}
 
         if request.method == 'POST':
             content = request.POST.get('body')
@@ -603,7 +604,18 @@ def updateUser(request: HttpRequest):
             if form.is_valid():
                 form.save()
                 return redirect('user-profile', pk=user.id)
-    except Exception:
+            elif form.errors:
+                # form.errors.get('avatar')
+                lst = tuple(*form.errors.as_data().values())
+                for error in lst:
+                    if "100 characters" in error.messages[0]:
+                        messages.error(request, "Uisti sa, že názov súboru má najviac 100 znakov")
+                        continue
+                    
+                    messages.error(request, *error)
+                
+    except Exception as e:
+        print(e)
         return fallback(request, "Niečo neočakávané sa stalo.")
 
     return render(request, 'base/update-user.html', {'form': form})

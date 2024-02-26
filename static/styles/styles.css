@@ -137,15 +137,15 @@ p.error {
 
 *::-webkit-scrollbar-thumb {
   border-radius: 5px;
-  background-color: #212D4A80;
+  background: rgba(0, 0, 0, 0.2) !important;
 }
 
 *::-webkit-scrollbar-thumb:hover {
-  background-color: #212D4A80;
+  background: rgba(0, 0, 0, 0.2) !important;
 }
 
 *::-webkit-scrollbar-thumb:active {
-  background-color: #212D4A80;
+  background: rgba(0, 0, 0, 0.2) !important;
 }
 
 html {
@@ -399,6 +399,7 @@ a {
   position: relative;
   display: inline-block;
   border-radius: 50%;
+  z-index: 0;
   border: 2px solid var(--color-main);
 }
 
@@ -843,7 +844,8 @@ body>header>div>nav>div.header__user>button>svg {
 .layout__boxHeader {
   display: flex;
   padding: 1.5rem;
-  z-index: 999900;
+  z-index: 9999999999;
+  position: relative;
   background-color: var(--color-light);
 }
 
@@ -1351,8 +1353,8 @@ div#id_limit_for {
 
 #id_users_from,
 #id_users_to {
-  background-color: var(--color-bg);
-  color: white;
+  background-color: var(--color-light);
+  color: var(--color-bg);
   border-radius: 8px;
   scrollbar-width: thin;
   scrollbar-color: var(--color-bg);
@@ -1365,8 +1367,8 @@ div#id_limit_for {
 
 #id_users_input,
 #id_users_selected_input {
-  background-color: var(--color-bg);
-  color: white;
+  background-color: var(--color-light);
+  color: var(--color-bg);
   border-radius: 8rem;
   font-size: medium;
   font-weight: 600;
@@ -1376,7 +1378,9 @@ div#id_limit_for {
 
 #id_users_from>option,
 #id_users_to>option {
-  background-color: var(--color-bg);
+  color: var(--color-bg);
+  font-weight: 500;
+  background-color: var(--color-light);
 }
 
 body>main>div>div>div.layout__body>form>div:nth-child(5)>div>div.selector-available {
@@ -1491,8 +1495,12 @@ body>main>div>div>div.layout__body>form>div:nth-child(5)>div>div.selector-availa
   position: relative;
 }
 
+.room {
+  overflow-y: scroll;
+}
+
 .room__no_file {
-  height: 15rem;
+  height: 18rem;
 }
 
 @media screen and (max-width: 900px) {
@@ -1646,10 +1654,6 @@ input.reply-text:focus {
     transform: translateX(-2px);
   }
 
-  .room__no_file {
-    height: 10rem;
-  }
-
   .upvote-form {
     margin-left: auto;
     margin-right: 5%;
@@ -1757,7 +1761,7 @@ input.reply-text:focus {
 .room__conversation {
   margin-top: 1rem;
   margin-bottom: 4rem;
-  height: 64%;
+  height: 37rem;
 }
 
 .empty__conversation {
@@ -1792,7 +1796,7 @@ input.reply-text:focus {
   background: var(--color-bg);
   border-radius: 0.7rem;
   overflow-y: auto;
-  height: 90%;
+  height: 95%;
   margin-top: 0rem;
   overflow-x: hidden;
   padding: 0 2rem 4rem 2rem;
@@ -2160,9 +2164,14 @@ ul.list--icons>li {
   }
 }
 
-@media screen and (max-width: 500px) {
+body>main>div>div.room>div.room__box.scroll>div.room__conversation>div:nth-child(1) {
+  width: 30rem;
+  margin-top: 5rem;
+}
+
+@media screen and (max-width: 900px) {
   .threads {
-    height: 40rem !important;
+    height: 95%;
     margin-top: 0;
     width: 100%;
     padding-bottom: 0;
@@ -2175,9 +2184,9 @@ ul.list--icons>li {
   }
 
   .room__conversation {
-    height: 20%;
+    height: 49rem;
     position: absolute;
-    bottom: 20rem;
+    bottom: 6rem;
     width: 90%;
     left: 5%;
     right: 5%;
@@ -2195,7 +2204,7 @@ ul.list--icons>li {
 
 @media screen and (max-width: 700px) {
   .threads {
-    height: 40rem;
+    height: 95%;
     margin-top: 0;
     width: 100%;
     padding-bottom: 0;
@@ -2208,9 +2217,9 @@ ul.list--icons>li {
   }
 
   .room__conversation {
-    height: 20%;
+    height: 48rem;
     position: absolute;
-    bottom: 20rem;
+    bottom: 6rem;
     width: 90%;
     left: 5%;
     right: 5%;
@@ -2226,15 +2235,11 @@ ul.list--icons>li {
   }
 }
 
-body>main>div>div.room>div.room__box.scroll>div.room__conversation>div:nth-child(1) {
-  width: 30rem;
-  margin-top: 5rem;
-}
-
-@media screen and (max-width: 900px) {
+@media screen and (max-width: 500px) {
   .threads {
-    height: 40rem;
+    height: 90%;
     margin-top: 0;
+    overflow-y: auto;
     width: 100%;
     padding-bottom: 0;
   }
@@ -2246,12 +2251,16 @@ body>main>div>div.room>div.room__box.scroll>div.room__conversation>div:nth-child
   }
 
   .room__conversation {
-    height: 20%;
+    height: 60%;
     position: absolute;
-    bottom: 20rem;
+    bottom: 3rem;
     width: 90%;
     left: 5%;
     right: 5%;
+  }
+
+  body>main>div>div.roomList>div.roomList__header>div>h2 {
+    font-size: 1.15rem;
   }
 
   .room {
@@ -2265,22 +2274,13 @@ body>main>div>div.room>div.room__box.scroll>div.room__conversation>div:nth-child
 }
 
 @media screen and (max-width: 400px) {
-  .room__box {
-    padding-left: 2.5rem;
-    padding-right: 2rem;
-    min-height: 50vh;
-    height: 83vh;
-    overflow-y: auto;
-    overflow-x: hidden;
-    padding-bottom: 0;
-  }
   .room__no_file {
     height: 0rem;
   }
 
-  div.room>div.room__box.scroll>div:nth-child(3) {
+  .room__conversation {
+    height: 45rem;
     margin-top: 0rem;
-    width: 33rem;
   }
 
   .room {
@@ -2293,10 +2293,6 @@ body>main>div>div.room>div.room__box.scroll>div.room__conversation>div:nth-child
   .room__message {
     width: 105% !important;
     padding-bottom: 1rem;
-  }
-
-  .room__conversation {
-    margin-top: 15rem;
   }
 
   .room__conversation h1 {
@@ -2318,6 +2314,51 @@ body>main>div>div.room>div.room__box.scroll>div.room__conversation>div:nth-child
 
   .threads {
     margin-top: 0rem;
-    height: 48rem !important;
+    height: 90%;
+  }
+}
+
+@media screen and (max-width: 360px) {
+  .room__no_file {
+    height: 0rem;
+  }
+
+  .room__conversation {
+    height: 25rem;
+    margin-top: 0rem;
+  }
+
+  .room {
+    overflow-x: hidden;
+    overflow-y: auto;
+    height: 88rem;
+    padding-bottom: 5rem;
+  }
+
+  .room__message {
+    width: 105% !important;
+    padding-bottom: 1rem;
+  }
+
+  .room__conversation h1 {
+    overflow-y: hidden;
+    bottom: 30rem;
+  }
+
+  .fill_in {
+    height: 15rem;
+  }
+
+  .room__header {
+    padding-bottom: 0;
+  }
+
+  .empty__conversation {
+    overflow-y: hidden;
+  }
+
+  .threads {
+    margin-top: 0rem;
+    height: 37rem !important;
   }
 }

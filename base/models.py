@@ -1,6 +1,7 @@
 from multiprocessing.managers import BaseManager
 from django.db import models
 from django.contrib.auth.models import AbstractUser, PermissionsMixin
+from django.forms import ValidationError
 
 
 class FromClass(models.Model):
@@ -19,11 +20,18 @@ class EmailPasswordVerification(models.Model):
     token_created = models.DateTimeField(auto_now_add=True)
 
 
+def validate_image(image):
+    file_size = image.file.size
+    limit_mb = 4
+
+    if file_size > limit_mb * 1024 * 1024:
+       raise ValidationError(f"Najväčšia veľkosť súboru je {limit_mb} MB")
+
 class User(AbstractUser, PermissionsMixin):
     name = models.CharField(max_length=220, null=True, db_column="Meno")
     email = models.EmailField(unique=True, null=True)
     bio = models.TextField(null=True, blank=True)
-    avatar = models.ImageField(null=True, blank=True, verbose_name='avatar')
+    avatar = models.ImageField(null=True, blank=True, verbose_name='avatar', validators=[validate_image])
     school_year = models.CharField(max_length=50, null=True)
     registered_groups = models.ManyToManyField(FromClass, related_name="registered_groups")
 

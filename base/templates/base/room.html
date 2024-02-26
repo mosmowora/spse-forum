@@ -6,7 +6,8 @@
 <main class="profile-page layout layout--2">
   <div class="container">
     <!-- Room Start -->
-    <div class="room">
+    <div class="room" {% if room.file.url is not None %} style="overflow-y: scroll;" {% else %}
+      style="overflow-y: hidden;" {% endif %}>
       <div class="room__top">
         <div class="room__topLeft">
           {% if not back %}
@@ -31,7 +32,7 @@
           <h3>Diskusia</h3>
         </div>
         <div class="room__topRight">
-          {% if room.host == request.user or request.user.is_staff  %}
+          {% if room.host == request.user or request.user.is_staff %}
           <a href="{% url 'subscribe-room' room.id %}" style="width: 14.4px; height: 14.4px;">
             {% if request.user in room.subscribing.all %}
             <img src="{% static 'images/icons/bell-full.png' %}" alt="unsubscribe">
@@ -187,7 +188,7 @@
                 {% endif %}
               </div>
               <div class="thread__details">
-                {{message.body}}
+                {{message.body|urlizetrunc:20}}
               </div>
               <form action="" method="POST">
                 <input type="text" name="body" class="reply-text" placeholder="Odpovedať" size="auto">
@@ -238,7 +239,7 @@
                   {% endif %}
                 </div>
                 <div class="thread__details">
-                  {{reply.body}}
+                  {{reply.body|urlizetrunc:20}}
                 </div>
               </div>
               {% endfor %}
@@ -292,7 +293,6 @@
     <!--  End -->
   </div>
 </main>
-
 <!-- <script type="module">
   import devtools from "{% static 'js/node_modules/devtools-detect/index.js' %}";
 

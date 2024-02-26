@@ -51,7 +51,7 @@
             </div>
             <div class="activities__boxContent">
                 <p>odpovedal na <br>“<a href="{% url 'room' message.room.id %}">{{message.room}}</a>”</p>
-                <div class="activities__boxRoomContent">{{message.body}}</div>
+                <div class="activities__boxRoomContent">{{message.body|urlizetrunc:20}}</div>
             </div>
         </div>
         {% endfor %}

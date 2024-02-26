@@ -60,6 +60,7 @@ INSTALLED_APPS = [
     'djutils',
     'online_users',
     'more_admin_filters',
+    'django_cleanup.apps.CleanupConfig',
 ]
 
 AUTH_USER_MODEL = 'base.User'

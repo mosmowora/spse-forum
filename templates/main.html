@@ -9,32 +9,6 @@
     <link rel="stylesheet" href="{% static 'styles/styles.css' %}" />
     <link rel="icon" href="{% static 'images/icons/logo.png' %}" />
     <title>SPŠE Forum</title>
-    <!-- Cookie Consent Banner -->
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag() { dataLayer.push(arguments); }
-        gtag('consent', 'default', { 'ad_storage': 'denied', 'analytics_storage': 'denied' });
-    </script>
-
-    <script async src="https://www.googletagmanager.com/gtag/js?id=TAG_ID"></script>
-
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag() { dataLayer.push(arguments); }
-        gtag('js', new Date());
-        gtag('config', 'TAG_ID');
-    </script>
-
-    <script>
-        function consentGranted() {
-            gtag('consent', 'update', { 'ad_storage': 'granted', 'analytics_storage': 'granted' });
-        };
-    </script>
-    <script>
-        function dismissCookieBanner() {
-            gtag('consent', 'update', { 'ad_storage': 'denied', 'analytics_storage': 'denied' });
-        };
-    </script>
 </head>
 
 <body>
@@ -81,6 +55,7 @@
 </script>
 <script>
     const roomList = document.querySelector("div.roomList");
+    const personalSiteButton = document.querySelector("a.btn--personal-site");
     const scrollButton = document.querySelector("button.btn--mobile-scroll");
 
     function scrollFunc() {

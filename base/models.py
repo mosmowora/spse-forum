@@ -23,12 +23,13 @@ class EmailPasswordVerification(models.Model):
 def validate_image(image):
     file_size = image.file.size
     limit_mb = 4
+    print(image.file.name)
 
     if file_size > limit_mb * 1024 * 1024:
        raise ValidationError(f"Najväčšia veľkosť súboru je {limit_mb} MB")
 
 class User(AbstractUser, PermissionsMixin):
-    name = models.CharField(max_length=220, null=True, db_column="Meno")
+    name = models.CharField(max_length=50, null=True, db_column="Meno")
     email = models.EmailField(unique=True, null=True)
     bio = models.TextField(null=True, blank=True)
     avatar = models.ImageField(null=True, blank=True, verbose_name='avatar', validators=[validate_image])
@@ -54,7 +55,7 @@ class User(AbstractUser, PermissionsMixin):
 
 
 class Topic(models.Model):
-    name = models.CharField(max_length=200)
+    name = models.CharField(max_length=50)
 
     def __str__(self):
         return self.name
@@ -68,14 +69,14 @@ class Topic(models.Model):
 class Room(models.Model):
     host = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     topic = models.ForeignKey(Topic, on_delete=models.SET_NULL, null=True)
-    name = models.CharField(max_length=200)
+    name = models.CharField(max_length=100)
     description = models.TextField(null=True, blank=True)
     participants = models.ManyToManyField(
         User, related_name='participants', blank=True)
     updated = models.DateTimeField(auto_now=True)
     created = models.DateTimeField(auto_now_add=True)
     subscribing = models.ManyToManyField(User, related_name="subscribing_rooms")
-    file = models.ImageField(null=True, blank=True, verbose_name='room_image', max_length=512, upload_to="images/")
+    file = models.ImageField(null=True, blank=True, verbose_name='room_image', max_length=512, upload_to="files/", validators=[validate_image])
 
     pinned = models.BooleanField(null=False, default=False)
     limited_for = models.ManyToManyField(

@@ -19,8 +19,8 @@ from .forms import (
     ReplyForm, RoomForm, UserCreationForm, UserForm
 )
 from online_users.models import OnlineUserActivity
-from django.core.mail import send_mail
 from urllib.parse import quote, unquote
+from PIL import Image
 # Create your views here.
 
 ENCRYPTION_MAGIC = 12
@@ -141,19 +141,23 @@ def newClass(request: HttpRequest):
     try:
         user = User.objects.get(id=request.user.id)
         form = NewClassForm(instance=user)
-        form.fields['users'].queryset = User.objects.values_list("email", flat=True).filter(~Q(email__exact=request.user.email))
+        form.fields['users'].queryset = User.objects.values_list(
+            "email", flat=True).filter(~Q(email__exact=request.user.email))
     except Exception:
         form = NewClassForm()
 
     if user.registered_groups.count() + 1 > 5:
-        messages.info(request, "Dosiahol si maximálny počet vytvorených skupín")
+        messages.info(
+            request, "Dosiahol si maximálny počet vytvorených skupín")
         return redirect('home')
-    
-    back_button = request.META.get("HTTP_REFERER").split("/") if request.META.get("HTTP_REFERER") is not None else 'new-class'
+
+    back_button = request.META.get("HTTP_REFERER").split(
+        "/") if request.META.get("HTTP_REFERER") is not None else 'new-class'
 
     if request.method == 'POST' and user.registered_groups.count() + 1 <= 5:
         clazz = request.POST.get("set_class")
-        picked_users = User.objects.filter(email__in=request.POST.getlist("users"))
+        picked_users = User.objects.filter(
+            email__in=request.POST.getlist("users"))
         if clazz not in FromClass.objects.values_list("set_class", flat=True):
             clazz = FromClass.objects.create(set_class=clazz, custom=True)
             user.registered_groups.add(clazz)
@@ -168,7 +172,7 @@ def newClass(request: HttpRequest):
             return redirect("home")
         else:
             messages.error(request, "Táto skupina už existuje!")
-    
+
     return render(request, 'base/new_class_entry.html', {'form': form, "back": "register" in back_button, 'classes': tuple(FromClass.objects.all())})
 
 
@@ -210,7 +214,8 @@ def room(request: HttpRequest, pk):
         upvoted_messages: dict[Message, bool] = {}
 
         back: str = request.META.get('HTTP_REFERER')
-        back = any(x in ('room', 'error', 'delete-message', 'upvote-message') for x in back.split("/")) if back is not None else None
+        back = any(x in ('room', 'error', 'delete-message', 'upvote-message')
+                   for x in back.split("/")) if back is not None else None
 
         for message in room_messages:
             upvoted = False
@@ -225,6 +230,11 @@ def room(request: HttpRequest, pk):
         )
         context = {'room': room, 'room_messages': room_messages, 'amount_of_messages': len(room_messages),
                    'participants': participants, 'upvoted_messages': upvoted_messages, 'active_users': active_users, 'back': back}
+        
+        if room.file and room.file.name.split(".")[-1] in ('docx', 'pdf', 'xls', 'xlsx', 'ppt', 'pptx', 'potm'):
+                context['file_type'] = "file"
+        elif room.file and room.file.name.split(".")[-1] in ('xbm', 'tif', 'jfif', 'ico', 'gif', 'svg', 'jpg', 'jpeg', 'png', 'webp', 'bmp', 'pjp', 'apng', 'pjpeg', 'avif'):
+            context['file_type'] = "image"
 
         if request.method == 'POST':
             content = request.POST.get('body')
@@ -465,11 +475,16 @@ def createRoom(request: HttpRequest):
             return redirect('home')
 
         form = RoomForm()
-        form.fields['limit_for'].queryset = FromClass.objects.exclude(~Q(id__in=request.user.from_class.all()) & Q(custom=True))
+        form.fields['limit_for'].queryset = FromClass.objects.exclude(
+            ~Q(id__in=request.user.from_class.all()) & Q(custom=True))
         topics = Topic.objects.all()
         context = {'form': form, 'topics': topics}
 
         if request.method == 'POST':
+            if request.FILES.get('file') and request.FILES.get('file').name.split(".")[-1] not in ('docx', 'pdf', 'xls', 'xlsx', 'ppt', 'pptx', 'potm','xbm', 'tif', 'jfif', 'ico', 'gif', 'svg', 'jpg', 'jpeg', 'png', 'webp', 'bmp', 'pjp', 'apng', 'pjpeg', 'avif'):
+                messages.error(request, "Nepodporovaný typ súboru")
+                return redirect('create-room')
+            
             form = RoomForm(request.POST or None, request.FILES or None)
             topic_name = request.POST.get('topic')
             topic, _ = Topic.objects.get_or_create(name=topic_name)
@@ -524,6 +539,10 @@ def updateRoom(request: HttpRequest, pk):
             return fallback(request)
 
         if request.method == 'POST':
+            if request.FILES.get('file') and request.FILES.get('file').name.split(".")[-1] not in ('docx', 'pdf', 'xls', 'xlsx', 'ppt', 'pptx', 'potm','xbm', 'tif', 'jfif', 'ico', 'gif', 'svg', 'jpg', 'jpeg', 'png', 'webp', 'bmp', 'pjp', 'apng', 'pjpeg', 'avif'):
+                messages.error(request, "Nepodporovaný typ súboru")
+                return redirect('update-room', pk=room.pk)
+            
             form = RoomForm(request.POST,
                             request.FILES, instance=room)
             class_list = request.POST.getlist("limit_for")
@@ -542,10 +561,11 @@ def updateRoom(request: HttpRequest, pk):
                 return render(request, 'base/room_form.html', context)
 
             room.save()
-            return redirect('home')
+            print(context)
+            return redirect('room', pk=room.pk)
 
     except Exception as e:
-        print(f"{e.with_traceback()=}")
+        print(e)
         return fallback(request)
 
     return render(request, 'base/room_form.html', context)
@@ -609,11 +629,12 @@ def updateUser(request: HttpRequest):
                 lst = tuple(*form.errors.as_data().values())
                 for error in lst:
                     if "100 characters" in error.messages[0]:
-                        messages.error(request, "Uisti sa, že názov súboru má najviac 100 znakov")
+                        messages.error(
+                            request, "Uisti sa, že názov súboru má najviac 100 znakov")
                         continue
-                    
+
                     messages.error(request, *error)
-                
+
     except Exception as e:
         print(e)
         return fallback(request, "Niečo neočakávané sa stalo.")

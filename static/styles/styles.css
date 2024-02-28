@@ -313,22 +313,56 @@ a {
   color: var(--color-light);
 }
 
-.btn--mobile-scroll {
-  display: none;
+span#bottomRight {
   position: fixed;
-  bottom: 20px;
-  right: 30px;
+  bottom: .5rem;
+  right: 3rem;
+  display: flex;
+  padding: 1rem;
+  width: fit-content;
+  justify-content: space-evenly;
+}
+
+span#bottomRight>.btn--mobile-scroll {
+  display: none;
   z-index: 99;
   font-size: 18px;
+  margin: 0 1rem;
   border: none;
   outline: none;
   background-color: rgba(90, 88, 88, 0.401);
   color: white;
   cursor: default;
   padding: 15px;
-  height: auto;
+  height: 50px;
   width: 50px;
   border-radius: 50%;
+}
+
+span#bottomRight>a {
+  display: block;
+  color: var(--color-bg) !important;
+  z-index: 9;
+  font-size: 14px;
+  border: none;
+  outline: none;
+  background-color: var(--color-light);
+  cursor: pointer;
+  padding: 13px;
+  height: 50px;
+  border-radius: 30px;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+@media screen and (max-width: 900px) {
+  span#bottomRight>a {
+    display: none;
+  }
 }
 
 .btn--new-class {
@@ -1390,6 +1424,8 @@ body>main>div>div>div.layout__body>form>div:nth-child(5)>div>div.selector-availa
 #id_users_add_link,
 #id_users_remove_link {
   opacity: 0.88;
+  background-color: white;
+  border-radius: 50%;
 }
 
 
@@ -1672,8 +1708,7 @@ input.reply-text:focus {
   }
 
   .roomInputForm>input[name=body] {
-    width: 95%;
-    margin-left: 3%;
+    width: 87%;
   }
 }
 
@@ -1802,6 +1837,12 @@ input.reply-text:focus {
   padding: 0 2rem 4rem 2rem;
 }
 
+@media screen and (min-height: 900px) {
+  .room__conversation{
+    height: 50dvh;
+  }
+}
+
 .thread {
   border-left: 2px solid var(--color-dark);
   padding-left: 1rem;
@@ -1925,6 +1966,11 @@ ul.messages li[class="40"] {
   background: transparent;
 }
 
+.roomInputForm {
+  display: flex;
+  justify-content: space-evenly;
+}
+
 .room__message>form>input {
   resize: none;
   background-color: var(--color-light);
@@ -1933,7 +1979,7 @@ ul.messages li[class="40"] {
   outline: none;
   border-radius: 1rem;
   height: 4.5rem;
-  width: 100%;
+  width: 93%;
   margin-top: -1rem;
   padding: 1.2rem;
   font-weight: 500;

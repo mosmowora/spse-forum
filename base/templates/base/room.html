@@ -118,8 +118,10 @@
         {% endif %}
         <div class="room__conversation">
           <div>
-            {% if room.file.url is not None %}
+            {% if room.file.url is not None and file_type == "image" %}
             <img src="{{room.file.url}}" alt="room_image">
+            {% elif room.file.url is not None and file_type == "file" %}
+            <a href="{{room.file.url}}" style="height: 2rem; margin-top: 4rem;">{{room.file.name}}</a>
             {% endif %}
           </div>
           <div class="threads scroll">
@@ -251,7 +253,8 @@
           <div class="room__message">
             <form action="" method="POST" class="roomInputForm">
               {% csrf_token %}
-              <input name="body" placeholder="Chcem sa vyjadriť..." />
+              <input id="charsLeft" name="body" placeholder="Chcem sa vyjadriť..." maxlength="150" />
+              <div id="charsLeftText" style="font-size: 1.8rem; display: none; font-weight: 600;"></div>
             </form>
           </div>
         </div>
@@ -293,6 +296,23 @@
     <!--  End -->
   </div>
 </main>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+<script>
+  $('#charsLeft').on('input', function (evt) {
+    var len = evt.target.value.length;
+    var element = $("#charsLeftText");
+    
+    if (len > 10) {
+      element.css("display", "block");
+      element.css("height", "3rem");
+      element.css("width", "3rem");
+      element.html(`${150 - len}`);
+    }
+    else {
+      element.css("display", "none");
+    }
+  });
+</script>
 <!-- <script type="module">
   import devtools from "{% static 'js/node_modules/devtools-detect/index.js' %}";
 

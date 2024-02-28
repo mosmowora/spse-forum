@@ -61,7 +61,7 @@
 <script>
     const classes = "{{classes}}".split(", ").map((item) => item.replace("&lt;", "").replace("&gt;", "").replace("FromClass: ", "").replace("(", "").replace(")", ""));
     $('#id_set_class').on('input', function (evt) {
-        var value = evt.target.value
+        var value = evt.target.value;
 
         if (value.length === 0) {
             evt.target.className = '';

@@ -20,6 +20,7 @@ urlpatterns = [
     path('upvote-message/<str:pk>/', views.upvoteMessage, name="upvote-message"),
 
     path('update-user/', views.updateUser, name="update-user"),
+    path('needs-update/', views.needsUpdate, name="needs-update"),
     path('delete-user/', views.deleteUser, name="delete-user"),
 
     path('topics/', views.topicsPage, name="topics"),

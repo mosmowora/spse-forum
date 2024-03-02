@@ -299,6 +299,31 @@ a {
   text-decoration: underline;
 }
 
+.popup-overlay {
+  position: fixed; /* Stay in place */
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0,0,0,0.65); /* Black background with opacity */
+  display: flex;
+  align-items: center; /* Align vertically */
+  justify-content: center; /* Align horizontally */
+  z-index: 999;
+}
+
+/* Style for the popup content */
+.popup-content {
+  background-color: #fff; /* White background */
+  padding: 20px; /* Some padding */
+  border-radius: 8px; /* Rounded corners */
+  width: 50%; /* Width in proportion to the viewport */
+  max-width: 600px; /* Maximum width */
+  color: var(--color-bg);
+}
+
 .btn--main {
   background-color: var(--color-light);
   color: rgb(51, 51, 51);
@@ -1659,6 +1684,22 @@ div.room__topRight>a:nth-child(3)>svg {
   display: flex;
   width: 10%;
   margin-left: auto;
+}
+
+.flex-container {
+  display: flex; /* Use flexbox layout */
+  justify-content: center; /* Center items horizontally */
+  align-items: center; /* Center items vertically */
+  gap: 20px; /* Space between the items */
+  max-height: 3rem;
+}
+
+.number {
+  font-size: 24px; /* Larger text size for the numbers */
+}
+
+.arrow {
+  font-size: 50px; /* Ensure the arrow matches the size of the numbers */
 }
 
 input.reply-text {

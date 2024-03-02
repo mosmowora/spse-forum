@@ -1,6 +1,23 @@
 {% extends 'main.html' %}
 {% load static %}
 {% block content %}
+{% if needs_update %}
+<div class="popup-overlay">
+  <div class="popup-content">
+    {% if next_class %}
+    <p style="text-align-last: left; text-align: justify;">Nový školský rok 😁. S touto zmenou je potrebné si
+      aktualizovať pár vecí na stránke, ktoré zabezpečia jej správne
+      fungovanie. Kliknutím na tlačidlo sa presunieš na stránku, kde uvidíš všetky potrebné položky, ktoré je nutné
+      aktualizovať.</p>
+    <a href="{% url 'needs-update' %}" class="btn btn--main" style="margin-top: 2rem; color: #000;">Skontrolovať</a>
+    {% else %}
+    <p style="text-align-last: left; text-align: justify;">Verím že fórum ti spríjemnilo štúdium no bohužiaľ tu tvoj
+      príbeh na SPŠE končí a začína nový tam kde si vyberieš. O všetko čo bolo na fóre je postarané. Veľa úspechov
+      prajem.</p>
+    {% endif %}
+  </div>
+</div>
+{% endif %}
 
 <div
   class="termsfeed-com---reset termsfeed-com---nb termsfeed-com---palette-light termsfeed-com---nb-simple termsfeed-com---lang-sk"
@@ -20,12 +37,13 @@
     </div>
     <div class="cc-nb-buttons-container">
       <button class="cc-nb-okagree" role="button" onclick="consentGranted()">Rozumiem</button>
-      <button class="cc-nb-okinfo" role="button" onclick="window.open('https:\\\\www.osobnyudaj.sk/informovanie/161829/sk/zakladne-informacie')">GDPR</button>
+      <button class="cc-nb-okinfo" role="button"
+        onclick="window.open('https:\\\\www.osobnyudaj.sk/informovanie/161829/sk/zakladne-informacie')">GDPR</button>
     </div>
   </div>
 </div>
 
-<main class="layout layout--3">
+<main class="layout layout--3" {% if needs_update %} style="pointer-events: none;" {% endif %}>
   <div class="container">
 
     <!-- Topics Start -->

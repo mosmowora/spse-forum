@@ -20,12 +20,10 @@ from .forms import (
 )
 from online_users.models import OnlineUserActivity
 from urllib.parse import quote, unquote
-from PIL import Image
 # Create your views here.
 
 ENCRYPTION_MAGIC = 12
-
-
+    
 def loginPage(request: HttpRequest):
     """
     Login page form
@@ -88,7 +86,12 @@ def home(request: HttpRequest):
     q = request.GET.get('q') if request.GET.get('q') != None else ''
     request.session.set_expiry(timedelta(hours=6))
     request.session.clear_expired()
+    user = request.user
     rooms = None
+    try:
+        next_class = FromClass.objects.filter(Q(id__lt=25)).get(pk=user.from_class.first().pk + 6)
+    except FromClass.DoesNotExist:
+        next_class = None
     if not isinstance(request.user, AnonymousUser):
         if request.user.is_staff:
             rooms = Room.objects.filter(
@@ -129,8 +132,11 @@ def home(request: HttpRequest):
             message.room.name = 'neznáme'
 
     context = {'rooms': rooms, 'topics': tuple(filter(lambda x: x.room_set.all().count() != 0, topics)), 'show_topics': tuple(filter(lambda y: y.room_set.all().count() != 0, sorted(topics, key=lambda x: x.room_set.all().count(), reverse=True)))[:3],
-               'room_count': room_count, 'room_messages': room_messages[:3], 'active_users': active_users}
+               'room_count': room_count, 'room_messages': room_messages[:3], 'active_users': active_users, 'next_class': next_class}
 
+    if datetime.date.today().month >= 2:
+        context['needs_update'] = True
+    
     return render(request, 'base/home.html', context)
 
 
@@ -428,11 +434,10 @@ def changePassword(request: HttpRequest):
                     got_user.token_created = datetime.datetime.now() + datetime.timedelta(hours=1)
                     got_user.save()
                 except Exception:
-                    created = EmailPasswordVerification.objects.create(
+                    EmailPasswordVerification.objects.create(
                         user=student,
                         token_created=datetime.datetime.now() + datetime.timedelta(hours=1)
                     )
-                    print(created)
                 return render(request, 'base/home.html')
 
             else:
@@ -611,6 +616,15 @@ def deleteMessage(request, pk):
 
 
 @login_required(login_url='login', redirect_field_name=None)
+def needsUpdate(request: HttpRequest):
+    user = request.user
+    try:
+        next_class = FromClass.objects.filter(Q(id__lt=25)).get(pk=user.from_class.first().pk + 6)
+    except FromClass.DoesNotExist:
+        next_class = None
+    return render(request, "base/needs_update.html", {'from_class': user.from_class.first().set_class, 'next_class': next_class, 'user_rooms': user.room_set.all()})
+
+@login_required(login_url='login', redirect_field_name=None)
 def updateUser(request: HttpRequest):
     """
     Site for updating the user's info
@@ -631,6 +645,10 @@ def updateUser(request: HttpRequest):
                     if "100 characters" in error.messages[0]:
                         messages.error(
                             request, "Uisti sa, že názov súboru má najviac 100 znakov")
+                        continue
+                    elif error.code == 'invalid_image':
+                        messages.error(
+                            request, "Uisti sa, že súbor je obrázok")
                         continue
 
                     messages.error(request, *error)

@@ -75,7 +75,7 @@
             {% else %}
             <a class="btn btn--dark" href="{{request.META.HTTP_REFERER}}">Storno</a>
             {% endif %}
-            <button class="btn btn--main" type="submit">Vytvoriť</button>
+            <a class="btn btn--main" type="submit" {% if needs_update_back %} href="{% url 'needs-update' %}" {% else %} href="{% url 'room' room.id %}" {% endif %}>Vytvoriť</a>
           </div>
         </form>
       </div>

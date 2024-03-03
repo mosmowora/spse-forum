@@ -2,6 +2,7 @@ from typing import Any
 from django import forms
 from django.forms import ModelForm
 from django.contrib.auth.forms import UserCreationForm
+from django.db.models import Q
 from .models import FromClass, Message, Room, Topic, User
 from django.contrib.admin.widgets import FilteredSelectMultiple
 
@@ -86,6 +87,16 @@ class ReplyForm(ModelForm):
         }
 
 
+class UpdateClassForm(ModelForm):
+    
+    set_class = forms.ModelChoiceField(
+        queryset=FromClass.objects.filter(custom=False),
+        widget=forms.Select
+    )
+    
+    class Meta:
+        model = FromClass
+        fields = ['set_class']
 class NewClassForm(ModelForm):
 
     name = forms.CharField(

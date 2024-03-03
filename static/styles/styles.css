@@ -329,6 +329,12 @@ a {
   color: rgb(51, 51, 51);
 }
 
+.btn--red {
+  background-color: #e62143;
+  color: var(--color-light);
+  font-weight: 700;
+}
+
 .btn:hover {
   opacity: 0.9;
 }
@@ -1687,19 +1693,27 @@ div.room__topRight>a:nth-child(3)>svg {
 }
 
 .flex-container {
-  display: flex; /* Use flexbox layout */
-  justify-content: center; /* Center items horizontally */
-  align-items: center; /* Center items vertically */
-  gap: 20px; /* Space between the items */
+  display: flex;
+}
+
+.flex-container.column {
+  flex-direction: column;
+}
+
+
+.flex-container.center {
+  justify-content: center;
   max-height: 3rem;
+  align-items: center;
+  gap: 20px;
+}
+
+.flex-container.evenly {
+  justify-content: space-evenly;
 }
 
 .number {
-  font-size: 24px; /* Larger text size for the numbers */
-}
-
-.arrow {
-  font-size: 50px; /* Ensure the arrow matches the size of the numbers */
+  font-size: 24px;
 }
 
 input.reply-text {

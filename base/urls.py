@@ -28,5 +28,6 @@ urlpatterns = [
     
     path('error/', views.fallback, name="fallback"),
     path('new-class/', views.newClass, name="new-class"),
+    path('update-class/', views.updateClass, name="update-class"),
     path('email-response/<str:pk>/<str:password>/', views.mailResponse, name="mail-response"),
 ]

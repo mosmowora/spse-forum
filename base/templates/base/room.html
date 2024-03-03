@@ -6,7 +6,7 @@
 <main class="profile-page layout layout--2">
   <div class="container">
     <!-- Room Start -->
-    <div class="room" {% if room.file.url is not None %} style="overflow-y: scroll;" {% else %}
+    <div class="room" {% if room.file.url is not None %} style="overflow-y: auto;" {% else %}
       style="overflow-y: hidden;" {% endif %}>
       <div class="room__top">
         <div class="room__topLeft">
@@ -298,6 +298,12 @@
 </main>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 <script>
+  if (window.innerHeight >= 900 && "{{file_type}}" === "file") {
+    $(".room").css("overflow-y", "hidden");
+  }
+  else {
+    $(".room").css("overflow-y", "auto");
+  }
   $('#charsLeft').on('input', function (evt) {
     var len = evt.target.value.length;
     var element = $("#charsLeftText");

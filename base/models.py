@@ -10,10 +10,11 @@ class FromClass(models.Model):
 
     def __str__(self) -> str:
         return self.set_class
-    
+
     class Meta:
         verbose_name = r"Triedu/skupinu"
         verbose_name_plural = "Triedy a skupiny"
+
 
 class EmailPasswordVerification(models.Model):
     user = models.ForeignKey('base.User', on_delete=models.CASCADE)
@@ -26,15 +27,18 @@ def validate_image(image):
     print(image.file.name)
 
     if file_size > limit_mb * 1024 * 1024:
-       raise ValidationError(f"Najväčšia veľkosť súboru je {limit_mb} MB")
+        raise ValidationError(f"Najväčšia veľkosť súboru je {limit_mb} MB")
+
 
 class User(AbstractUser, PermissionsMixin):
     name = models.CharField(max_length=50, null=True, db_column="Meno")
     email = models.EmailField(unique=True, null=True)
     bio = models.TextField(null=True, blank=True)
-    avatar = models.ImageField(null=True, blank=True, verbose_name='avatar', validators=[validate_image])
-    school_year = models.CharField(max_length=50, null=True)
-    registered_groups = models.ManyToManyField(FromClass, related_name="registered_groups")
+    avatar = models.ImageField(
+        null=True, blank=True, verbose_name='avatar', validators=[validate_image])
+    updated_profile = models.BooleanField(null=False, default=True)
+    registered_groups = models.ManyToManyField(
+        FromClass, related_name="registered_groups")
 
     from_class = models.ManyToManyField(
         FromClass, related_name='from_class'
@@ -44,11 +48,11 @@ class User(AbstractUser, PermissionsMixin):
 
     def __str__(self) -> str:
         return self.email
-    
+
     @property
     def users_name(self) -> str:
         return self.name
-    
+
     class Meta:
         verbose_name = "Užívateľ"
         verbose_name_plural = "Užívatelia"
@@ -59,8 +63,7 @@ class Topic(models.Model):
 
     def __str__(self):
         return self.name
-    
-    
+
     class Meta:
         verbose_name = "Téma diskusie"
         verbose_name_plural = "Témy diskusií"
@@ -75,8 +78,10 @@ class Room(models.Model):
         User, related_name='participants', blank=True)
     updated = models.DateTimeField(auto_now=True)
     created = models.DateTimeField(auto_now_add=True)
-    subscribing = models.ManyToManyField(User, related_name="subscribing_rooms")
-    file = models.ImageField(null=True, blank=True, verbose_name='room_image', max_length=512, upload_to="files/", validators=[validate_image])
+    subscribing = models.ManyToManyField(
+        User, related_name="subscribing_rooms")
+    file = models.ImageField(null=True, blank=True, verbose_name='room_image',
+                             max_length=512, upload_to="files/", validators=[validate_image])
 
     pinned = models.BooleanField(null=False, default=False)
     limited_for = models.ManyToManyField(
@@ -93,11 +98,11 @@ class Room(models.Model):
     def messages(self):
         return [
             {
-                "id": m.id, 
-                "author": m.user.id, 
+                "id": m.id,
+                "author": m.user.id,
                 "body": m.body,
-                "created_at": m.created, 
-                "total_likes": m.total_upvotes(), 
+                "created_at": m.created,
+                "total_likes": m.total_upvotes(),
                 "parent": None if m.parent is None else m.parent.id
             }
             for m in self.message_set.all()

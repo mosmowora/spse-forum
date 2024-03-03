@@ -16,14 +16,16 @@ from .models import (
 )
 from .forms import (
     ChangePasswordForm, NewClassForm,
-    ReplyForm, RoomForm, UserCreationForm, UserForm
+    ReplyForm, RoomForm, UpdateClassForm, UserCreationForm, UserForm
 )
 from online_users.models import OnlineUserActivity
 from urllib.parse import quote, unquote
 # Create your views here.
 
 ENCRYPTION_MAGIC = 12
-    
+ALL_CLASSES = FromClass.objects.filter(custom=False)
+
+
 def loginPage(request: HttpRequest):
     """
     Login page form
@@ -88,10 +90,10 @@ def home(request: HttpRequest):
     request.session.clear_expired()
     user = request.user
     rooms = None
-    try:
-        next_class = FromClass.objects.filter(Q(id__lt=25)).get(pk=user.from_class.first().pk + 6)
-    except FromClass.DoesNotExist:
-        next_class = None
+    next_class = None
+    topics = Topic.objects.all()
+    room_messages = Message.objects.all()
+
     if not isinstance(request.user, AnonymousUser):
         if request.user.is_staff:
             rooms = Room.objects.filter(
@@ -106,8 +108,23 @@ def home(request: HttpRequest):
                 Q(limited_for__in=request.user.from_class.all()) |
                 Q(host=request.user)
             ).distinct()
+
+            room_messages = sorted(room_messages.filter(
+                Q(room__limited_for__in=request.user.from_class.all())
+            ), key=lambda x: x.created, reverse=True)
+
+        try:
+            next_class = FromClass.objects.get(pk=user.from_class.filter(
+                Q(set_class__in=ALL_CLASSES)).first().pk + 6)
+        except FromClass.DoesNotExist:
+            next_class = None
+
     else:
         rooms = Room.objects.none()
+        for message in room_messages:
+            message.user.username = '????'
+            message.body = '????'
+            message.room.name = 'neznáme'
 
     activities = OnlineUserActivity.get_user_activities(
         time_delta=timedelta(seconds=30))
@@ -115,29 +132,42 @@ def home(request: HttpRequest):
     active_users = User.objects.filter(
         id__in=map(lambda u: u.user_id, activities)
     )
-
     room_count = rooms.count()
-    topics = Topic.objects.all()
-    room_messages = Message.objects.all()
-
-    if not isinstance(request.user, AnonymousUser) and not request.user.is_staff:
-        room_messages = sorted(room_messages.filter(
-            Q(room__limited_for__in=request.user.from_class.all())
-        ), key=lambda x: x.created, reverse=True)
-
-    elif isinstance(request.user, AnonymousUser):
-        for message in room_messages:
-            message.user.username = '????'
-            message.body = '????'
-            message.room.name = 'neznáme'
 
     context = {'rooms': rooms, 'topics': tuple(filter(lambda x: x.room_set.all().count() != 0, topics)), 'show_topics': tuple(filter(lambda y: y.room_set.all().count() != 0, sorted(topics, key=lambda x: x.room_set.all().count(), reverse=True)))[:3],
                'room_count': room_count, 'room_messages': room_messages[:3], 'active_users': active_users, 'next_class': next_class}
 
-    if datetime.date.today().month >= 2:
+    # FIXME change second to 7
+    if not user.is_anonymous and (9 >= datetime.date.today().month >= 7) and not user.updated_profile and not user.is_staff:
         context['needs_update'] = True
-    
+        for user in User.objects.filter(is_staff=False):
+            user.updated_profile = False
+            user.save()
+
     return render(request, 'base/home.html', context)
+
+
+def updateClass(request: HttpRequest):
+    form = UpdateClassForm(request.POST)
+    user = request.user
+    new_class = None
+    if request.method == 'POST':
+        user = User.objects.get(pk=request.user.pk)
+        try:
+            new_class = FromClass.objects.get(
+                pk=int(request.POST.get('set_class')))
+        except TypeError:
+            new_class = None
+
+        if new_class not in user.from_class.all():
+            old_class = user.from_class.filter(custom=False).first()
+            user.from_class.add(new_class)
+            user.from_class.set(user.from_class.exclude(pk=old_class.pk))
+            return redirect('needs-update')
+        else:
+            messages.error(request, "Už patríš do tejto skupiny")
+
+    return render(request, 'base/update-class.html', {'form': form, 'from_class': user.from_class.first().set_class, 'user_rooms': user.room_set.all(), 'done_class': True})
 
 
 def newClass(request: HttpRequest):
@@ -220,7 +250,7 @@ def room(request: HttpRequest, pk):
         upvoted_messages: dict[Message, bool] = {}
 
         back: str = request.META.get('HTTP_REFERER')
-        back = any(x in ('room', 'error', 'delete-message', 'upvote-message')
+        back = any(x in ('room', 'error', 'delete-message', 'upvote-message', 'update-room')
                    for x in back.split("/")) if back is not None else None
 
         for message in room_messages:
@@ -236,9 +266,9 @@ def room(request: HttpRequest, pk):
         )
         context = {'room': room, 'room_messages': room_messages, 'amount_of_messages': len(room_messages),
                    'participants': participants, 'upvoted_messages': upvoted_messages, 'active_users': active_users, 'back': back}
-        
+
         if room.file and room.file.name.split(".")[-1] in ('docx', 'pdf', 'xls', 'xlsx', 'ppt', 'pptx', 'potm'):
-                context['file_type'] = "file"
+            context['file_type'] = "file"
         elif room.file and room.file.name.split(".")[-1] in ('xbm', 'tif', 'jfif', 'ico', 'gif', 'svg', 'jpg', 'jpeg', 'png', 'webp', 'bmp', 'pjp', 'apng', 'pjpeg', 'avif'):
             context['file_type'] = "image"
 
@@ -486,10 +516,10 @@ def createRoom(request: HttpRequest):
         context = {'form': form, 'topics': topics}
 
         if request.method == 'POST':
-            if request.FILES.get('file') and request.FILES.get('file').name.split(".")[-1] not in ('docx', 'pdf', 'xls', 'xlsx', 'ppt', 'pptx', 'potm','xbm', 'tif', 'jfif', 'ico', 'gif', 'svg', 'jpg', 'jpeg', 'png', 'webp', 'bmp', 'pjp', 'apng', 'pjpeg', 'avif'):
+            if request.FILES.get('file') and request.FILES.get('file').name.split(".")[-1] not in ('docx', 'pdf', 'xls', 'xlsx', 'ppt', 'pptx', 'potm', 'xbm', 'tif', 'jfif', 'ico', 'gif', 'svg', 'jpg', 'jpeg', 'png', 'webp', 'bmp', 'pjp', 'apng', 'pjpeg', 'avif'):
                 messages.error(request, "Nepodporovaný typ súboru")
                 return redirect('create-room')
-            
+
             form = RoomForm(request.POST or None, request.FILES or None)
             topic_name = request.POST.get('topic')
             topic, _ = Topic.objects.get_or_create(name=topic_name)
@@ -539,15 +569,18 @@ def updateRoom(request: HttpRequest, pk):
         if request.META.get("HTTP_REFERER") is not None:
             context['back'] = any(
                 x == 'update-room' for x in request.META['HTTP_REFERER'].split("/"))
+            print(request.META.get("HTTP_REFERER"))
+            if "needs-update" in request.META.get("HTTP_REFERER") or "update-class" in request.META.get("HTTP_REFERER"):
+                context['needs_update_back'] = True
 
         if request.user != room.host and not request.user.is_staff:
             return fallback(request)
 
         if request.method == 'POST':
-            if request.FILES.get('file') and request.FILES.get('file').name.split(".")[-1] not in ('docx', 'pdf', 'xls', 'xlsx', 'ppt', 'pptx', 'potm','xbm', 'tif', 'jfif', 'ico', 'gif', 'svg', 'jpg', 'jpeg', 'png', 'webp', 'bmp', 'pjp', 'apng', 'pjpeg', 'avif'):
+            if request.FILES.get('file') and request.FILES.get('file').name.split(".")[-1] not in ('docx', 'pdf', 'xls', 'xlsx', 'ppt', 'pptx', 'potm', 'xbm', 'tif', 'jfif', 'ico', 'gif', 'svg', 'jpg', 'jpeg', 'png', 'webp', 'bmp', 'pjp', 'apng', 'pjpeg', 'avif'):
                 messages.error(request, "Nepodporovaný typ súboru")
                 return redirect('update-room', pk=room.pk)
-            
+
             form = RoomForm(request.POST,
                             request.FILES, instance=room)
             class_list = request.POST.getlist("limit_for")
@@ -566,7 +599,6 @@ def updateRoom(request: HttpRequest, pk):
                 return render(request, 'base/room_form.html', context)
 
             room.save()
-            print(context)
             return redirect('room', pk=room.pk)
 
     except Exception as e:
@@ -582,14 +614,18 @@ def deleteRoom(request: HttpRequest, pk):
     Site for room deletion
     """
     room = Room.objects.get(id=pk)
-
+    context = {'obj': room, 'back': any(
+        x == 'delete-room' for x in request.META['HTTP_REFERER'].split("/"))}
     if request.user != room.host and not request.user.is_staff:
         return fallback(request)
 
     if request.method == 'POST':
         room.delete()
+        if "needs-update" in request.META.get("HTTP_REFERER"):
+            context['needs_update_back'] = True
+            return redirect('needs-update')
         return redirect('home')
-    return render(request, 'base/delete.html', {'obj': room, 'back': any(x == 'delete-room' for x in request.META['HTTP_REFERER'].split("/"))})
+    return render(request, 'base/delete.html', context)
 
 
 @login_required(login_url='login')
@@ -618,11 +654,14 @@ def deleteMessage(request, pk):
 @login_required(login_url='login', redirect_field_name=None)
 def needsUpdate(request: HttpRequest):
     user = request.user
-    try:
-        next_class = FromClass.objects.filter(Q(id__lt=25)).get(pk=user.from_class.first().pk + 6)
-    except FromClass.DoesNotExist:
-        next_class = None
-    return render(request, "base/needs_update.html", {'from_class': user.from_class.first().set_class, 'next_class': next_class, 'user_rooms': user.room_set.all()})
+
+    if request.method == "POST":
+        user.updated_profile = True
+        user.save()
+        return redirect('home')
+
+    return render(request, "base/needs_update.html", {'from_class': user.from_class.first().set_class, 'user_rooms': user.room_set.all()})
+
 
 @login_required(login_url='login', redirect_field_name=None)
 def updateUser(request: HttpRequest):

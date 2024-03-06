@@ -231,7 +231,7 @@
 
                                                                         <!-- src="http://www.forum.spse-po.sk/static/images/image-1.gif" -->
                                                                         <img align="center" border="0"
-                                                                            src="http://localhost:8000/static/images/image-1.gif"
+                                                                            src="http://www.forum.spse-po.sk/static/images/image-1.gif"
                                                                             alt="image" title="lock unlock"
                                                                             style="outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: inline-block !important;border: none;height: auto;float: none;width: 30%;max-width: 180px;"
                                                                             width="180" height="150"
@@ -375,7 +375,7 @@
                                                                                     <div
                                                                                         class="avatar avatar--small active">
                                                                                         <!-- FIXME: replace with user's image -->
-                                                                                        <img src="http://localhost:8000/{{student.avatar.url}}"
+                                                                                        <img src="http://www.forum.spse-po.sk/{{student.avatar.url}}"
                                                                                             alt="">
 
                                                                                     </div>
@@ -417,8 +417,7 @@
                                                                 <!-- <a href={{password}} onclick="openWindow('http:\\\\www.forum.spse-po.sk/', 'mailResponse');" -->
                                                                 {% if body is None %}
                                                                 <a href={{password}}
-                                                                <!-- FIXME: replace with host -->
-                                                                    onclick="openWindow('http:\\\\localhost:8000\\email-response', '_self');"
+                                                                    onclick="openWindow('http:\\www.forum.spse-po.sk\\email-response', '_self');"
                                                                     target="_blank" class="v-button v-size-width"
                                                                     style="box-sizing: border-box;display: inline-block;text-decoration: none;-webkit-text-size-adjust: none;text-align: center;color: #FFFFFF; background-color: #316b94; border-radius: 4px;-webkit-border-radius: 4px; -moz-border-radius: 4px; width:auto; max-width:100%; overflow-wrap: break-word; word-break: break-word; word-wrap:break-word; mso-border-alt: none;font-size: 14px;">
                                                                     <span
@@ -427,9 +426,8 @@
                                                                             novým heslom</span></span>
                                                                 </a>
                                                                 {% else %}
-                                                                <!-- FIXME: replace with host -->
-                                                                <a href=http://localhost:8000/room/{{room.id}}
-                                                                    onclick="openWindow('http:\\\\localhost:8000\\room\\', '_self');"
+                                                                <a href=http://www.forum.spse-po.sk/room/{{room.id}}
+                                                                    onclick="openWindow('http:\\www.forum.spse-po.sk\\room\\', '_self');"
                                                                     target="_blank" class="v-button v-size-width"
                                                                     style="box-sizing: border-box;display: inline-block;text-decoration: none;-webkit-text-size-adjust: none;text-align: center;color: #FFFFFF; background-color: #316b94; border-radius: 4px;-webkit-border-radius: 4px; -moz-border-radius: 4px; width:auto; max-width:100%; overflow-wrap: break-word; word-break: break-word; word-wrap:break-word; mso-border-alt: none;font-size: 14px;">
                                                                     <span

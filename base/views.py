@@ -510,15 +510,18 @@ def changePassword(request: HttpRequest):
                 except Exception:
                     messages.error(request, "Užívateľ neexistuje")
                     return redirect('change-password')
-                password = f'http://localhost:8000/email-response/{student.pk}/{quote(quote(encrypt(request.POST.get("password1")), encoding="utf-8"), safe=":/")}'
-                # password = f'http://www.forum.spse-po.sk/email-response/{student.pk}/{quote(quote(encrypt(request.POST.get("password1")), encoding="utf-8"), safe=":/")}'
+                # password = f'http://localhost:8000/email-response/{student.pk}/{quote(quote(encrypt(request.POST.get("password1")), encoding="utf-8"), safe=":/")}'
+                password = f'http://www.forum.spse-po.sk/email-response/{student.pk}/{quote(quote(encrypt(request.POST.get("password1")), encoding="utf-8"), safe=":/")}'
                 htmly = get_template('base/email_template.html')
                 html_content = htmly.render(
                     {'student': student, 'password': password})
                 msg = EmailMultiAlternatives(
                     "SPŠE Forum zabudnuté heslo", "SPŠE Forum zabudnuté heslo", "tomas.nosal04@gmail.com", (request.POST.get("email"),))
                 msg.attach_alternative(html_content, "text/html")
-                msg.send(fail_silently=False)
+                try:
+                    msg.send(fail_silently=False)
+                except Exception:
+                    messages.error(request, "Nastala chyba pri poslaní emailu")
                 messages.info(request, "Bol ti zaslaný potvrdzovací email")
                 try:
                     got_user = EmailPasswordVerification.objects.get(

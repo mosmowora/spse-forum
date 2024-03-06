@@ -88,7 +88,7 @@ def home(request: HttpRequest):
     q = request.GET.get('q') if request.GET.get('q') != None else ''
     request.session.set_expiry(timedelta(hours=6))
     request.session.clear_expired()
-    user = request.user
+    user = User.objects.get(pk=request.user.id)
     rooms = None
     next_class = None
     topics = Topic.objects.all()
@@ -137,8 +137,7 @@ def home(request: HttpRequest):
     context = {'rooms': rooms, 'topics': tuple(filter(lambda x: x.room_set.all().count() != 0, topics)), 'show_topics': tuple(filter(lambda y: y.room_set.all().count() != 0, sorted(topics, key=lambda x: x.room_set.all().count(), reverse=True)))[:3],
                'room_count': room_count, 'room_messages': room_messages[:3], 'active_users': active_users, 'next_class': next_class}
 
-    # FIXME change second to 7
-    if not user.is_anonymous and (9 >= datetime.date.today().month >= 7) and not user.updated_profile and not user.is_staff:
+    if not user.is_anonymous and (9 >= datetime.date.today().month >= 2) and not user.updated_profile:
         context['needs_update'] = True
         for user in User.objects.filter(is_staff=False):
             user.updated_profile = False
@@ -147,7 +146,17 @@ def home(request: HttpRequest):
     return render(request, 'base/home.html', context)
 
 
-def updateClass(request: HttpRequest):
+def updateGroups(request: HttpRequest):
+    return render(
+        request,
+        "base/update-groups.html",
+        {
+            'user_groups': request.user.registered_groups.all()
+        }
+    )
+
+
+def updateUserClass(request: HttpRequest):
     form = UpdateClassForm(request.POST)
     user = request.user
     new_class = None
@@ -210,6 +219,59 @@ def newClass(request: HttpRequest):
             messages.error(request, "Táto skupina už existuje!")
 
     return render(request, 'base/new_class_entry.html', {'form': form, "back": "register" in back_button, 'classes': tuple(FromClass.objects.all())})
+
+
+def updateGroup(request: HttpRequest, pk):
+    """
+    Form for updating an existing group
+    """
+    user = request.user
+    group = FromClass.objects.get(pk=pk)
+    users_in_group = User.objects.filter(from_class=group)
+    form = NewClassForm(instance=user,
+                        initial={
+                            'set_class': group.set_class
+                        },
+                        user=users_in_group
+                        )
+    back_button = request.META.get("HTTP_REFERER").split(
+        "/") if request.META.get("HTTP_REFERER") is not None else 'new-class'
+
+    if request.method == 'POST':
+        picked_users = tuple(map(lambda x: User.objects.get(
+            id=int(x)), request.POST.getlist("users")))
+        clazz = FromClass.objects.get(pk=pk)
+        clazz.set_class = request.POST.get("set_class")
+        clazz.custom = True
+        clazz.save()
+
+        old_users = User.objects.filter(from_class=clazz)
+        # Add new users
+        for user_in_class in picked_users:
+            if clazz not in user_in_class.from_class.all():
+                user_in_class.from_class.add(clazz)
+                print(f"Added {clazz} to user_in_class: {user_in_class}")
+
+        # Delete old users
+        # print(tuple(filter(lambda u: u not in picked_users, old_users)))
+        for old_user in tuple(filter(lambda u: u not in picked_users, old_users)):
+            old_user.from_class.set(old_user.from_class.exclude(id=clazz.id))
+
+        if clazz not in request.user.from_class.all():
+            print("Added author of the group")
+            request.user.from_class.add(clazz)
+
+        messages.success(request, "Úspešne aktualizovaná skupina")
+        return redirect("home")
+    return render(request, "base/new_class_entry.html", {'form': form, "back": "register" in back_button})
+
+
+def deleteGroup(request: HttpRequest, pk):
+    if request.method == "POST":
+        users = User.objects.filter(
+            Q(from_class__contains=FromClass.objects.get(pk=pk)))
+        print(users)
+    return render(request, "base/delete.html", {'group': FromClass.objects.get(pk=pk)})
 
 
 def pinRoom(request: HttpRequest, pk):
@@ -564,19 +626,18 @@ def updateRoom(request: HttpRequest, pk):
         form = RoomForm(instance=room)
         topics = Topic.objects.all()
         form['limit_for'].initial = room.limited_for.get_queryset()
-
         context = {'form': form, 'topics': topics, 'room': room}
-        if request.META.get("HTTP_REFERER") is not None:
-            context['back'] = any(
-                x == 'update-room' for x in request.META['HTTP_REFERER'].split("/"))
-            print(request.META.get("HTTP_REFERER"))
-            if "needs-update" in request.META.get("HTTP_REFERER") or "update-class" in request.META.get("HTTP_REFERER"):
-                context['needs_update_back'] = True
 
         if request.user != room.host and not request.user.is_staff:
             return fallback(request)
 
         if request.method == 'POST':
+            if request.META.get("HTTP_REFERER") is not None:
+                context['back'] = any(
+                    x == 'update-room' for x in request.META['HTTP_REFERER'].split("/"))
+                if not request.user.is_anonymous and (9 >= datetime.date.today().month >= 2) and not request.user.updated_profile:
+                    context['needs_update_back'] = True
+
             if request.FILES.get('file') and request.FILES.get('file').name.split(".")[-1] not in ('docx', 'pdf', 'xls', 'xlsx', 'ppt', 'pptx', 'potm', 'xbm', 'tif', 'jfif', 'ico', 'gif', 'svg', 'jpg', 'jpeg', 'png', 'webp', 'bmp', 'pjp', 'apng', 'pjpeg', 'avif'):
                 messages.error(request, "Nepodporovaný typ súboru")
                 return redirect('update-room', pk=room.pk)
@@ -599,6 +660,8 @@ def updateRoom(request: HttpRequest, pk):
                 return render(request, 'base/room_form.html', context)
 
             room.save()
+            if context.get('needs_update_back') is not None:
+                return redirect('needs-update')
             return redirect('room', pk=room.pk)
 
     except Exception as e:
@@ -619,10 +682,12 @@ def deleteRoom(request: HttpRequest, pk):
     if request.user != room.host and not request.user.is_staff:
         return fallback(request)
 
+
     if request.method == 'POST':
-        room.delete()
-        if "needs-update" in request.META.get("HTTP_REFERER"):
+        if not request.user.is_anonymous and (9 >= datetime.date.today().month >= 2) and not request.user.updated_profile:
             context['needs_update_back'] = True
+        room.delete()
+        if context.get("needs_update_back") is not None:
             return redirect('needs-update')
         return redirect('home')
     return render(request, 'base/delete.html', context)

@@ -46,7 +46,7 @@
             <label for="room_description">Popis</label>
             {{form.description}}
           </div>
-          
+
           {% if request.user.is_staff %}
           <div class="form__group">
             <label for="room_description">Pripnúť</label>
@@ -75,7 +75,11 @@
             {% else %}
             <a class="btn btn--dark" href="{{request.META.HTTP_REFERER}}">Storno</a>
             {% endif %}
-            <a class="btn btn--main" type="submit" {% if needs_update_back %} href="{% url 'needs-update' %}" {% else %} href="{% url 'room' room.id %}" {% endif %}>Vytvoriť</a>
+            {% if needs_update_back %}
+            <input class="btn btn--main" type="submit" href="{% url 'needs-update' %}" value="Vytvoriť"/>
+            {% else %}
+            <input class="btn btn--main" type="submit" href="{% url 'home' %}" value="Vytvoriť"/>
+            {% endif %}
           </div>
         </form>
       </div>

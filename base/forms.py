@@ -97,7 +97,7 @@ class UpdateClassForm(ModelForm):
     class Meta:
         model = FromClass
         fields = ['set_class']
-class NewClassForm(ModelForm):
+class   NewClassForm(ModelForm):
 
     name = forms.CharField(
         label='Tvoje Meno',
@@ -114,8 +114,20 @@ class NewClassForm(ModelForm):
     set_class = forms.CharField(
         max_length=30, label='Názov skupiny', required=True, widget=forms.TextInput())
     
-    users = forms.ModelMultipleChoiceField(User.objects.values_list("email", flat=True), widget=FilteredSelectMultiple("User", False, attrs={'rows':'2'}))
+    users = forms.ModelMultipleChoiceField(queryset=User.objects.all(), widget=FilteredSelectMultiple("User", False, attrs={'rows':'2'}))
     
+    def __init__(self, *args, **kwargs):
+        users = kwargs.pop('user', None)
+
+        initial = kwargs.get('initial', {})
+        if users:
+            initial.update({'users': users.all()})
+        kwargs['initial'] = initial
+
+        super(NewClassForm, self).__init__(*args, **kwargs)
+
+        # for field in _update_exclude:
+        #     self.fields.pop(field)
     class Meta:
         model = User
         fields = ['name', 'email']

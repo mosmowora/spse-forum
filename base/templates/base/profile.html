@@ -66,9 +66,11 @@
           <h2>
             Hosťované diskusie - {{user.room_set.count}}/10
           </h2>
-          <h2>
-            Vytvorené skupiny - {{user.registered_groups.count}}/5
-          </hľ>
+          <a href="{% url 'update-groups' %}">
+            <h2>
+              Vytvorené skupiny - {{user.registered_groups.count}}/5
+            </h2>
+          </a>
         </div>
       </div>
       {% include 'base/feed_component.html' %}

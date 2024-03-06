@@ -13,6 +13,7 @@
     {% else %}
     <p style="text-align-last: left; text-align: justify;">Verím že fórum ti spríjemnilo štúdium no bohužiaľ tu tvoj
       príbeh na SPŠE končí a začína nový tam kde si vyberieš. O všetko čo bolo na fóre je postarané. Prajem veľa úspechov.</p>
+      <a href="{% url 'delete-user' %}" class="btn--red btn" style="margin-top: 2rem;">Vymazať účet</a>
     {% endif %}
   </div>
 </div>
@@ -108,7 +109,8 @@
     <span id="bottomRight">
       <button class="btn--mobile-scroll" onclick="scrollToTop()">↑</button>
       <!-- TODO: add link to your site -->
-      <a class="btn--personal-site">© Tomáš Nosaľ</a>
+      <!-- <a class="btn--personal-site">© Tomáš Nosaľ</a> -->
+      <a class="btn--personal-site">SPŠE Fórum v0.1</a>
     </span>
     <a class="btn btn--main btn--pill btn--new-class" href="{% url 'new-class' %}">+ Skupina</a>
     <!-- Activities Start -->

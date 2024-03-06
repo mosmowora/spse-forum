@@ -19,24 +19,29 @@
                     <h3>Uprav si profil</h3>
                 </div>
             </div>
-            <div class="layout__body" style="overflow-y: auto;">
+            <div class="layout__body" style="overflow-y: hidden;">
                 <label style="font-size: larger;">Vyber novú triedu</label>
                 <div class="flex-container column" style="margin-bottom: 3rem;">
                     <div class="number">Aktuálne <strong>{{from_class}}</strong></div>
                     <a href="{% url 'update-class' %}" class="btn btn--main" style="width: fit-content;">Upraviť</a>
                 </div>
-                <label class="number" style="text-decoration: underline;"><strong>Tvoje diskusie</strong></label><br>
-                {% for room in user_rooms %}
-                <abbr title="{{room.name}}" style="text-decoration: none;"><a href="{% url 'room' room.pk %}"
-                        style="color: white;"><label style="font-size: larger; cursor: pointer;">{{forloop.counter}}:
-                            &nbsp; {{room.name}}</label></a></abbr>
-                <div style="margin-bottom: 2rem; margin-right: auto; margin-top: .5rem;">
-                    <a href="{% url 'update-room' room.pk %}" class="btn btn--main">Upraviť</a>
-                    <a href="{% url 'delete-room' room.pk %}" class="btn btn--red">Vymazať</a>
+                <label class="number" style="text-decoration: underline;"><strong>Tvoje
+                        diskusie</strong></label><br>
+                <div style="max-height: 30rem; overflow-y: auto;">
+                    {% for room in user_rooms %}
+                    <abbr title="{{room.name}}" style="text-decoration: none;"><a href="{% url 'room' room.pk %}"
+                            style="color: white;"><label
+                                style="font-size: larger; cursor: pointer;">{{forloop.counter}}:
+                                &nbsp; {{room.name}}</label></a></abbr>
+                    <div style="margin-bottom: 2rem; margin-right: auto; margin-top: .5rem;">
+                        <a href="{% url 'update-room' room.pk %}" class="btn btn--main">Upraviť</a>
+                        <a href="{% url 'delete-room' room.pk %}" class="btn btn--red">Vymazať</a>
+                    </div>
+                    {% endfor %}
                 </div>
-                {% endfor %}
             </div>
-            <form action="" method="POST" style="margin-left: auto; width: fit-content; margin-bottom: 2rem; margin-right: 3%;">
+            <form action="" method="POST"
+                style="margin-left: auto; width: fit-content; margin-bottom: 2rem; margin-right: 3%;">
                 {% csrf_token %}
                 <input type="submit" value="Potvrdiť" class="btn btn--main">
             </form>

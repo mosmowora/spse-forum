@@ -88,13 +88,14 @@ def home(request: HttpRequest):
     q = request.GET.get('q') if request.GET.get('q') != None else ''
     request.session.set_expiry(timedelta(hours=6))
     request.session.clear_expired()
-    user = User.objects.get(pk=request.user.id)
+    user = AnonymousUser()
     rooms = None
     next_class = None
     topics = Topic.objects.all()
     room_messages = Message.objects.all()
 
     if not isinstance(request.user, AnonymousUser):
+        user = User.objects.get(pk=request.user.id)
         if request.user.is_staff:
             rooms = Room.objects.filter(
                 (Q(topic__name__iexact=q) if q != '' else Q(topic__name__icontains=q)) |

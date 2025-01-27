@@ -59,11 +59,11 @@
           <h3>Register</h3>
         </div>
       </div>
-      <div class="layout__body">
+      <div class="layout__body" style="overflow: auto;">
         <h2 class="auth__tagline">Spýtaj sa a četuj s každým zo školy</h2>
 
         <form class="form" action="" method="POST"
-          style="display: block; align-items: center; justify-content: center;">
+          style="display: block; align-items: center; justify-content: center; max-height: 90%;">
           {% csrf_token %}
 
           {% for field in form %}
@@ -76,11 +76,6 @@
           <div class="form__group form__group">
             <label for="room_name">{{field.label}}</label>
             {{field}}
-          </div>
-          <div>
-            <a href="{% url 'new-class' %}" style="display: flex; justify-content: space-around;">
-              Pridať novú skupinu
-            </a>
           </div>
           {% endif %}
           {% endfor %}

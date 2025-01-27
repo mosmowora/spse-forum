@@ -1,5 +1,7 @@
 from datetime import timedelta
 import datetime
+from django.core.files import File
+import threading
 from django.shortcuts import render, redirect
 from django.http import HttpRequest, HttpResponseRedirect
 from django.contrib import messages
@@ -19,11 +21,25 @@ from .forms import (
     ReplyForm, RoomForm, UpdateClassForm, UserCreationForm, UserForm
 )
 from online_users.models import OnlineUserActivity
-from urllib.parse import quote, unquote
 # Create your views here.
 
 ENCRYPTION_MAGIC = 12
 ALL_CLASSES = FromClass.objects.filter(custom=False)
+
+
+class EmailThread(threading.Thread):
+
+    def __init__(self, subject: str, html_content: str, recipients: tuple[str]):
+        self.subject = subject
+        self.recipients = recipients
+        self.html_content = html_content
+        threading.Thread.__init__(self)
+
+    def run(self):
+        msg = EmailMultiAlternatives(
+            self.subject, self.html_content, "tomas.nosal04@gmail.com", self.recipients)
+        msg.attach_alternative(self.html_content, "text/html")
+        msg.send(fail_silently=False)
 
 
 def loginPage(request: HttpRequest):
@@ -67,6 +83,12 @@ def registerPage(request: HttpRequest):
 
     if request.method == 'POST':
         form = UserCreationForm(request.POST)
+        is_email_valid = form['email'].data.endswith("@spse-po.sk")
+        if not is_email_valid:
+            messages.error(
+                request, "Zadaná emailová adresa nepatrí do školskej domény")
+            return render(request, 'base/login_register.html', {'form': form})
+
         if form.is_valid():
             user = form.save(commit=False)
             user.username = user.username.replace(" ", "_").lower()
@@ -107,7 +129,8 @@ def home(request: HttpRequest):
                 (Q(name__icontains=q))
             ).filter(
                 Q(limited_for__in=request.user.from_class.all()) |
-                Q(host=request.user)
+                Q(host=request.user) |
+                Q(public=True)
             ).distinct()
 
             room_messages = sorted(room_messages.filter(
@@ -117,15 +140,16 @@ def home(request: HttpRequest):
         try:
             next_class = FromClass.objects.get(pk=user.from_class.filter(
                 Q(set_class__in=ALL_CLASSES)).first().pk + 6)
-        except FromClass.DoesNotExist:
+        except (FromClass.DoesNotExist, AttributeError):
             next_class = None
 
     else:
-        rooms = Room.objects.none()
+        rooms = Room.objects.filter(public=True)
         for message in room_messages:
-            message.user.username = '????'
-            message.body = '????'
-            message.room.name = 'neznáme'
+            if not message.room.public:
+                message.user.username = '????'
+                message.body = '????'
+                message.room.name = 'neznáme'
 
     activities = OnlineUserActivity.get_user_activities(
         time_delta=timedelta(seconds=30))
@@ -138,7 +162,7 @@ def home(request: HttpRequest):
     context = {'rooms': rooms, 'topics': tuple(filter(lambda x: x.room_set.all().count() != 0, topics)), 'show_topics': tuple(filter(lambda y: y.room_set.all().count() != 0, sorted(topics, key=lambda x: x.room_set.all().count(), reverse=True)))[:3],
                'room_count': room_count, 'room_messages': room_messages[:3], 'active_users': active_users, 'next_class': next_class}
 
-    if not user.is_anonymous and (9 >= datetime.date.today().month >= 2) and not user.updated_profile:
+    if not user.is_anonymous and (9 >= datetime.date.today().month >= 7) and not user.updated_profile and not user.is_staff:
         context['needs_update'] = True
         for user in User.objects.filter(is_staff=False):
             user.updated_profile = False
@@ -147,6 +171,7 @@ def home(request: HttpRequest):
     return render(request, 'base/home.html', context)
 
 
+@login_required(login_url='login', redirect_field_name=None)
 def updateGroups(request: HttpRequest):
     return render(
         request,
@@ -157,6 +182,7 @@ def updateGroups(request: HttpRequest):
     )
 
 
+@login_required(login_url='login', redirect_field_name=None)
 def updateUserClass(request: HttpRequest):
     form = UpdateClassForm(request.POST)
     user = request.user
@@ -180,6 +206,7 @@ def updateUserClass(request: HttpRequest):
     return render(request, 'base/update-class.html', {'form': form, 'from_class': user.from_class.first().set_class, 'user_rooms': user.room_set.all(), 'done_class': True})
 
 
+@login_required(login_url='login', redirect_field_name=None)
 def newClass(request: HttpRequest):
     """
     Form for creating a new class or group
@@ -189,10 +216,12 @@ def newClass(request: HttpRequest):
         form = NewClassForm(instance=user)
         form.fields['users'].queryset = User.objects.values_list(
             "email", flat=True).filter(~Q(email__exact=request.user.email))
+
     except Exception:
+        user = None
         form = NewClassForm()
 
-    if user.registered_groups.count() + 1 > 5:
+    if user and user.registered_groups.count() + 1 > 5:
         messages.info(
             request, "Dosiahol si maximálny počet vytvorených skupín")
         return redirect('home')
@@ -222,25 +251,28 @@ def newClass(request: HttpRequest):
     return render(request, 'base/new_class_entry.html', {'form': form, "back": "register" in back_button, 'classes': tuple(FromClass.objects.all())})
 
 
+@login_required(login_url='login', redirect_field_name=None)
 def updateGroup(request: HttpRequest, pk):
     """
     Form for updating an existing group
     """
     user = request.user
     group = FromClass.objects.get(pk=pk)
-    users_in_group = User.objects.filter(from_class=group)
+    users_in_group = User.objects.filter(
+        from_class=group).values_list("email", flat=True)
     form = NewClassForm(instance=user,
                         initial={
-                            'set_class': group.set_class
+                            'set_class': group.set_class,
+                            'users': [usr for usr in users_in_group]
                         },
-                        user=users_in_group
                         )
+    print(f"{form['users'].initial=}")
     back_button = request.META.get("HTTP_REFERER").split(
         "/") if request.META.get("HTTP_REFERER") is not None else 'new-class'
 
     if request.method == 'POST':
         picked_users = tuple(map(lambda x: User.objects.get(
-            id=int(x)), request.POST.getlist("users")))
+            email=x), request.POST.getlist("users")))
         clazz = FromClass.objects.get(pk=pk)
         clazz.set_class = request.POST.get("set_class")
         clazz.custom = True
@@ -263,18 +295,24 @@ def updateGroup(request: HttpRequest, pk):
             request.user.from_class.add(clazz)
 
         messages.success(request, "Úspešne aktualizovaná skupina")
-        return redirect("home")
+        return redirect("user-profile", pk=request.user.pk)
     return render(request, "base/new_class_entry.html", {'form': form, "back": "register" in back_button})
 
 
+@login_required(login_url='login', redirect_field_name=None)
 def deleteGroup(request: HttpRequest, pk):
     if request.method == "POST":
-        users = User.objects.filter(
-            Q(from_class__contains=FromClass.objects.get(pk=pk)))
-        print(users)
+        for user in User.objects.all():
+            if user.from_class.contains(FromClass.objects.get(pk=pk)):
+                user.from_class.set(user.from_class.exclude(pk=pk))
+                user.save()
+
+        return redirect('home')
+
     return render(request, "base/delete.html", {'group': FromClass.objects.get(pk=pk)})
 
 
+@login_required(login_url='login', redirect_field_name=None)
 def pinRoom(request: HttpRequest, pk):
     """
     Logic for pinning or unpinning a room
@@ -286,7 +324,8 @@ def pinRoom(request: HttpRequest, pk):
     return HttpResponseRedirect(reverse('home'))
 
 
-def subscribeRoom(request, pk):
+@login_required(login_url='login', redirect_field_name=None)
+def subscribeRoom(request: HttpRequest, pk):
     room = Room.objects.get(id=pk)
     user = User.objects.get(id=request.user.id)
     if user in room.subscribing.all():
@@ -297,7 +336,7 @@ def subscribeRoom(request, pk):
     return redirect('room', pk=room.id)
 
 
-@login_required(login_url='login', redirect_field_name=None)
+# @login_required(login_url='login', redirect_field_name=None)
 def room(request: HttpRequest, pk):
     """
     Page for showing everything about the room, handling room messages, message upvotes, participants, etc.
@@ -328,7 +367,7 @@ def room(request: HttpRequest, pk):
                 time_delta=timedelta(seconds=30))))
         )
         context = {'room': room, 'room_messages': room_messages, 'amount_of_messages': len(room_messages),
-                   'participants': participants, 'upvoted_messages': upvoted_messages, 'active_users': active_users, 'back': back}
+                   'participants': participants, 'upvoted_messages': upvoted_messages, 'active_users': active_users, 'back': back, 'is_anonymous': request.user.id is None}
 
         if room.file and room.file.name.split(".")[-1] in ('docx', 'pdf', 'xls', 'xlsx', 'ppt', 'pptx', 'potm'):
             context['file_type'] = "file"
@@ -352,7 +391,7 @@ def room(request: HttpRequest, pk):
 
             try:
                 parent = Message.objects.get(id=reply_form['parent'].value())
-            except Exception:
+            except Exception as e:
                 parent = None
 
             try:
@@ -365,20 +404,23 @@ def room(request: HttpRequest, pk):
             except Exception as e:
                 print(e)
                 messages.error(request, "Problém s pripojením")
+                EmailThread("SPŠE Forum server error",
+                                f"Error nastal pri meneni hesla uzivatela {request.user.name}\nError type: {e.args}", ("tomas.nosal04@gmail.com",)).start()
                 return redirect('room', pk=room.id)
 
-            message.save()
-            room.participants.add(request.user)
+            if request.user not in room.participants.all():
+                room.participants.add(request.user)
+
             htmly = get_template('base/email_template.html')
-            html_content = htmly.render(
-                {'student': request.user, 'body': content, 'room': room})
-            msg = EmailMultiAlternatives(
-                "SPŠE Forum nová správa", "SPŠE Forum nová správa", "tomas.nosal04@gmail.com", tuple(map(lambda user: user.email, room.subscribing.all())))
-            msg.attach_alternative(html_content, "text/html")
-            msg.send(fail_silently=False)
+            EmailThread("SPŠE Forum nová správa", htmly.render(
+                {'student': request.user, 'body': content, 'room': room}), tuple(
+                map(lambda user: user.email, room.subscribing.all()))).start()
+            message.save()
             return redirect('room', pk=room.id)
     except Exception as e:
         print(e)
+        EmailThread("SPŠE Forum server error",
+                                f"Error nastal pri meneni hesla uzivatela {request.user.name}\nError type: {e.args}", ("tomas.nosal04@gmail.com",)).start()
         return fallback(request, "Nemožno zobraziť túto diskusiu.")
 
     return render(request, 'base/room.html', context)
@@ -430,7 +472,7 @@ def userProfile(request: HttpRequest, pk):
             return fallback(request, message="Tu nemáš čo hľadať")
 
 
-def mailResponse(request: HttpRequest, pk, password: int):
+def mailResponse(request: HttpRequest, pk):
     """
     E-mail confirmation handler\n
     get's the user based on his id and after decrypting the password from the url sets his new password.\n
@@ -444,8 +486,11 @@ def mailResponse(request: HttpRequest, pk, password: int):
     """
 
     user = User.objects.get(id=pk)
-    expires = EmailPasswordVerification.objects.get(
-        user__id=user.id).token_created + datetime.timedelta(hours=2)
+    pass_verification = EmailPasswordVerification.objects.get(
+        user__id=user.id)
+    password = "".join(
+        map(lambda s: chr(ord(s) + ENCRYPTION_MAGIC), pass_verification.password))
+    expires = pass_verification.token_created + datetime.timedelta(hours=2)
 
     expires = expires.replace(tzinfo=datetime.datetime.now(
         datetime.timezone.utc).astimezone().tzinfo)
@@ -453,41 +498,17 @@ def mailResponse(request: HttpRequest, pk, password: int):
         datetime.timezone.utc).astimezone().tzinfo)
 
     # Debugging purposes
-    # print(expires)
-    # print(now)
+    print(f"{expires=}")
+    print(f"{now=}")
 
     if now > expires:
         return fallback(request, message="Token pre zmenu hesla vypršal.")
 
-    user.set_password(decrypt(password))
+    user.set_password(password)
     user.save()
     login(request, user)
     messages.success(request, 'Úspešne zmenené heslo')
     return redirect('home')
-
-
-def encrypt(password: str) -> str:
-    """
-    Encryption logic for the user's new password into the confirmation URL
-
-    Params
-    ------
-    password `str` - raw password to encrypt
-    """
-    return "".join(map(lambda s: chr(ord(s) + ENCRYPTION_MAGIC), password))
-
-
-def decrypt(password: str) -> str:
-    """
-    Decryption logic for the user's new password from the confirmation URL
-
-    Params
-    ------
-    password `str` - raw password to decrypt
-    """
-    password = unquote(password)
-    new_pass = "".join(map(lambda s: chr(ord(s) - ENCRYPTION_MAGIC), password))
-    return new_pass
 
 
 def changePassword(request: HttpRequest):
@@ -512,29 +533,34 @@ def changePassword(request: HttpRequest):
                     messages.error(request, "Užívateľ neexistuje")
                     return redirect('change-password')
                 # password = f'http://localhost:8000/email-response/{student.pk}/{quote(quote(encrypt(request.POST.get("password1")), encoding="utf-8"), safe=":/")}'
-                password = f'http://www.forum.spse-po.sk/email-response/{student.pk}/{quote(quote(encrypt(request.POST.get("password1")), encoding="utf-8"), safe=":/")}'
+                password = f'http://forum.spse-po.sk/email-response/{student.pk}/'
                 htmly = get_template('base/email_template.html')
-                html_content = htmly.render(
-                    {'student': student, 'password': password})
-                msg = EmailMultiAlternatives(
-                    "SPŠE Forum zabudnuté heslo", "SPŠE Forum zabudnuté heslo", "tomas.nosal04@gmail.com", (request.POST.get("email"),))
-                msg.attach_alternative(html_content, "text/html")
                 try:
-                    msg.send(fail_silently=False)
-                except Exception:
+                    EmailThread("SPŠE Forum zabudnuté heslo",
+                                htmly.render(
+                                    {'student': student, 'password': password}), (request.POST.get("email"),)).start()
+                except Exception as e:
+                    EmailThread("SPŠE Forum server error",
+                                f"Error nastal pri meneni hesla uzivatela {request.user.name}\nError type: {e.args}", ("tomas.nosal04@gmail.com",)).start()
                     messages.error(request, "Nastala chyba pri poslaní emailu")
+
                 messages.info(request, "Bol ti zaslaný potvrdzovací email")
+                print("Bol ti zaslaný potvrdzovací email")
                 try:
                     got_user = EmailPasswordVerification.objects.get(
                         user=student)  # This is neccessary !!!
                     got_user.token_created = datetime.datetime.now() + datetime.timedelta(hours=1)
+                    got_user.password = "".join(
+                        map(lambda s: chr(ord(s) - ENCRYPTION_MAGIC), request.POST.get("password1")))
                     got_user.save()
                 except Exception:
                     EmailPasswordVerification.objects.create(
                         user=student,
-                        token_created=datetime.datetime.now() + datetime.timedelta(hours=1)
+                        token_created=datetime.datetime.now() + datetime.timedelta(hours=1),
+                        password="".join(
+                            map(lambda s: chr(ord(s) - ENCRYPTION_MAGIC), request.POST.get("password1")))
                     )
-                return render(request, 'base/home.html')
+                return redirect('home')
 
             else:
                 if user.check_password(request.POST.get('password1')):
@@ -599,13 +625,15 @@ def createRoom(request: HttpRequest):
                 topic=topic,
                 name=request.POST.get('name'),
                 description=request.POST.get('description'),
-                pinned=True if request.POST.get('pinned') == "on" else False,
+                pinned=True if request.POST.get('pinned') and request.POST.get(
+                    'pinned') == "on" else False,
+                public=True if request.POST.get('public') == "on" else False,
                 file=request.FILES.get('file')
             )
             selected_classes = set(int(x) for x in class_list)
-            if len(selected_classes) == 0:
+            if len(selected_classes) == 0 and not room.public:
                 context['message'] = 'Musíš zaškrtnúť pre koho sa ukáže'
-                return render(request, 'base/room_form.html', context)
+                return redirect('update-room', pk=room.pk)
 
             room.save()
             room.limited_for.set(selected_classes)
@@ -629,6 +657,7 @@ def updateRoom(request: HttpRequest, pk):
         room = Room.objects.get(id=pk)
         form = RoomForm(instance=room)
         topics = Topic.objects.all()
+        
         form['limit_for'].initial = room.limited_for.get_queryset()
         context = {'form': form, 'topics': topics, 'room': room}
 
@@ -639,38 +668,53 @@ def updateRoom(request: HttpRequest, pk):
             if request.META.get("HTTP_REFERER") is not None:
                 context['back'] = any(
                     x == 'update-room' for x in request.META['HTTP_REFERER'].split("/"))
-                if not request.user.is_anonymous and (9 >= datetime.date.today().month >= 2) and not request.user.updated_profile:
+                if not request.user.is_anonymous and (9 >= datetime.date.today().month >= 7) and not request.user.updated_profile:
                     context['needs_update_back'] = True
 
             if request.FILES.get('file') and request.FILES.get('file').name.split(".")[-1] not in ('docx', 'pdf', 'xls', 'xlsx', 'ppt', 'pptx', 'potm', 'xbm', 'tif', 'jfif', 'ico', 'gif', 'svg', 'jpg', 'jpeg', 'png', 'webp', 'bmp', 'pjp', 'apng', 'pjpeg', 'avif'):
                 messages.error(request, "Nepodporovaný typ súboru")
                 return redirect('update-room', pk=room.pk)
-
-            form = RoomForm(request.POST,
-                            request.FILES, instance=room)
+            
             class_list = request.POST.getlist("limit_for")
             topic_name = request.POST.get('topic')
             topic, _ = Topic.objects.get_or_create(name=topic_name)
             room.name = request.POST.get('name')
             room.topic = topic
             room.description = request.POST.get('description')
-            room.pinned = True if request.POST.get('pinned') == "on" else False
-            room.file = request.FILES.get('file')
-            room.limited_for.set(request.POST.getlist("limit_for"))
+            room.pinned = True if request.POST.get(
+                'pinned') and request.POST.get('pinned') == "on" else False
+            room.public = True if request.POST.get('public') == "on" else False
+            # If there is new file -> change it, otherwise ignore setting new one
+            if request.FILES.get('file'):
+                room.file = request.FILES.get('file')
+            room.limited_for.set(FromClass.objects.all())
             selected_classes = set(int(x) for x in class_list)
 
-            if len(selected_classes) == 0:
+            form = RoomForm(request.POST, request.FILES, instance=room)
+            if len(selected_classes) == 0 and not room.public:
                 context['message'] = 'Musíš zaškrtnúť pre koho sa ukáže'
-                return render(request, 'base/room_form.html', context)
+                return redirect('update-room', pk=room.pk)
+            
+            if form.is_valid():
+                room = form.save()
+                
+            elif form.errors:
+                lst = form.errors.as_data()
+                EmailThread("SPŠE Forum server error",
+                    f"Error nastal pri meneni udajov diskusie {room.name}\nError type: {lst}", ("tomas.nosal04@gmail.com",)).start()
+                print(lst)
+                return redirect('update-room', pk=room.pk)
 
-            room.save()
             if context.get('needs_update_back') is not None:
                 return redirect('needs-update')
             return redirect('room', pk=room.pk)
 
     except Exception as e:
-        print(e)
-        return fallback(request)
+        EmailThread("SPŠE Forum server error",
+                    f"Error nastal pri meneni udajov diskusie {room.name}\nError type: {e.args}", ("tomas.nosal04@gmail.com",)).start()
+        print(
+            f"Error nastal pri meneni udajov diskusie {room.name}\nError type: {e.args}")
+        return fallback(request, "Nebolo možné zmeniť údaje diskusie")
 
     return render(request, 'base/room_form.html', context)
 
@@ -686,9 +730,8 @@ def deleteRoom(request: HttpRequest, pk):
     if request.user != room.host and not request.user.is_staff:
         return fallback(request)
 
-
     if request.method == 'POST':
-        if not request.user.is_anonymous and (9 >= datetime.date.today().month >= 2) and not request.user.updated_profile:
+        if not request.user.is_anonymous and (9 >= datetime.date.today().month >= 7) and not request.user.updated_profile:
             context['needs_update_back'] = True
         room.delete()
         if context.get("needs_update_back") is not None:
@@ -747,7 +790,6 @@ def updateUser(request: HttpRequest):
                 form.save()
                 return redirect('user-profile', pk=user.id)
             elif form.errors:
-                # form.errors.get('avatar')
                 lst = tuple(*form.errors.as_data().values())
                 for error in lst:
                     if "100 characters" in error.messages[0]:
@@ -762,7 +804,8 @@ def updateUser(request: HttpRequest):
                     messages.error(request, *error)
 
     except Exception as e:
-        print(e)
+        EmailThread("SPŠE Forum server error",
+                    f"Error nastal pri meneni udajov uzivatela {request.user.name}\nError type: {e.args}", ("tomas.nosal04@gmail.com",)).start()
         return fallback(request, "Niečo neočakávané sa stalo.")
 
     return render(request, 'base/update-user.html', {'form': form})
@@ -793,10 +836,13 @@ def deleteUser(request: HttpRequest):
             hosted_rooms = Room.objects.filter(
                 host__name__exact=request.user.name)
             hosted_rooms.delete()
+            if request.user.id is not None:
+                User.objects.get(pk=request.user.pk).delete()
             messages.success(request, "Odstránil si si účet")
             return redirect('home')
     except Exception as e:
-        print(e.with_traceback())
+        EmailThread("SPŠE Forum server error",
+                    f"Error nastal pri zmazani uzivatela {request.user.name}\nError type: {e.args}", ("tomas.nosal04@gmail.com",)).start()
         return fallback(request, "Niečo sa stalo pri odstraňovaní tvojho účtu.")
 
     return render(request, 'base/delete-user.html')
@@ -828,7 +874,9 @@ def topicsPage(request: HttpRequest):
             \
             else sorted(User.objects.filter(Q(name__icontains=q) | Q(from_class__set_class__icontains=q)),  # Students
                         key=lambda user: [alphabet.get(c, ord(c)) for c in user.name.split()[0]])
-    except Exception:
+    except Exception as e:
+        EmailThread("SPŠE Forum server error",
+                    f"Error nastal pri ukazani tem/studentov {request.user.name}\nError type: {e.args}", ("tomas.nosal04@gmail.com",)).start()
         return fallback(request)
 
     return render(request, 'base/topics.html', {'topics': tuple(filter(lambda x: x.room_set.all().count() != 0, topics)) if type_of != 'user' else set(topics), 'render_value': render_value, "type_of": type_of})
@@ -838,5 +886,5 @@ def activityPage(request):
     """
     Activity page with room messages
     """
-    room_messages = Message.objects.all()
+    room_messages = Message.objects.all()[:3]
     return render(request, 'base/activity.html', {'room_messages': room_messages})

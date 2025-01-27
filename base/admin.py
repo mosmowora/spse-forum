@@ -17,17 +17,20 @@ from .models import FromClass, Room, Topic, Message, User
 class UserAdmin(admin.ModelAdmin):
     User.get_short_name = lambda user_instance: user_instance.name.split()[-1]
     
-    readonly_fields = ('id', 'last_login', 'date_joined',
-                       'name', 'username')
+    readonly_fields = ('id', 'last_login', 'date_joined', 'password', 'username', 'name')
     list_filter = ['is_superuser', 'is_staff',
                    ('from_class',  more_filters.MultiSelectRelatedDropdownFilter)]
+    
     exclude = ('first_name', 'last_name')
-    fields = ['name', 'email', 'password', 'is_staff', 'groups',
+    
+    fields = ['name', 'username', 'email', 'password', 'is_staff', 'groups',
               'bio', 'from_class', 'date_joined', 'last_login']
-    list_display = ['name', 'email',  'bio',
+    
+    list_display = ['name', 'username', 'email',  'bio',
                     'fromClass', 'date_Joined', 'last_Login']
+    
     filter_horizontal = ['from_class',]
-    search_fields = ['name']
+    search_fields = ['name', 'username', 'email']
     form = UserAdminForm
     
     delete_selected.short_description = u'Vymazať vybrané položky'
@@ -102,7 +105,7 @@ class RoomAdmin(admin.ModelAdmin):
     list_display = ['host', 'topic', 'name', 'description',
                     'participants', 'pinned', 'limited_for']
     fields = ['host', 'topic', 'name', 'description',
-              'participants', 'pinned', 'limited_for']
+              'participants', 'pinned', 'public', 'limited_for']
     form = RoomAdminForm
     search_fields = ['host', 'topic', 'name', 'limited_for']
     

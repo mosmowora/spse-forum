@@ -6,8 +6,14 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta content="SPŠE Forum - jedno miesto veľa príbehov" property="og:title">
+    <meta content="Spýtaj sa a četuj s každým zo školy SPŠE Prešov." property="og:description">
+    <meta content='https://www.spse-po.sk/assets/images/logo.png' property='og:image'>
+    <meta content="http://forum.spse-po.sk/#a" property="og:url" />
+    <meta name="theme-color" content="#7289DA">
     <link rel="stylesheet" href="{% static 'styles/styles.css' %}" />
     <link rel="icon" href="{% static 'images/icons/logo.png' %}" />
+    <link type="application/json+oembed" href="{% static 'oembed.json' %}" />
     <title>SPŠE Forum</title>
 </head>
 
@@ -24,7 +30,7 @@
     {% endif %}
 
     {% block content %}
-    
+
     {% endblock %}
 
     <script src="{% static 'js/script.js' %}"></script>
@@ -42,8 +48,8 @@
 <script>
     const message = $("ul.messages");
 
-    // if (window.location.href === "http://www.forum.spse-po.sk/") {
-    if (window.location.href === "http://localhost:8000/" || window.location.href === "http://www.forum.spse-po.sk") {
+    // if (window.location.href === "http://forum.spse-po.sk/") {
+    if (window.location.href === "http://localhost:8000/" || window.location.href === "http://forum.spse-po.sk") {
         $("body").css("overflow-y", "hidden");
     }
 

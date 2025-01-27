@@ -20,13 +20,13 @@
         </div>
       </div>
       <div class="layout__body">
-        <form class="form" action="" method="POST" enctype='multipart/form-data'
+        <form class="form" action="" method="POST" enctype="multipart/form-data"
           style="display: block; align-items: center; justify-content: center;">
           {% csrf_token %}
 
           <div class="form__group">
             <label for="room_topic">Zadaj Tému</label>
-            <input required type="text" value="{{room.topic.name}}" name="topic" list="topic-list" />
+            <input required type="text" id="id_topic" value="{{room.topic.name}}" name="topic" list="topic-list" maxlength="50" />
             <datalist id="topic-list">
               <select id="room_topic">
                 {% for topic in topics %}
@@ -38,13 +38,17 @@
 
 
           <div class="form__group">
-            <label for="room_name">Názov</label>
-            {{form.name}}
+            <abbr title="Názov diskusie">
+              <label for="room_name">Názov</label>
+              {{form.name}}
+            </abbr>
           </div>
 
           <div class="form__group">
-            <label for="room_description">Popis</label>
-            {{form.description}}
+            <abbr title="Bližšie popísať diskusiu">
+              <label for="room_description">Popis</label>
+              {{form.description}}
+            </abbr>
           </div>
 
           {% if request.user.is_staff %}
@@ -53,9 +57,13 @@
             {{form.pinned}}
           </div>
           {% endif %}
+          <div class="form__group">
+            <label for="room_description">Verejná diskusia</label>
+            {{form.public}}
+          </div>
 
           <div class="form__group">
-            <label for="room_description">Foto</label>
+            <label for="room_description">Súbor</label>
             {{form.file}}
           </div>
 
@@ -66,7 +74,7 @@
               <p style="text-align: center; color: rgba(255, 255, 255, 0.403);">{{ message }}</p>
             </strong>
             {% endif %}
-            {{form.limit_for|attr:"autocomplete=off"}}
+            {{form.limit_for}}
           </div>
 
           <div class="form__action">
@@ -76,9 +84,9 @@
             <a class="btn btn--dark" href="{{request.META.HTTP_REFERER}}">Storno</a>
             {% endif %}
             {% if needs_update_back %}
-            <input class="btn btn--main" type="submit" href="{% url 'needs-update' %}" value="Vytvoriť"/>
+            <input class="btn btn--main" type="submit" href="{% url 'needs-update' %}" value="Vytvoriť" />
             {% else %}
-            <input class="btn btn--main" type="submit" href="{% url 'home' %}" value="Vytvoriť"/>
+            <input class="btn btn--main" type="submit" href="{% url 'home' %}" value="Vytvoriť" />
             {% endif %}
           </div>
         </form>
@@ -86,13 +94,30 @@
     </div>
   </div>
 </main>
-<!-- <script type="module">
+<script type="module">
   import devtools from "{% static 'js/node_modules/devtools-detect/index.js' %}";
 
   // Get notified when it's opened/closed or orientation changes
   window.addEventListener('devtoolschange', event => {
-    if (event.detail.isOpen) 
+    if (event.detail.isOpen)
       window.location.href = "{% url 'fallback' %}";
   });
-</script> -->
+</script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+<script type="text/javascript">
+  if ($("#id_public").is(":checked")) {
+    $("#id_limit_for").css("display", "none");
+    $("[for=room_limit_for]").css("display", "none");
+  }
+  $("#id_public").on("click", () => {
+    console.log("clicked");
+    if ($("#id_public").is(":checked")) {
+      $("#id_limit_for").css("display", "none");
+      $("[for=room_limit_for]").css("display", "none");
+    } else {
+      $("#id_limit_for").css("display", "block");
+      $("[for=room_limit_for]").css("display", "block");
+    }
+  });
+</script>
 {% endblock content %}

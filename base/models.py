@@ -2,6 +2,7 @@ from multiprocessing.managers import BaseManager
 from django.db import models
 from django.contrib.auth.models import AbstractUser, PermissionsMixin
 from django.forms import ValidationError
+from django.core.validators import MinLengthValidator
 
 
 class FromClass(models.Model):
@@ -19,6 +20,7 @@ class FromClass(models.Model):
 class EmailPasswordVerification(models.Model):
     user = models.ForeignKey('base.User', on_delete=models.CASCADE)
     token_created = models.DateTimeField(auto_now_add=True)
+    password = models.CharField(max_length=50, null=True)
 
 
 def validate_image(image):
@@ -31,7 +33,7 @@ def validate_image(image):
 
 
 class User(AbstractUser, PermissionsMixin):
-    name = models.CharField(max_length=50, null=True, db_column="Meno")
+    name = models.CharField(max_length=50, null=True, db_column="Meno", validators=[MinLengthValidator(4, "Tvoje meno je prikrátke")])
     email = models.EmailField(unique=True, null=True)
     bio = models.TextField(null=True, blank=True)
     avatar = models.ImageField(
@@ -73,7 +75,7 @@ class Room(models.Model):
     host = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     topic = models.ForeignKey(Topic, on_delete=models.SET_NULL, null=True)
     name = models.CharField(max_length=100)
-    description = models.TextField(null=True, blank=True)
+    description = models.TextField(null=True, blank=True, max_length=300)
     participants = models.ManyToManyField(
         User, related_name='participants', blank=True)
     updated = models.DateTimeField(auto_now=True)
@@ -81,14 +83,15 @@ class Room(models.Model):
     subscribing = models.ManyToManyField(
         User, related_name="subscribing_rooms")
     file = models.ImageField(null=True, blank=True, verbose_name='room_image',
-                             max_length=512, upload_to="files/", validators=[validate_image])
+                             max_length=512, upload_to="", validators=[validate_image])
 
     pinned = models.BooleanField(null=False, default=False)
+    public = models.BooleanField(null=False, default=False)
     limited_for = models.ManyToManyField(
-        FromClass, related_name='room_limited_for')
+        FromClass, related_name='room_limited_for', null=True)
 
     class Meta:
-        ordering = ['-pinned', '-updated', '-created']
+        ordering = ['-pinned', '-public', '-updated', '-created']
         verbose_name = "Diskusia"
         verbose_name_plural = "Diskusie"
 

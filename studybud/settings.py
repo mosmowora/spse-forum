@@ -14,6 +14,7 @@ from django.core.exceptions import ImproperlyConfigured
 import json
 import os
 from pathlib import Path
+from django.utils import timezone
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -39,7 +40,7 @@ SECRET_KEY = get_secret('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # Change this to False when you have a hosting service available
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 
@@ -139,9 +140,9 @@ LOGGING = {
 }
 
 CSRF_TRUSTED_ORIGINS = [
-    ("https://41ea-193-87-77-23.ngrok-free.app"),
     ("http://localhost:8000/"),
-    ("http://www.forum.spse-po.sk/"),
+    ("http://forum.spse-po.sk/"),
+    ("http://193.87.77.28/"),
 ]
 
 # Internationalization
@@ -149,7 +150,7 @@ CSRF_TRUSTED_ORIGINS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'Europe/Vienna'
+TIME_ZONE = 'Etc/GMT-1'
 
 USE_I18N = True
 
@@ -158,12 +159,17 @@ USE_L10N = True
 USE_TZ = True
 
 STATIC_URL = '/static/'
-MEDIA_URL = '/images/'
+MEDIA_URL = '/media/'
 
-STATICFILES_DIRS = os.path.join(BASE_DIR, 'static'),
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles_build', 'static')
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
-MEDIA_ROOT = BASE_DIR / 'images'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+if not DEBUG:
+    STATIC_URL = '/static/'
+    MEDIA_URL = '/static/images/'
+    STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+    MEDIA_ROOT = os.path.join(BASE_DIR, 'static', 'images')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
@@ -187,8 +193,8 @@ DATABASES = {
         'PORT': '3306',
         'OPTIONS': {
             'charset': 'utf8mb4',
-            'use_unicode': True, 
-            },
+            'use_unicode': True,
+        },
     },
 }
 

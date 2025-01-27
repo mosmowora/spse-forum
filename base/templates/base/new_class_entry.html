@@ -1,8 +1,30 @@
 {% extends 'main.html' %}
 {% load static %}
 {% block content %}
+{{ form.media }}
 <h1 id="pc" style="font-size:3rem; display: none;">Táto stránka sa lepšie zobrazuje na PC 😁</h1>
 <main class="delete-item layout">
+    <style>
+        .selector {
+            float: none;
+            display: flex;
+            height: 330px;
+        }
+
+        .selector input[type="submit"] {
+            display: block;
+            clear: both;
+        }
+
+        .selector h2 {
+            font-size: 15px;
+        }
+
+        textarea {
+            display: block;
+            width: 450px;
+        }
+    </style>
     <div class="container">
         <div class="layout__new_class">
             <div class="layout__boxHeader">
@@ -40,12 +62,10 @@
                         {% if field.label == 'Set class' %}
                         <label for="class_name">Nová Skupina</label>
                         {% elif field.label == "Users" %}
-                        <label for="class_name">Koho okrem seba chceš do skupiny?</label>
-                        {{form.users}}
+                        <label for="class_name">Koho chceš so sebou?</label>
+                        {{field}}
                         {% else %}
                         <label for="class_name">{{field.label}}</label>
-                        {% endif %}
-                        {% if field.label != 'Users' %}
                         {{field}}
                         {% endif %}
                     </div>
@@ -85,22 +105,12 @@
         }
     });
 </script>
-<link rel="stylesheet" type="text/css" href="{% static 'admin/css/widgets.css' %}" />
-
-<script type="text/javascript" src="{% url 'admin:jsi18n' %}"></script>
-<script type="text/javascript" src="{% static 'admin/js/core.js' %}"></script>
-<script type="text/javascript" src="{% static 'admin/js/vendor/jquery/jquery.js' %}"></script>
-<script type="text/javascript" src="{% static 'admin/js/jquery.init.js' %}"></script>
-
-<script type="text/javascript" src="{% static 'admin/js/SelectBox.js' %}"></script>
-<script type="text/javascript" src="{% static 'admin/js/SelectFilter2.js' %}"></script>
 <script>
+    console.log(document.querySelector("body > main > div > div > div.layout__body > form > div:nth-child(5) > div > div.selector-available > h2"));
     setTimeout(() => {
         document.querySelector("body > main > div > div > div.layout__body > form > div:nth-child(5) > div > div.selector-available > h2").innerHTML = "Možný výber";
         document.querySelector("#id_users_selector_chosen > h2").innerHTML = "Vybratí";
-    }, 10);
-</script>
-<script>
+    }, 700);
 </script>
 <script>
     setInterval(() => {
@@ -111,6 +121,7 @@
         }
     }, 500);
 </script>
+<script src="/admin/jsi18n"></script>
 <!-- <script type="module">
     import devtools from "{% static 'js/node_modules/devtools-detect/index.js' %}";
 

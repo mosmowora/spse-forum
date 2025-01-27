@@ -92,6 +92,7 @@
             text-decoration: none !important;
         }
 
+
         table,
         td {
             color: #000000;
@@ -229,14 +230,15 @@
                                                                         style="padding-right: 0px;padding-left: 0px;"
                                                                         align="center">
 
-                                                                        <!-- src="http://www.forum.spse-po.sk/static/images/image-1.gif" -->
+                                                                        <!-- src="http://forum.spse-po.sk/static/images/image-1.gif" -->
+                                                                        {% if body is None %}
                                                                         <img align="center" border="0"
-                                                                            src="http://www.forum.spse-po.sk/static/images/image-1.gif"
+                                                                            src="http://forum.spse-po.sk/static/images/image-1.gif"
                                                                             alt="image" title="lock unlock"
                                                                             style="outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: inline-block !important;border: none;height: auto;float: none;width: 30%;max-width: 180px;"
                                                                             width="180" height="150"
                                                                             style="display:block;" />
-
+                                                                        {% endif %}
                                                                     </td>
                                                                 </tr>
                                                             </table>
@@ -354,194 +356,197 @@
                                                                         </div>
                                                                     </div>
                                                                 </div>
-                                                                    {% else %}
-                                                                    <div>V diskusii <strong>{{ room.name }}</strong> bola poslaná nová
-                                                                        správa
-                                                                        <div> </div>
-                                                                        <div style="
+                                                                {% else %}
+                                                                <div>V diskusii <strong>{{ room.name }}</strong> bola
+                                                                    poslaná nová
+                                                                    správa
+                                                                    <div> </div>
+                                                                    <div style="
                                                                     border-left: 5px solid #0079c1;
                                                                     padding-left: 1rem;
                                                                     margin: 2rem 0;
                                                                     border-radius: 15px;
                                                                     background-color: #1a282d;
                                                                     padding: 2rem;">
-                                                                            <div style="display: flex;
+                                                                        <div style="display: flex;
                                                                         align-items: center;
                                                                         justify-content: space-between;">
-                                                                                <div style="display: flex;
+                                                                            <div style="display: flex;
                                                                             align-items: center;
-                                                                            gap: 1.5rem;
                                                                             font-size: 1.4rem;">
-                                                                                    <div
-                                                                                        class="avatar avatar--small active">
-                                                                                        <!-- FIXME: replace with user's image -->
-                                                                                        <img src="http://www.forum.spse-po.sk/{{student.avatar.url}}"
-                                                                                            alt="">
+                                                                                <div
+                                                                                    class="avatar avatar--small active">
+                                                                                    {% if student.avatar.url is not None %}
+                                                                                    <img src="http://forum.spse-po.sk{{student.avatar.url}}"
+                                                                                        alt="">
+                                                                                    {% else %}
+                                                                                    <img src="{% static 'images/avatar.svg' %}"
+                                                                                        alt="" />
+                                                                                    {% endif %}
 
-                                                                                    </div>
-                                                                                    <strong style="color: white;">@{{ student.username }}</strong>
                                                                                 </div>
+                                                                                <abbr title="@{{student.username}}"
+                                                                                    style="width: 15rem; align-items: center;">
+                                                                                    <strong
+                                                                                        style="color: white; margin-left: 2%; margin-top: 0;">
+                                                                                        @{{ student.username|truncatechars:8 }}</strong></abbr>
                                                                             </div>
-                                                                            <div style="
+                                                                        </div>
+                                                                        <div style="
                                                                         font-size: 1.4rem;
                                                                         color: white;
                                                                         margin-top: 0.5rem;">
-                                                                                {{ body }}
-                                                                            </div>
+                                                                            {{ body }}
                                                                         </div>
                                                                     </div>
-                                                                    <div>
-                                                                        <div> </div>
-                                                                        <div> </div>
-                                                                    </div>
-                                                                    {% endif %}
                                                                 </div>
-                                                            </div>
-                                                        </td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-
-                                            <table id="u_content_button_1" style="font-family:'Raleway',sans-serif;"
-                                                role="presentation" cellpadding="0" cellspacing="0" width="100%"
-                                                border="0">
-                                                <tbody>
-                                                    <tr>
-                                                        <td class="v-container-padding-padding"
-                                                            style="overflow-wrap:break-word;word-break:break-word;padding:10px;font-family:'Raleway',sans-serif;"
-                                                            align="left">
-
-                                                            <!--[if mso]><style>.v-button {background: transparent !important;}</style><![endif]-->
-                                                            <div class="v-text-align" align="center">
-                                                                <!--[if mso]><v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="http://localhost:8000/email-response/" style="height:37px; v-text-anchor:middle; width:219px;" arcsize="11%"  stroke="f" fillcolor="#316b94"><w:anchorlock/><center style="color:#FFFFFF;"><![endif]-->
-                                                                <!-- <a href={{password}} onclick="openWindow('http:\\\\www.forum.spse-po.sk/', 'mailResponse');" -->
-                                                                {% if body is None %}
-                                                                <a href={{password}}
-                                                                    onclick="openWindow('http:\\www.forum.spse-po.sk\\email-response', '_self');"
-                                                                    target="_blank" class="v-button v-size-width"
-                                                                    style="box-sizing: border-box;display: inline-block;text-decoration: none;-webkit-text-size-adjust: none;text-align: center;color: #FFFFFF; background-color: #316b94; border-radius: 4px;-webkit-border-radius: 4px; -moz-border-radius: 4px; width:auto; max-width:100%; overflow-wrap: break-word; word-break: break-word; word-wrap:break-word; mso-border-alt: none;font-size: 14px;">
-                                                                    <span
-                                                                        style="display:block;padding:10px 20px;line-height:120%;"><span
-                                                                            style="line-height: 16.8px;">Prihlásiť sa s
-                                                                            novým heslom</span></span>
-                                                                </a>
-                                                                {% else %}
-                                                                <a href=http://www.forum.spse-po.sk/room/{{room.id}}
-                                                                    onclick="openWindow('http:\\www.forum.spse-po.sk\\room\\', '_self');"
-                                                                    target="_blank" class="v-button v-size-width"
-                                                                    style="box-sizing: border-box;display: inline-block;text-decoration: none;-webkit-text-size-adjust: none;text-align: center;color: #FFFFFF; background-color: #316b94; border-radius: 4px;-webkit-border-radius: 4px; -moz-border-radius: 4px; width:auto; max-width:100%; overflow-wrap: break-word; word-break: break-word; word-wrap:break-word; mso-border-alt: none;font-size: 14px;">
-                                                                    <span
-                                                                        style="display:block;padding:10px 20px;line-height:120%;"><span
-                                                                            style="line-height: 16.8px;">Pozrieť</span></span>
-                                                                </a>
+                                                                <div>
+                                                                    <div> </div>
+                                                                    <div> </div>
+                                                                </div>
                                                                 {% endif %}
-                                                                <!--[if mso]></center></v:roundrect><![endif]-->
                                                             </div>
-
-                                                        </td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-
-                                            <!--[if (!mso)&(!IE)]><!-->
-                                        </div><!--<![endif]-->
-                                    </div>
-                                </div>
-                                <!--[if (mso)|(IE)]></td><![endif]-->
-                                <!--[if (mso)|(IE)]></tr></table></td></tr></table><![endif]-->
-                            </div>
-                        </div>
-                    </div>
-
-
-
-
-
-                    <div class="u-row-container" style="padding: 0px;background-color: transparent">
-                        <div class="u-row"
-                            style="margin: 0 auto;min-width: 320px;max-width: 600px;overflow-wrap: break-word;word-wrap: break-word;word-break: break-word;background-color: transparent;">
-                            <div
-                                style="border-collapse: collapse;display: table;width: 100%;height: 100%;background-color: transparent;">
-                                <!--[if (mso)|(IE)]><table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="padding: 0px;background-color: transparent;" align="center"><table cellpadding="0" cellspacing="0" border="0" style="width:600px;"><tr style="background-color: transparent;"><![endif]-->
-
-                                <!--[if (mso)|(IE)]><td align="center" width="600" style="background-color: #ecf0f1;width: 600px;padding: 0px;border-top: 0px solid transparent;border-left: 0px solid transparent;border-right: 0px solid transparent;border-bottom: 0px solid transparent;border-radius: 0px;-webkit-border-radius: 0px; -moz-border-radius: 0px;" valign="top"><![endif]-->
-                                <div class="u-col u-col-100"
-                                    style="max-width: 320px;min-width: 600px;display: table-cell;vertical-align: top;">
-                                    <div
-                                        style="background-color: #ecf0f1;height: 100%;width: 100% !important;border-radius: 0px;-webkit-border-radius: 0px; -moz-border-radius: 0px;">
-                                        <!--[if (!mso)&(!IE)]><!-->
-                                        <div
-                                            style="box-sizing: border-box; height: 100%; padding: 0px;border-top: 0px solid transparent;border-left: 0px solid transparent;border-right: 0px solid transparent;border-bottom: 0px solid transparent;border-radius: 0px;-webkit-border-radius: 0px; -moz-border-radius: 0px;">
-                                            <!--<![endif]-->
-
-                                            <table id="u_content_text_deprecated_1"
-                                                style="font-family:'Raleway',sans-serif;" role="presentation"
-                                                cellpadding="0" cellspacing="0" width="100%" border="0">
-                                                <tbody>
-                                                    <tr>
-                                                        <td class="v-container-padding-padding"
-                                                            style="overflow-wrap:break-word;word-break:break-word;padding:10px 100px 30px;font-family:'Raleway',sans-serif;"
-                                                            align="left">
-
-                                                            <div class="v-text-align"
-                                                                style="font-size: 14px; line-height: 170%; text-align: center; word-wrap: break-word;">
-                                                                <p style="font-size: 14px; line-height: 170%;">
-                                                                    <strong>FÓRUM</strong>
-                                                                </p>
-                                                                <p style="font-size: 14px; line-height: 170%;"> </p>
-                                                                <p style="font-size: 14px; line-height: 170%;">Tento
-                                                                    e-mail bol vygenerovaný systémom, Ak máš ďalšie
-                                                                    otázky alebo potrebuješ ďalšiu pomoc, neváhaj a
-                                                                    obráť sa na náš tím administrátorov.</p>
-                                                            </div>
-
-                                                        </td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-
-                                            <table style="font-family:'Raleway',sans-serif;" role="presentation"
-                                                cellpadding="0" cellspacing="0" width="100%" border="0">
-                                                <tbody>
-                                                    <tr>
-                                                        <td class="v-container-padding-padding"
-                                                            style="overflow-wrap:break-word;word-break:break-word;padding:0px;font-family:'Raleway',sans-serif;"
-                                                            align="left">
-
-                                                            <table height="0px" align="center" border="0"
-                                                                cellpadding="0" cellspacing="0" width="100%"
-                                                                style="border-collapse: collapse;table-layout: fixed;border-spacing: 0;mso-table-lspace: 0pt;mso-table-rspace: 0pt;vertical-align: top;border-top: 1px solid #BBBBBB;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%">
-                                                                <tbody>
-                                                                    <tr style="vertical-align: top">
-                                                                        <td
-                                                                            style="word-break: break-word;border-collapse: collapse !important;vertical-align: top;font-size: 0px;line-height: 0px;mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%">
-                                                                            <span>&#160;</span>
-                                                                        </td>
-                                                                    </tr>
-                                                                </tbody>
-                                                            </table>
-
-                                                        </td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-
-                                            <!--[if (!mso)&(!IE)]><!-->
-                                        </div><!--<![endif]-->
-                                    </div>
-                                </div>
-                                <!--[if (mso)|(IE)]></td><![endif]-->
-                                <!--[if (mso)|(IE)]></tr></table></td></tr></table><![endif]-->
-                            </div>
-                        </div>
-                    </div>
-
-
-
-                    <!--[if (mso)|(IE)]></td></tr></table><![endif]-->
+                                        </div>
                 </td>
             </tr>
         </tbody>
+    </table>
+
+    <table id="u_content_button_1" style="font-family:'Raleway',sans-serif;" role="presentation" cellpadding="0"
+        cellspacing="0" width="100%" border="0">
+        <tbody>
+            <tr>
+                <td class="v-container-padding-padding"
+                    style="overflow-wrap:break-word;word-break:break-word;padding:10px;font-family:'Raleway',sans-serif;"
+                    align="left">
+
+                    <!--[if mso]><style>.v-button {background: transparent !important;}</style><![endif]-->
+                    <div class="v-text-align" align="center">
+                        <!--[if mso]><v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="http://localhost:8000/email-response/" style="height:37px; v-text-anchor:middle; width:219px;" arcsize="11%"  stroke="f" fillcolor="#316b94"><w:anchorlock/><center style="color:#FFFFFF;"><![endif]-->
+                        <!-- <a href={{password}} onclick="openWindow('http:\\\\www.forum.spse-po.sk/', 'mailResponse');" -->
+                        {% if body is None %}
+                        <a href={{password}} onclick="openWindow('http:\\forum.spse-po.sk\\email-response', '_self');"
+                            target="_blank" class="v-button v-size-width"
+                            style="box-sizing: border-box;display: inline-block;text-decoration: none;-webkit-text-size-adjust: none;text-align: center;color: #FFFFFF; background-color: #316b94; border-radius: 4px;-webkit-border-radius: 4px; -moz-border-radius: 4px; width:auto; max-width:100%; overflow-wrap: break-word; word-break: break-word; word-wrap:break-word; mso-border-alt: none;font-size: 14px;">
+                            <span style="display:block;padding:10px 20px;line-height:120%;"><span
+                                    style="line-height: 16.8px;">Prihlásiť sa s
+                                    novým heslom</span></span>
+                        </a>
+                        {% else %}
+                        <a href=http://forum.spse-po.sk/room/{{room.id}}
+                            onclick="openWindow('http:\\forum.spse-po.sk\\room\\', '_self');" target="_blank"
+                            class="v-button v-size-width"
+                            style="box-sizing: border-box;display: inline-block;text-decoration: none;-webkit-text-size-adjust: none;text-align: center;color: #FFFFFF; background-color: #316b94; border-radius: 4px;-webkit-border-radius: 4px; -moz-border-radius: 4px; width:auto; max-width:100%; overflow-wrap: break-word; word-break: break-word; word-wrap:break-word; mso-border-alt: none;font-size: 14px;">
+                            <span style="display:block;padding:10px 20px;line-height:120%;"><span
+                                    style="line-height: 16.8px;">Pozrieť</span></span>
+                        </a>
+                        {% endif %}
+                        <!--[if mso]></center></v:roundrect><![endif]-->
+                    </div>
+
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!--[if (!mso)&(!IE)]><!-->
+    </div><!--<![endif]-->
+    </div>
+    </div>
+    <!--[if (mso)|(IE)]></td><![endif]-->
+    <!--[if (mso)|(IE)]></tr></table></td></tr></table><![endif]-->
+    </div>
+    </div>
+    </div>
+
+
+
+
+
+    <div class="u-row-container" style="padding: 0px;background-color: transparent">
+        <div class="u-row"
+            style="margin: 0 auto;min-width: 320px;max-width: 600px;overflow-wrap: break-word;word-wrap: break-word;word-break: break-word;background-color: transparent;">
+            <div
+                style="border-collapse: collapse;display: table;width: 100%;height: 100%;background-color: transparent;">
+                <!--[if (mso)|(IE)]><table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="padding: 0px;background-color: transparent;" align="center"><table cellpadding="0" cellspacing="0" border="0" style="width:600px;"><tr style="background-color: transparent;"><![endif]-->
+
+                <!--[if (mso)|(IE)]><td align="center" width="600" style="background-color: #ecf0f1;width: 600px;padding: 0px;border-top: 0px solid transparent;border-left: 0px solid transparent;border-right: 0px solid transparent;border-bottom: 0px solid transparent;border-radius: 0px;-webkit-border-radius: 0px; -moz-border-radius: 0px;" valign="top"><![endif]-->
+                <div class="u-col u-col-100"
+                    style="max-width: 320px;min-width: 600px;display: table-cell;vertical-align: top;">
+                    <div
+                        style="background-color: #ecf0f1;height: 100%;width: 100% !important;border-radius: 0px;-webkit-border-radius: 0px; -moz-border-radius: 0px;">
+                        <!--[if (!mso)&(!IE)]><!-->
+                        <div
+                            style="box-sizing: border-box; height: 100%; padding: 0px;border-top: 0px solid transparent;border-left: 0px solid transparent;border-right: 0px solid transparent;border-bottom: 0px solid transparent;border-radius: 0px;-webkit-border-radius: 0px; -moz-border-radius: 0px;">
+                            <!--<![endif]-->
+
+                            <table id="u_content_text_deprecated_1" style="font-family:'Raleway',sans-serif;"
+                                role="presentation" cellpadding="0" cellspacing="0" width="100%" border="0">
+                                <tbody>
+                                    <tr>
+                                        <td class="v-container-padding-padding"
+                                            style="overflow-wrap:break-word;word-break:break-word;padding:10px 100px 30px;font-family:'Raleway',sans-serif;"
+                                            align="left">
+
+                                            <div class="v-text-align"
+                                                style="font-size: 14px; line-height: 170%; text-align: center; word-wrap: break-word;">
+                                                <p style="font-size: 14px; line-height: 170%;">
+                                                    <strong>FÓRUM</strong>
+                                                </p>
+                                                <p style="font-size: 14px; line-height: 170%;"> </p>
+                                                <p style="font-size: 14px; line-height: 170%;">Tento
+                                                    e-mail bol vygenerovaný systémom, Ak máš ďalšie
+                                                    otázky alebo potrebuješ ďalšiu pomoc, neváhaj a
+                                                    obráť sa na náš tím administrátorov.</p>
+                                            </div>
+
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <table style="font-family:'Raleway',sans-serif;" role="presentation" cellpadding="0"
+                                cellspacing="0" width="100%" border="0">
+                                <tbody>
+                                    <tr>
+                                        <td class="v-container-padding-padding"
+                                            style="overflow-wrap:break-word;word-break:break-word;padding:0px;font-family:'Raleway',sans-serif;"
+                                            align="left">
+
+                                            <table height="0px" align="center" border="0" cellpadding="0"
+                                                cellspacing="0" width="100%"
+                                                style="border-collapse: collapse;table-layout: fixed;border-spacing: 0;mso-table-lspace: 0pt;mso-table-rspace: 0pt;vertical-align: top;border-top: 1px solid #BBBBBB;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%">
+                                                <tbody>
+                                                    <tr style="vertical-align: top">
+                                                        <td
+                                                            style="word-break: break-word;border-collapse: collapse !important;vertical-align: top;font-size: 0px;line-height: 0px;mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%">
+                                                            <span>&#160;</span>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <!--[if (!mso)&(!IE)]><!-->
+                        </div><!--<![endif]-->
+                    </div>
+                </div>
+                <!--[if (mso)|(IE)]></td><![endif]-->
+                <!--[if (mso)|(IE)]></tr></table></td></tr></table><![endif]-->
+            </div>
+        </div>
+    </div>
+
+
+
+    <!--[if (mso)|(IE)]></td></tr></table><![endif]-->
+    </td>
+    </tr>
+    </tbody>
     </table>
     <!--[if mso]></div><![endif]-->
     <!--[if IE]></div><![endif]-->

@@ -38,7 +38,7 @@
     <div class="cc-nb-buttons-container">
       <button class="cc-nb-okagree" role="button" onclick="consentGranted()">Rozumiem</button>
       <button class="cc-nb-okinfo" role="button"
-        onclick="window.open('https:\\\\www.osobnyudaj.sk/informovanie/161829/sk/zakladne-informacie')">GDPR</button>
+        onclick="window.open('https:\\\\www.osobnyudaj.sk/informovanie/00161829/gdpr/sk/zakladne-informacie')">GDPR</button>
     </div>
   </div>
 </div>
@@ -102,7 +102,7 @@
         </div>
 
         {% include 'base/feed_component.html' %}
-
+        <div id="add-margin"></div>
       </div>
     </div>
     <!-- Room List End -->
@@ -134,6 +134,12 @@
   else {
     document.querySelector('div.termsfeed-com---reset').style.display = "block";
   }
+</script>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    document.querySelector("body").style.overflowY = "hidden";
+  })
 </script>
 
 <!-- <script type="module">

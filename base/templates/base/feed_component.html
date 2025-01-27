@@ -50,7 +50,9 @@
         </div>
     </div>
     <div class="roomListRoom__content">
-        <a href="{% url 'room' room.id %}">{{room.name}}</a>
+        <abbr title="{{room.name}}">
+            <a href="{% url 'room' room.id %}">{{room.name|truncatechars:40}}</a>
+        </abbr>
     </div>
     <div class="roomListRoom__meta">
         {% if room.participants.all.count != 1 %}

@@ -2,14 +2,14 @@ from typing import Any
 from django import forms
 from django.forms import ModelForm
 from django.contrib.auth.forms import UserCreationForm
-from django.db.models import Q
 from .models import FromClass, Message, Room, Topic, User
 from django.contrib.admin.widgets import FilteredSelectMultiple
+
 
 class UserCreationForm(UserCreationForm):
     from_class = forms.ModelChoiceField(
         queryset=FromClass.objects.exclude(
-            set_class__in=("Administrátori", "Učitelia")),
+            set_class__in=("Administrátori", "Učitelia")).filter(custom=False),
         widget=forms.Select
     )
 
@@ -88,16 +88,18 @@ class ReplyForm(ModelForm):
 
 
 class UpdateClassForm(ModelForm):
-    
+
     set_class = forms.ModelChoiceField(
         queryset=FromClass.objects.filter(custom=False),
         widget=forms.Select
     )
-    
+
     class Meta:
         model = FromClass
         fields = ['set_class']
-class   NewClassForm(ModelForm):
+
+
+class NewClassForm(ModelForm):
 
     name = forms.CharField(
         label='Tvoje Meno',
@@ -112,10 +114,11 @@ class   NewClassForm(ModelForm):
         required=True
     )
     set_class = forms.CharField(
-        max_length=30, label='Názov skupiny', required=True, widget=forms.TextInput())
-    
-    users = forms.ModelMultipleChoiceField(queryset=User.objects.all(), widget=FilteredSelectMultiple("User", False, attrs={'rows':'2'}))
-    
+        max_length=30, label='Názov skupiny', required=True, widget=forms.TextInput(), min_length=3)
+
+    users = forms.ModelMultipleChoiceField(widget=FilteredSelectMultiple(User, is_stacked=False), required=True, queryset=User.objects.values_list(
+        "email", flat=True))
+
     def __init__(self, *args, **kwargs):
         users = kwargs.pop('user', None)
 
@@ -128,6 +131,14 @@ class   NewClassForm(ModelForm):
 
         # for field in _update_exclude:
         #     self.fields.pop(field)
+        
+    class Media:
+        css = {
+            'all':['admin/css/widgets.css'],
+        }
+        # Adding this javascript is crucial
+        js = ['/admin/jsi18n/']
+        
     class Meta:
         model = User
         fields = ['name', 'email']
@@ -140,22 +151,26 @@ class RoomForm(ModelForm):
         queryset=FromClass.objects.all(),
         widget=selection
     )
-
-    file = forms.FileField(
-        allow_empty_file=False,
-        required=False,
-        widget=forms.FileInput()
-    )
+    
+    def __init__(self, *args, **kwargs):
+        super(RoomForm, self).__init__(*args, **kwargs)
+        self.fields['limit_for'].required = False
 
     class Meta:
         model = Room
-        fields = ['topic', 'name', 'description', 'pinned', 'limit_for']
+        exclude = ('topic',)
+        fields = ['name', 'description',
+                  'pinned', 'public', 'file', 'limit_for']
 
 
 class UserForm(ModelForm):
     class Meta:
         model = User
         fields = ['avatar', 'name', 'username', 'email', 'bio']
+
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        self.fields['email'].required = False
 
 
 class ChangePasswordForm(UserCreationForm, ModelForm):

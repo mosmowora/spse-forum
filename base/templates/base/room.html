@@ -31,6 +31,7 @@
           {% endif %}
           <h3>Diskusia</h3>
         </div>
+        {% if not is_anonymous %}
         <div class="room__topRight">
           {% if room.host == request.user or request.user.is_staff %}
           <a href="{% url 'subscribe-room' room.id %}" style="width: 14.4px; height: 14.4px;">
@@ -77,12 +78,14 @@
           </a>
           {% endif %}
         </div>
-
+        {% endif %}
       </div>
       <div class="room__box scroll">
         <div class="room__header scroll">
           <div class="room__info">
-            <h3>{{room.name}}</h3>
+            <abbr title="{{room.name}}" style="text-decoration: none;">
+              <h3>{{room.name|truncatechars:40}}</h3>
+            </abbr>
             <span>{{room.created|timesince}} ago</span>
           </div>
           <div class="room__hosted">
@@ -119,7 +122,7 @@
         <div class="room__conversation">
           <div>
             {% if room.file.url is not None and file_type == "image" %}
-            <img src="{{room.file.url}}" alt="room_image">
+            <img src="{{room.file.url}}" alt="room_image" class="room-image">
             {% elif room.file.url is not None and file_type == "file" %}
             <a href="{{room.file.url}}" style="height: 2rem; margin-top: 4rem;">{{room.file.name}}</a>
             {% endif %}
@@ -164,12 +167,12 @@
                   {% if not upvoted_messages|get_value_from_dict:message %}
                   <abbr title="podporujem">
                     <button type="submit" name="message_id" value="{{message.id}}" alt="upvote"
-                      class="upvote">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</button>
+                      class="upvote" {% if is_anonymous %} disabled {% endif %}>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</button>
                   </abbr>
                   {% else %}
                   <abbr title="prestať podporovať">
                     <button type="submit" name="message_id" value="{{message.id}}" alt="upvote"
-                      class="downvote">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</button>
+                      class="downvote" {% if is_anonymous %} disabled {% endif %}>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</button>
                   </abbr>
                   {% endif %}
                 </form>
@@ -193,7 +196,7 @@
                 {{message.body|urlizetrunc:20}}
               </div>
               <form action="" method="POST">
-                <input type="text" name="body" class="reply-text" placeholder="Odpovedať" size="auto">
+                <input type="text" name="body" class="reply-text" placeholder="Odpovedať" size="auto" {% if is_anonymous %} disabled {% endif %} >
                 <input type="hidden" value="{{ message.pk }}" name="parent">
                 {% csrf_token %}
                 <label class="c-form__toggle" for="checkbox" data-title="Odpovedať"></label>
@@ -253,7 +256,7 @@
           <div class="room__message">
             <form action="" method="POST" class="roomInputForm">
               {% csrf_token %}
-              <input id="charsLeft" name="body" placeholder="Chcem sa vyjadriť..." maxlength="150" />
+              <input id="charsLeft" name="body" placeholder="Chcem sa vyjadriť..." maxlength="150" {% if is_anonymous %} disabled {% endif %} />
               <div id="charsLeftText" style="font-size: 1.8rem; display: none; font-weight: 600;"></div>
             </form>
           </div>
@@ -319,7 +322,7 @@
     }
   });
 </script>
-<!-- <script type="module">
+<script type="module">
   import devtools from "{% static 'js/node_modules/devtools-detect/index.js' %}";
 
   // Get notified when it's opened/closed or orientation changes
@@ -327,5 +330,5 @@
     if (event.detail.isOpen) 
       window.location.href = "{% url 'fallback' %}";
   });
-</script> -->
+</script>
 {% endblock content %}

@@ -32,7 +32,7 @@
                         {% endif %}
                     </div>
                     <p>{{request.user.name}}
-                        <span>@{{request.user.username}}</span>
+                        <span>@{{request.user.username|truncatechars:20}}</span>
                     </p>
                 </a>
                 <button class="dropdown-button">
